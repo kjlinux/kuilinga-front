@@ -1,71 +1,65 @@
 "use client"
 
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
+import { Skeleton } from "@/components/ui/skeleton"
 import { Search, Filter, Download } from "lucide-react"
+import { api } from "@/lib/api"
+import { useDebounce } from "@/hooks/use-debounce"
 
-const attendanceData = [
-  {
-    id: 1,
-    name: "Jean Dupont",
-    matricule: "EMP001",
-    department: "IT",
-    arrivalTime: "08:15",
-    departureTime: "-",
-    status: "present",
-  },
-  {
-    id: 2,
-    name: "Marie Martin",
-    matricule: "EMP002",
-    department: "RH",
-    arrivalTime: "08:45",
-    departureTime: "-",
-    status: "late",
-  },
-  {
-    id: 3,
-    name: "Pierre Dubois",
-    matricule: "EMP003",
-    department: "Finance",
-    arrivalTime: "08:10",
-    departureTime: "17:30",
-    status: "present",
-  },
-  {
-    id: 4,
-    name: "Sophie Laurent",
-    matricule: "EMP004",
-    department: "Marketing",
-    arrivalTime: "-",
-    departureTime: "-",
-    status: "absent",
-  },
-  {
-    id: 5,
-    name: "Luc Bernard",
-    matricule: "EMP005",
-    department: "IT",
-    arrivalTime: "08:30",
-    departureTime: "-",
-    status: "present",
-  },
-]
+type AttendanceRecord = {
+  id: number;
+  name: string;
+  matricule: string;
+  department: string;
+  arrivalTime: string;
+  departureTime: string;
+  status: "present" | "late" | "absent";
+};
 
 const statusConfig = {
   present: { label: "Présent", variant: "default" as const },
   late: { label: "Retard", variant: "secondary" as const },
   absent: { label: "Absent", variant: "destructive" as const },
-}
+};
 
 export function PresenceRealTime() {
-  const [searchTerm, setSearchTerm] = useState("")
-  const [departmentFilter, setDepartmentFilter] = useState("all")
+  const [data, setData] = useState<AttendanceRecord[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [departmentFilter, setDepartmentFilter] = useState("all");
+
+  const debouncedSearchTerm = useDebounce(searchTerm, 300);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      setLoading(true);
+      const result = await api.getAttendanceData(debouncedSearchTerm, departmentFilter);
+      setData(result);
+      setLoading(false);
+    };
+
+    fetchData();
+  }, [debouncedSearchTerm, departmentFilter]);
+
+    useEffect(() => {
+    const interval = setInterval(() => {
+      api.getAttendanceData(debouncedSearchTerm, departmentFilter).then(setData);
+    }, 30000); // Refresh every 30 seconds
+
+    return () => clearInterval(interval);
+  }, [debouncedSearchTerm, departmentFilter]);
+
+  const handleExport = () => {
+    // In a real app, this would trigger a download
+    console.log("Exporting data...", { searchTerm, departmentFilter });
+    alert("Fonctionnalité d'exportation non implémentée.");
+  };
 
   return (
     <div className="space-y-6">
@@ -103,7 +97,7 @@ export function PresenceRealTime() {
                 <SelectItem value="Marketing">Marketing</SelectItem>
               </SelectContent>
             </Select>
-            <Button variant="outline" className="gap-2 bg-transparent">
+            <Button variant="outline" className="gap-2 bg-transparent" onClick={handleExport}>
               <Download className="h-4 w-4" />
               Exporter
             </Button>
@@ -116,31 +110,44 @@ export function PresenceRealTime() {
                   <TableHead>Nom</TableHead>
                   <TableHead>Matricule</TableHead>
                   <TableHead>Département</TableHead>
-                  <TableHead>Heure d'arrivée</TableHead>
+                  <TableHead>Heure d&apos;arrivée</TableHead>
                   <TableHead>Heure de départ</TableHead>
                   <TableHead>Statut</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {attendanceData.map((record) => (
-                  <TableRow key={record.id}>
-                    <TableCell className="font-medium">{record.name}</TableCell>
-                    <TableCell className="font-mono text-sm">{record.matricule}</TableCell>
-                    <TableCell>
-                      <Badge variant="outline">{record.department}</Badge>
-                    </TableCell>
-                    <TableCell>{record.arrivalTime}</TableCell>
-                    <TableCell>{record.departureTime}</TableCell>
-                    <TableCell>
-                      <Badge variant={statusConfig[record.status].variant}>{statusConfig[record.status].label}</Badge>
-                    </TableCell>
-                  </TableRow>
-                ))}
+                {loading ? (
+                  [...Array(5)].map((_, i) => (
+                    <TableRow key={i}>
+                      <TableCell><Skeleton className="h-4 w-24" /></TableCell>
+                      <TableCell><Skeleton className="h-4 w-16" /></TableCell>
+                      <TableCell><Skeleton className="h-5 w-12" /></TableCell>
+                      <TableCell><Skeleton className="h-4 w-12" /></TableCell>
+                      <TableCell><Skeleton className="h-4 w-12" /></TableCell>
+                      <TableCell><Skeleton className="h-5 w-16" /></TableCell>
+                    </TableRow>
+                  ))
+                ) : (
+                  data.map((record) => (
+                    <TableRow key={record.id}>
+                      <TableCell className="font-medium">{record.name}</TableCell>
+                      <TableCell className="font-mono text-sm">{record.matricule}</TableCell>
+                      <TableCell>
+                        <Badge variant="outline">{record.department}</Badge>
+                      </TableCell>
+                      <TableCell>{record.arrivalTime}</TableCell>
+                      <TableCell>{record.departureTime}</TableCell>
+                      <TableCell>
+                        <Badge variant={statusConfig[record.status].variant}>{statusConfig[record.status].label}</Badge>
+                      </TableCell>
+                    </TableRow>
+                  ))
+                )}
               </TableBody>
             </Table>
           </div>
         </CardContent>
       </Card>
     </div>
-  )
+  );
 }

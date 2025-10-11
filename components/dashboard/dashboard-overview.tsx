@@ -11,7 +11,7 @@ export function DashboardOverview() {
     <div className="space-y-6">
       <div>
         <h1 className="text-3xl font-bold tracking-tight text-balance">Tableau de bord</h1>
-        <p className="text-muted-foreground mt-2">Vue d'ensemble des présences et statistiques en temps réel</p>
+        <p className="text-muted-foreground mt-2">Vue d&apos;ensemble des présences et statistiques en temps réel</p>
       </div>
 
       <StatsCards />

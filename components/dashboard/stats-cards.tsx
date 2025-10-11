@@ -1,61 +1,86 @@
 "use client"
 
+import { useEffect, useState } from "react"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { Skeleton } from "@/components/ui/skeleton"
 import { Users, UserX, Clock, TrendingUp } from "lucide-react"
 import { cn } from "@/lib/utils"
+import { api } from "@/lib/api"
 
-const stats = [
-  {
-    title: "Présents aujourd'hui",
-    value: "847",
-    change: "+12%",
-    trend: "up",
-    icon: Users,
-    color: "text-chart-3",
-  },
-  {
-    title: "Absents aujourd'hui",
-    value: "23",
-    change: "-5%",
-    trend: "down",
-    icon: UserX,
-    color: "text-chart-5",
-  },
-  {
-    title: "Retards",
-    value: "15",
-    change: "+3%",
-    trend: "up",
-    icon: Clock,
-    color: "text-chart-2",
-  },
-  {
-    title: "Taux de présence",
-    value: "97.4%",
-    change: "+2.1%",
-    trend: "up",
-    icon: TrendingUp,
-    color: "text-chart-1",
-  },
-]
+type StatData = {
+  title: string
+  value: string
+  change: string
+  trend: "up" | "down"
+}
+
+const icons = {
+  "Présents aujourd'hui": Users,
+  "Absents aujourd'hui": UserX,
+  "Retards": Clock,
+  "Taux de présence": TrendingUp,
+}
+
+const colors = {
+  "Présents aujourd'hui": "text-chart-3",
+  "Absents aujourd'hui": "text-chart-5",
+  "Retards": "text-chart-2",
+  "Taux de présence": "text-chart-1",
+}
 
 export function StatsCards() {
+  const [stats, setStats] = useState<StatData[]>([])
+  const [loading, setLoading] = useState(true)
+
+  useEffect(() => {
+    const fetchStats = async () => {
+      setLoading(true)
+      const data = await api.getDashboardStats()
+      setStats(data)
+      setLoading(false)
+    }
+    fetchStats()
+  }, [])
+
+  if (loading) {
+    return (
+      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+        {[...Array(4)].map((_, i) => (
+          <Card key={i} className="border-border">
+            <CardHeader className="flex flex-row items-center justify-between pb-2">
+              <Skeleton className="h-4 w-2/3" />
+              <Skeleton className="h-4 w-4" />
+            </CardHeader>
+            <CardContent>
+              <Skeleton className="h-7 w-1/3" />
+              <Skeleton className="h-3 w-1/2 mt-2" />
+            </CardContent>
+          </Card>
+        ))}
+      </div>
+    )
+  }
+
   return (
     <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-      {stats.map((stat) => (
-        <Card key={stat.title} className="border-border">
-          <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <CardTitle className="text-sm font-medium text-muted-foreground">{stat.title}</CardTitle>
-            <stat.icon className={cn("h-4 w-4", stat.color)} />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{stat.value}</div>
-            <p className={cn("text-xs mt-1", stat.trend === "up" ? "text-chart-3" : "text-chart-5")}>
-              {stat.change} par rapport à hier
-            </p>
-          </CardContent>
-        </Card>
-      ))}
+      {stats.map((stat) => {
+        const Icon = icons[stat.title as keyof typeof icons]
+        const color = colors[stat.title as keyof typeof colors]
+        return (
+          <Card key={stat.title} className="border-border">
+            <CardHeader className="flex flex-row items-center justify-between pb-2">
+              <CardTitle className="text-sm font-medium text-muted-foreground">{stat.title}</CardTitle>
+              {Icon && <Icon className={cn("h-4 w-4", color)} />}
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold">{stat.value}</div>
+              <p className={cn("text-xs mt-1", stat.trend === "up" ? "text-chart-3" : "text-chart-5")}>
+                {stat.change} par rapport à hier
+              </p>
+            </CardContent>
+          </Card>
+        )
+      })}
     </div>
   )
 }

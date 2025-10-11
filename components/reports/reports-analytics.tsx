@@ -8,9 +8,15 @@ import { Calendar, FileDown, FileSpreadsheet, FileText } from "lucide-react"
 import { MonthlyAttendanceChart } from "./monthly-attendance-chart"
 import { TopPerformersTable } from "./top-performers-table"
 import { DepartmentComparisonChart } from "./department-comparison-chart"
+import { simulateDownload } from "@/lib/utils"
 
 export function ReportsAnalytics() {
   const [period, setPeriod] = useState("month")
+
+  const handleExport = (format: "pdf" | "excel" | "csv") => {
+    const content = "col1,col2,col3\nval1,val2,val3";
+    simulateDownload(content, `report.${format}`);
+  };
 
   return (
     <div className="space-y-6">
@@ -20,15 +26,15 @@ export function ReportsAnalytics() {
           <p className="text-muted-foreground mt-2">Analyses détaillées et exports de données</p>
         </div>
         <div className="flex gap-2">
-          <Button variant="outline" className="gap-2 bg-transparent">
+          <Button variant="outline" className="gap-2 bg-transparent" onClick={() => handleExport("pdf")}>
             <FileText className="h-4 w-4" />
             PDF
           </Button>
-          <Button variant="outline" className="gap-2 bg-transparent">
+          <Button variant="outline" className="gap-2 bg-transparent" onClick={() => handleExport("excel")}>
             <FileSpreadsheet className="h-4 w-4" />
             Excel
           </Button>
-          <Button variant="outline" className="gap-2 bg-transparent">
+          <Button variant="outline" className="gap-2 bg-transparent" onClick={() => handleExport("csv")}>
             <FileDown className="h-4 w-4" />
             CSV
           </Button>
@@ -39,7 +45,7 @@ export function ReportsAnalytics() {
         <CardHeader>
           <div className="flex items-center justify-between">
             <div>
-              <CardTitle>Période d'analyse</CardTitle>
+              <CardTitle>Période d&apos;analyse</CardTitle>
               <CardDescription>Sélectionnez la période pour générer les rapports</CardDescription>
             </div>
             <Select value={period} onValueChange={setPeriod}>
@@ -48,7 +54,7 @@ export function ReportsAnalytics() {
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="day">Aujourd'hui</SelectItem>
+                <SelectItem value="day">Aujourd&apos;hui</SelectItem>
                 <SelectItem value="week">Cette semaine</SelectItem>
                 <SelectItem value="month">Ce mois</SelectItem>
                 <SelectItem value="year">Cette année</SelectItem>
@@ -59,11 +65,11 @@ export function ReportsAnalytics() {
       </Card>
 
       <div className="grid gap-6 lg:grid-cols-2">
-        <MonthlyAttendanceChart />
-        <DepartmentComparisonChart />
+        <MonthlyAttendanceChart period={period} />
+        <DepartmentComparisonChart period={period} />
       </div>
 
-      <TopPerformersTable />
+      <TopPerformersTable period={period} />
     </div>
   )
 }

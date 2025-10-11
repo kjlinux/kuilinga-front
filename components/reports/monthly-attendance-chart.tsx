@@ -1,55 +1,67 @@
 "use client"
 
+import { useEffect, useState } from "react"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import { Skeleton } from "@/components/ui/skeleton"
 import { ChartContainer, ChartTooltip, ChartTooltipContent } from "@/components/ui/chart"
 import { Bar, BarChart, XAxis, YAxis, CartesianGrid, ResponsiveContainer } from "recharts"
+import { api } from "@/lib/api"
 
-const data = [
-  { month: "Jan", presents: 18500, absents: 450, retards: 320 },
-  { month: "Fév", presents: 17800, absents: 520, retards: 380 },
-  { month: "Mar", presents: 19200, absents: 380, retards: 290 },
-  { month: "Avr", presents: 18900, absents: 420, retards: 310 },
-  { month: "Mai", presents: 19500, absents: 350, retards: 280 },
-  { month: "Juin", presents: 19100, absents: 410, retards: 300 },
-]
+type ChartData = {
+  day: number,
+  attendance: number
+}
 
-export function MonthlyAttendanceChart() {
+interface MonthlyAttendanceChartProps {
+  period: string
+}
+
+export function MonthlyAttendanceChart({ period }: MonthlyAttendanceChartProps) {
+  const [chartData, setChartData] = useState<{ month: string; data: ChartData[] }>({ month: "", data: [] })
+  const [loading, setLoading] = useState(true)
+
+  useEffect(() => {
+    const fetchData = async () => {
+      setLoading(true)
+      const data = await api.getMonthlyAttendance(period)
+      setChartData(data)
+      setLoading(false)
+    }
+    fetchData()
+  }, [period])
+
   return (
     <Card className="border-border">
       <CardHeader>
-        <CardTitle>Évolution mensuelle</CardTitle>
-        <CardDescription>Statistiques des 6 derniers mois</CardDescription>
+        <CardTitle>Présence pour : {chartData.month}</CardTitle>
+        <CardDescription>Taux de présence journalier</CardDescription>
       </CardHeader>
       <CardContent>
-        <ChartContainer
-          config={{
-            presents: {
-              label: "Présents",
-              color: "hsl(var(--chart-1))",
-            },
-            absents: {
-              label: "Absents",
-              color: "hsl(var(--chart-5))",
-            },
-            retards: {
-              label: "Retards",
-              color: "hsl(var(--chart-2))",
-            },
-          }}
-          className="h-[350px]"
-        >
-          <ResponsiveContainer width="100%" height="100%">
-            <BarChart data={data}>
-              <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
-              <XAxis dataKey="month" stroke="hsl(var(--muted-foreground))" fontSize={12} />
-              <YAxis stroke="hsl(var(--muted-foreground))" fontSize={12} />
-              <ChartTooltip content={<ChartTooltipContent />} />
-              <Bar dataKey="presents" fill="var(--color-presents)" radius={[4, 4, 0, 0]} />
-              <Bar dataKey="absents" fill="var(--color-absents)" radius={[4, 4, 0, 0]} />
-              <Bar dataKey="retards" fill="var(--color-retards)" radius={[4, 4, 0, 0]} />
-            </BarChart>
-          </ResponsiveContainer>
-        </ChartContainer>
+        {loading ? (
+          <div className="h-[350px] w-full">
+            <Skeleton className="h-full w-full" />
+          </div>
+        ) : (
+          <ChartContainer
+            config={{
+              attendance: {
+                label: "Présence",
+                color: "hsl(var(--chart-1))",
+              },
+            }}
+            className="h-[350px]"
+          >
+            <ResponsiveContainer width="100%" height="100%">
+              <BarChart data={chartData.data}>
+                <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
+                <XAxis dataKey="day" stroke="hsl(var(--muted-foreground))" fontSize={12} />
+                <YAxis stroke="hsl(var(--muted-foreground))" fontSize={12} />
+                <ChartTooltip content={<ChartTooltipContent />} />
+                <Bar dataKey="attendance" fill="var(--color-attendance)" radius={[4, 4, 0, 0]} />
+              </BarChart>
+            </ResponsiveContainer>
+          </ChartContainer>
+        )}
       </CardContent>
     </Card>
   )

@@ -2,7 +2,7 @@
 
 import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
-import { LayoutDashboard, Users, BarChart3, Settings, X, Clock, Building2, FileText } from "lucide-react"
+import { LayoutDashboard, BarChart3, X, Clock, UserCircle } from "lucide-react"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
 
@@ -14,11 +14,8 @@ interface SidebarProps {
 const navigation = [
   { name: "Tableau de bord", href: "/", icon: LayoutDashboard },
   { name: "Présence en temps réel", href: "/presence", icon: Clock },
-  { name: "Employés", href: "/employees", icon: Users },
-  { name: "Départements", href: "/departments", icon: Building2 },
   { name: "Rapports & Analyses", href: "/reports", icon: BarChart3 },
-  { name: "Documents", href: "/documents", icon: FileText },
-  { name: "Paramètres", href: "/settings", icon: Settings },
+  { name: "Profil", href: "/profile", icon: UserCircle },
 ]
 
 export function Sidebar({ open, onClose }: SidebarProps) {
@@ -41,6 +38,12 @@ export function Sidebar({ open, onClose }: SidebarProps) {
           <Button variant="ghost" size="icon" onClick={onClose}>
             <X className="h-5 w-5" />
           </Button>
+        </div>
+
+        <div className="flex h-16 items-center justify-center border-b border-border">
+          <Link href="/" className="font-bold text-xl">
+            KUILINGA
+          </Link>
         </div>
 
         <nav className="flex flex-col gap-1 p-4">

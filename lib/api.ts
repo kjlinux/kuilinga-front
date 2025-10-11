@@ -180,4 +180,5 @@ class ApiService {
 }
 
 export const apiService = new ApiService(API_BASE_URL)
+export const api = apiService
 export default apiService

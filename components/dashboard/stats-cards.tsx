@@ -1,9 +1,9 @@
 "use client"
 
 import { useEffect, useState } from "react"
+import { Users, UserX, Clock, TrendingUp } from "lucide-react"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Skeleton } from "@/components/ui/skeleton"
-import { Users, UserX, Clock, TrendingUp } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { api } from "@/lib/api/index"
 
@@ -19,13 +19,6 @@ const icons = {
   "Absents aujourd'hui": UserX,
   "Retards": Clock,
   "Taux de présence": TrendingUp,
-}
-
-const colors = {
-  "Présents aujourd'hui": "text-chart-3",
-  "Absents aujourd'hui": "text-chart-5",
-  "Retards": "text-chart-2",
-  "Taux de présence": "text-chart-1",
 }
 
 export function StatsCards() {
@@ -46,7 +39,7 @@ export function StatsCards() {
     return (
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
         {[...Array(4)].map((_, i) => (
-          <Card key={i} className="border-border">
+          <Card key={i}>
             <CardHeader className="flex flex-row items-center justify-between pb-2">
               <Skeleton className="h-4 w-2/3" />
               <Skeleton className="h-4 w-4" />
@@ -65,16 +58,18 @@ export function StatsCards() {
     <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
       {stats.map((stat) => {
         const Icon = icons[stat.title as keyof typeof icons]
-        const color = colors[stat.title as keyof typeof colors]
+        const trendColor = stat.trend === "up" ? "text-green-500" : "text-red-500"
         return (
-          <Card key={stat.title} className="border-border">
+          <Card key={stat.title} className="transition-all hover:shadow-md">
             <CardHeader className="flex flex-row items-center justify-between pb-2">
-              <CardTitle className="text-sm font-medium text-muted-foreground">{stat.title}</CardTitle>
-              {Icon && <Icon className={cn("h-4 w-4", color)} />}
+              <CardTitle className="text-sm font-medium text-muted-foreground">
+                {stat.title}
+              </CardTitle>
+              {Icon && <Icon className="h-4 w-4 text-muted-foreground" />}
             </CardHeader>
             <CardContent>
               <div className="text-2xl font-bold">{stat.value}</div>
-              <p className={cn("text-xs mt-1", stat.trend === "up" ? "text-chart-3" : "text-chart-5")}>
+              <p className={cn("text-xs mt-1", trendColor)}>
                 {stat.change} par rapport à hier
               </p>
             </CardContent>

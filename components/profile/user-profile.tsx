@@ -1,54 +1,66 @@
-"use client"
+"use client";
 
-import { useEffect, useState } from "react"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
-import { Skeleton } from "@/components/ui/skeleton"
-import { Label } from "@/components/ui/label"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { useTheme } from "next-themes"
-import { api } from "@/lib/api"
+import { useEffect, useState } from "react";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Skeleton } from "@/components/ui/skeleton";
+import { Label } from "@/components/ui/label";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { useTheme } from "next-themes";
+import { api } from "@/lib/api/index";
 
 type User = {
-  name: string
-  email: string
-  role: string
-  avatarUrl: string
+  name: string;
+  email: string;
+  role: string;
+  avatarUrl: string;
   settings: {
-    language: string
-    theme: string
-  }
-}
+    language: string;
+    theme: string;
+  };
+};
 
 export function UserProfile() {
-  const [user, setUser] = useState<User | null>(null)
-  const [loading, setLoading] = useState(true)
-  const { theme, setTheme } = useTheme()
+  const [user, setUser] = useState<User | null>(null);
+  const [loading, setLoading] = useState(true);
+  const { theme, setTheme } = useTheme();
 
   useEffect(() => {
     const fetchUser = async () => {
-      setLoading(true)
-      const data = await api.getCurrentUser()
-      setUser(data)
-      setLoading(false)
-    }
-    fetchUser()
-  }, [])
+      setLoading(true);
+      const data = await api.getCurrentUser();
+      setUser(data);
+      setLoading(false);
+    };
+    fetchUser();
+  }, []);
 
   const handleThemeChange = (newTheme: string) => {
-    setTheme(newTheme)
+    setTheme(newTheme);
     if (user) {
-      api.updateUserSettings({ theme: newTheme })
+      api.updateUserSettings({ theme: newTheme });
     }
-  }
+  };
 
   const handleLanguageChange = (newLang: string) => {
     if (user) {
-      setUser({ ...user, settings: { ...user.settings, language: newLang } })
-      api.updateUserSettings({ language: newLang })
+      setUser({ ...user, settings: { ...user.settings, language: newLang } });
+      api.updateUserSettings({ language: newLang });
       alert(`Langue changée en: ${newLang} (simulation)`);
     }
-  }
+  };
 
   if (loading || !user) {
     return (
@@ -78,14 +90,18 @@ export function UserProfile() {
           </CardContent>
         </Card>
       </div>
-    )
+    );
   }
 
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-3xl font-bold tracking-tight text-balance">Profil utilisateur</h1>
-        <p className="text-muted-foreground mt-2">Gérez vos informations et préférences</p>
+        <h1 className="text-3xl font-bold tracking-tight text-balance">
+          Profil utilisateur
+        </h1>
+        <p className="text-muted-foreground mt-2">
+          Gérez vos informations et préférences
+        </p>
       </div>
       <Card className="border-border">
         <CardHeader>
@@ -96,7 +112,12 @@ export function UserProfile() {
           <div className="flex items-center gap-4">
             <Avatar className="h-20 w-20">
               <AvatarImage src={user.avatarUrl} alt={user.name} />
-              <AvatarFallback>{user.name.split(" ").map(n => n[0]).join("")}</AvatarFallback>
+              <AvatarFallback>
+                {user.name
+                  .split(" ")
+                  .map((n) => n[0])
+                  .join("")}
+              </AvatarFallback>
             </Avatar>
             <div>
               <p className="text-xl font-semibold">{user.name}</p>
@@ -121,7 +142,10 @@ export function UserProfile() {
             </div>
             <div className="space-y-2">
               <Label htmlFor="language">Langue</Label>
-              <Select value={user.settings.language} onValueChange={handleLanguageChange}>
+              <Select
+                value={user.settings.language}
+                onValueChange={handleLanguageChange}
+              >
                 <SelectTrigger id="language">
                   <SelectValue />
                 </SelectTrigger>
@@ -135,5 +159,5 @@ export function UserProfile() {
         </CardContent>
       </Card>
     </div>
-  )
+  );
 }

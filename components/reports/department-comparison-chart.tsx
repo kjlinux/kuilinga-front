@@ -1,11 +1,28 @@
-"use client"
+"use client";
 
-import { useEffect, useState } from "react"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Skeleton } from "@/components/ui/skeleton"
-import { ChartContainer, ChartTooltip, ChartTooltipContent } from "@/components/ui/chart"
-import { Bar, BarChart, XAxis, YAxis, CartesianGrid, ResponsiveContainer } from "recharts"
-import { api } from "@/lib/api"
+import { useEffect, useState } from "react";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Skeleton } from "@/components/ui/skeleton";
+import {
+  ChartContainer,
+  ChartTooltip,
+  ChartTooltipContent,
+} from "@/components/ui/chart";
+import {
+  Bar,
+  BarChart,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  ResponsiveContainer,
+} from "recharts";
+import { api } from "@/lib/api/index";
 
 type ComparisonData = {
   department: string;
@@ -15,22 +32,24 @@ type ComparisonData = {
 };
 
 interface DepartmentComparisonChartProps {
-  period: string
+  period: string;
 }
 
-export function DepartmentComparisonChart({ period }: DepartmentComparisonChartProps) {
-  const [data, setData] = useState<ComparisonData[]>([])
-  const [loading, setLoading] = useState(true)
+export function DepartmentComparisonChart({
+  period,
+}: DepartmentComparisonChartProps) {
+  const [data, setData] = useState<ComparisonData[]>([]);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const fetchData = async () => {
-      setLoading(true)
-      const result = await api.getDepartmentComparison(period)
-      setData(result)
-      setLoading(false)
-    }
-    fetchData()
-  }, [period])
+      setLoading(true);
+      const result = await api.getDepartmentComparison(period);
+      setData(result);
+      setLoading(false);
+    };
+    fetchData();
+  }, [period]);
 
   return (
     <Card className="border-border">
@@ -63,18 +82,40 @@ export function DepartmentComparisonChart({ period }: DepartmentComparisonChartP
           >
             <ResponsiveContainer width="100%" height="100%">
               <BarChart data={data} layout="vertical">
-                <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
-                <XAxis type="number" stroke="hsl(var(--muted-foreground))" fontSize={12} />
-                <YAxis type="category" dataKey="department" stroke="hsl(var(--muted-foreground))" fontSize={12} />
+                <CartesianGrid
+                  strokeDasharray="3 3"
+                  stroke="hsl(var(--border))"
+                />
+                <XAxis
+                  type="number"
+                  stroke="hsl(var(--muted-foreground))"
+                  fontSize={12}
+                />
+                <YAxis
+                  type="category"
+                  dataKey="department"
+                  stroke="hsl(var(--muted-foreground))"
+                  fontSize={12}
+                />
                 <ChartTooltip content={<ChartTooltipContent />} />
-                <Bar dataKey="attendance" stackId="a" fill="var(--color-attendance)" radius={[4, 0, 0, 4]} />
+                <Bar
+                  dataKey="attendance"
+                  stackId="a"
+                  fill="var(--color-attendance)"
+                  radius={[4, 0, 0, 4]}
+                />
                 <Bar dataKey="delays" stackId="a" fill="var(--color-delays)" />
-                <Bar dataKey="absences" stackId="a" fill="var(--color-absences)" radius={[0, 4, 4, 0]} />
+                <Bar
+                  dataKey="absences"
+                  stackId="a"
+                  fill="var(--color-absences)"
+                  radius={[0, 4, 4, 0]}
+                />
               </BarChart>
             </ResponsiveContainer>
           </ChartContainer>
         )}
       </CardContent>
     </Card>
-  )
+  );
 }

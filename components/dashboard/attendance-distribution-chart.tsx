@@ -5,7 +5,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Skeleton } from "@/components/ui/skeleton"
 import { ChartContainer, ChartTooltip, ChartTooltipContent } from "@/components/ui/chart"
 import { Pie, PieChart, Cell, ResponsiveContainer, Legend } from "recharts"
-import { api } from "@/lib/api"
+import { api } from "@/lib/api/index"
 
 type DistributionData = {
   name: string

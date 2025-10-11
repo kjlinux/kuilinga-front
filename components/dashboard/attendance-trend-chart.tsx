@@ -5,7 +5,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Skeleton } from "@/components/ui/skeleton"
 import { ChartContainer, ChartTooltip, ChartTooltipContent } from "@/components/ui/chart"
 import { Line, LineChart, XAxis, YAxis, CartesianGrid, ResponsiveContainer } from "recharts"
-import { api } from "@/lib/api"
+import { api } from "@/lib/api/index"
 
 type TrendData = {
   date: string

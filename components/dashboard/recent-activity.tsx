@@ -5,7 +5,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Skeleton } from "@/components/ui/skeleton"
 import { Badge } from "@/components/ui/badge"
 import { Clock } from "lucide-react"
-import { api } from "@/lib/api"
+import { api } from "@/lib/api/index"
 
 type Activity = {
   id: number

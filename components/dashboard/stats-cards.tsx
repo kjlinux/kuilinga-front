@@ -5,7 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Skeleton } from "@/components/ui/skeleton"
 import { Users, UserX, Clock, TrendingUp } from "lucide-react"
 import { cn } from "@/lib/utils"
-import { api } from "@/lib/api"
+import { api } from "@/lib/api/index"
 
 type StatData = {
   title: string

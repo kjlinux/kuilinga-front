@@ -20,8 +20,8 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
         <Sidebar open={sidebarOpen} onClose={() => setSidebarOpen(false)} />
         <div className="flex flex-1 flex-col">
           <Header onMenuClick={() => setSidebarOpen(!sidebarOpen)} />
-          <main className="flex-1 overflow-y-auto">
-            <div className="container mx-auto max-w-screen-2xl p-4 md:p-6 lg:p-8">
+          <main className="flex-1 overflow-y-auto p-4 md:p-6 lg:p-8">
+            <div className="container mx-auto max-w-screen-2xl">
               {children}
             </div>
           </main>

@@ -24,9 +24,9 @@ type DistributionData = {
 }
 
 const chartConfig = {
-  presents: { label: "Présents", color: "hsl(var(--chart-2))" },
-  absents: { label: "Absents", color: "hsl(var(--chart-5))" },
-  retards: { label: "Retards", color: "hsl(var(--chart-4))" },
+  presents: { label: "Présents", color: "oklch(var(--chart-1))" },
+  absents: { label: "Absents", color: "oklch(var(--chart-5))" },
+  retards: { label: "Retards", color: "oklch(var(--chart-2))" },
 }
 
 export function AttendanceDistributionChart() {

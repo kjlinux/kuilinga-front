@@ -35,15 +35,15 @@ type TrendData = {
 const chartConfig = {
   presents: {
     label: "Présents",
-    color: "hsl(var(--chart-2))",
+    color: "oklch(var(--chart-1))",
   },
   absents: {
     label: "Absents",
-    color: "hsl(var(--chart-5))",
+    color: "oklch(var(--chart-5))",
   },
   retards: {
     label: "Retards",
-    color: "hsl(var(--chart-4))",
+    color: "oklch(var(--chart-2))",
   },
 }
 

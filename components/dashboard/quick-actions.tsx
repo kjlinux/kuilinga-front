@@ -26,17 +26,17 @@ const actions = [
 
 export function QuickActions() {
   return (
-    <div className="flex items-center gap-2">
+    <div className="flex flex-wrap items-center justify-end gap-2">
       {actions.map((action) => (
         <Button
           key={action.title}
           variant={action.variant}
           size="sm"
-          className="h-8"
+          className="h-8 mb-2 sm:mb-0"
           onClick={action.action}
         >
-          <action.icon className="h-4 w-4 mr-2" />
-          {action.title}
+          <action.icon className="h-4 w-4 sm:mr-2" />
+          <span className="hidden sm:inline">{action.title}</span>
         </Button>
       ))}
     </div>

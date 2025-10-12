@@ -1,6 +1,43 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import "tailwindcss";
+
+@theme {
+  --color-background: oklch(100% 0 0);
+  --color-foreground: oklch(24% 0.02 240);
+  --color-card: oklch(99% 0.01 240);
+  --color-card-foreground: oklch(24% 0.02 240);
+  --color-popover: oklch(99% 0.01 240);
+  --color-popover-foreground: oklch(24% 0.02 240);
+  --color-primary: oklch(48% 0.25 264);
+  --color-primary-foreground: oklch(98% 0.01 240);
+  --color-secondary: oklch(96% 0.01 240);
+  --color-secondary-foreground: oklch(24% 0.02 240);
+  --color-muted: oklch(96% 0.01 240);
+  --color-muted-foreground: oklch(60% 0.02 240);
+  --color-accent: oklch(96% 0.01 240);
+  --color-accent-foreground: oklch(24% 0.02 240);
+  --color-destructive: oklch(60% 0.2 15);
+  --color-destructive-foreground: oklch(98% 0.01 240);
+  --color-border: oklch(94% 0.01 240);
+  --color-input: oklch(94% 0.01 240);
+  --color-ring: oklch(48% 0.25 264);
+
+  --color-sidebar: oklch(20% 0.02 240);
+  --color-sidebar-foreground: oklch(98% 0.01 240);
+  --color-sidebar-primary: oklch(48% 0.25 264);
+  --color-sidebar-primary-foreground: oklch(98% 0.01 240);
+  --color-sidebar-accent: oklch(27% 0.02 240);
+  --color-sidebar-accent-foreground: oklch(98% 0.01 240);
+  --color-sidebar-border: oklch(27% 0.02 240);
+  --color-sidebar-ring: oklch(44% 0.02 240);
+
+  --color-chart-1: oklch(65% 0.2 260);
+  --color-chart-2: oklch(75% 0.2 200);
+  --color-chart-3: oklch(70% 0.25 140);
+  --color-chart-4: oklch(80% 0.2 80);
+  --color-chart-5: oklch(70% 0.22 20);
+
+  --radius: 0.5rem;
+}
 
 @layer base {
   :root {
@@ -23,7 +60,6 @@
     --border: oklch(94% 0.01 240);
     --input: oklch(94% 0.01 240);
     --ring: oklch(48% 0.25 264);
-    --radius: 0.5rem;
 
     --sidebar: oklch(20% 0.02 240);
     --sidebar-foreground: oklch(98% 0.01 240);
@@ -71,28 +107,21 @@
     --sidebar-border: oklch(27% 0.02 240);
     --sidebar-ring: oklch(44% 0.02 240);
   }
-}
 
-@layer base {
   * {
-    @apply border-border;
+    border-color: var(--border);
   }
+
   body {
-    @apply bg-background text-foreground font-sans antialiased;
+    background-color: var(--background);
+    color: var(--foreground);
     font-feature-settings: "rlig" 1, "calt" 1;
   }
 
   h1, h2, h3, h4, h5, h6 {
-    @apply font-semibold tracking-tight;
+    font-weight: 600;
+    letter-spacing: -0.025em;
   }
-  h1 { @apply text-3xl md:text-4xl; }
-  h2 { @apply text-2xl md:text-3xl; }
-  h3 { @apply text-xl md:text-2xl; }
-  p { @apply leading-7; }
-}
-
-@theme {
-  --border: oklch(var(--border));
 }
 
 /* Custom scrollbar */
@@ -101,13 +130,14 @@
   height: 10px;
 }
 ::-webkit-scrollbar-track {
-  @apply bg-transparent;
+  background-color: transparent;
 }
 ::-webkit-scrollbar-thumb {
-  @apply bg-muted-foreground/30 rounded-full;
+  background-color: oklch(from var(--muted-foreground) l c h / 0.3);
+  border-radius: 9999px;
 }
 ::-webkit-scrollbar-thumb:hover {
-  @apply bg-muted-foreground/50;
+  background-color: oklch(from var(--muted-foreground) l c h / 0.5);
 }
 
 /* Smooth transitions */

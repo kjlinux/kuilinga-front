@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, useCallback } from "react"
 import { motion } from "framer-motion"
 import { Search, Plus, Edit, Trash2, Upload } from "lucide-react"
 import LoadingSpinner from "../components/LoadingSpinner"
@@ -18,9 +18,9 @@ const Users = () => {
 
   useEffect(() => {
     fetchEmployees()
-  }, [filters])
+  }, [fetchEmployees])
 
-  const fetchEmployees = async () => {
+  const fetchEmployees = useCallback(async () => {
     try {
       const response = await userService.getEmployees(1, 20, filters)
       setEmployees(response.data)
@@ -29,7 +29,7 @@ const Users = () => {
     } finally {
       setIsLoading(false)
     }
-  }
+  }, [filters])
 
   const handleDelete = async (id: string) => {
     if (window.confirm("Êtes-vous sûr de vouloir supprimer cet employé ?")) {

@@ -32,7 +32,7 @@ class UserService {
     return apiService.delete(`${API_CONFIG.ENDPOINTS.EMPLOYEES}/${id}`)
   }
 
-  async importEmployees(file: File): Promise<any> {
+  async importEmployees(file: File): Promise<unknown> {
     const formData = new FormData()
     formData.append("file", file)
 

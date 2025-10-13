@@ -4,7 +4,7 @@ import type React from "react"
 
 import { Link, useLocation } from "react-router-dom"
 import { motion, AnimatePresence } from "framer-motion"
-import { LayoutDashboard, Users, ClipboardList, BarChart3, Settings, X } from "lucide-react"
+import { LayoutDashboard, Users, ClipboardList, BarChart3, Settings, X, Building, Globe, Briefcase, HardDrive, Calendar } from "lucide-react"
 
 interface SidebarProps {
   isOpen: boolean
@@ -16,6 +16,11 @@ const menuItems = [
   { path: "/attendance", icon: ClipboardList, label: "Présences" },
   { path: "/reports", icon: BarChart3, label: "Rapports" },
   { path: "/users", icon: Users, label: "Utilisateurs" },
+  { path: "/organizations", icon: Building, label: "Organisations" },
+  { path: "/sites", icon: Globe, label: "Sites" },
+  { path: "/departments", icon: Briefcase, label: "Départements" },
+  { path: "/devices", icon: HardDrive, label: "Terminaux" },
+  { path: "/leaves", icon: Calendar, label: "Congés" },
   { path: "/settings", icon: Settings, label: "Paramètres" },
 ]
 

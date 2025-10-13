@@ -24,7 +24,21 @@ const Reports = () => {
     date_debut: "",
     date_fin: "",
   })
+  const [reportData, setReportData] = useState<Report | null>(null)
+  const [isGenerating, setIsGenerating] = useState(false)
   const [isExporting, setIsExporting] = useState(false)
+
+  const generateReport = async () => {
+    try {
+      setIsGenerating(true)
+      const data = await reportService.generateReport("presence", filters)
+      setReportData(data)
+    } catch (error) {
+      console.error("Erreur lors de la génération du rapport:", error)
+    } finally {
+      setIsGenerating(false)
+    }
+  }
 
   const handleExport = async (format: "csv" | "xlsx" | "pdf") => {
     try {
@@ -80,7 +94,7 @@ const Reports = () => {
             <label className="block text-sm font-medium text-secondary mb-2">Période</label>
             <select
               value={filters.periode}
-              onChange={(e) => setFilters({ ...filters, periode: e.target.value as any })}
+              onChange={(e) => setFilters({ ...filters, periode: e.target.value as ReportFilter["periode"] })}
               className="input"
             >
               <option value="jour">Aujourd'hui</option>
@@ -115,10 +129,49 @@ const Reports = () => {
             </>
           )}
 
+          <div>
+            <label className="block text-sm font-medium text-secondary mb-2">Département</label>
+            <select
+              value={filters.departement}
+              onChange={(e) => setFilters({ ...filters, departement: e.target.value })}
+              className="input"
+            >
+              <option value="">Tous</option>
+              {/* TODO: Remplir dynamiquement */}
+            </select>
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-secondary mb-2">Site</label>
+            <select
+              value={filters.site}
+              onChange={(e) => setFilters({ ...filters, site: e.target.value })}
+              className="input"
+            >
+              <option value="">Tous</option>
+              {/* TODO: Remplir dynamiquement */}
+            </select>
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-secondary mb-2">Classe</label>
+            <input
+              type="text"
+              placeholder="Ex: 6ème"
+              value={filters.classe}
+              onChange={(e) => setFilters({ ...filters, classe: e.target.value })}
+              className="input"
+            />
+          </div>
+
           <div className="flex items-end gap-2">
-            <button className="btn-primary flex-1 flex items-center justify-center gap-2">
+            <button
+              onClick={generateReport}
+              disabled={isGenerating}
+              className="btn-primary flex-1 flex items-center justify-center gap-2"
+            >
               <FileText className="w-4 h-4" />
-              Générer
+              {isGenerating ? "Génération..." : "Générer"}
             </button>
           </div>
         </div>
@@ -161,7 +214,7 @@ const Reports = () => {
             Évolution mensuelle
           </h2>
           <ResponsiveContainer width="100%" height={300}>
-            <LineChart data={monthlyData}>
+            <LineChart data={reportData?.monthlyData || monthlyData}>
               <CartesianGrid strokeDasharray="3 3" stroke="#CECECE" />
               <XAxis dataKey="mois" stroke="#A6A6A8" />
               <YAxis stroke="#A6A6A8" />
@@ -192,7 +245,7 @@ const Reports = () => {
             Retards par département
           </h2>
           <ResponsiveContainer width="100%" height={300}>
-            <BarChart data={delayStats}>
+            <BarChart data={reportData?.delayStats || delayStats}>
               <CartesianGrid strokeDasharray="3 3" stroke="#CECECE" />
               <XAxis dataKey="departement" stroke="#A6A6A8" />
               <YAxis stroke="#A6A6A8" />
@@ -232,7 +285,7 @@ const Reports = () => {
               </tr>
             </thead>
             <tbody className="table-body">
-              {topEmployees.map((employee, index) => (
+              {(reportData?.topEmployees || topEmployees).map((employee, index) => (
                 <tr key={index} className="hover:bg-gray-50 transition-colors">
                   <td className="table-cell">
                     <div className="flex items-center justify-center w-8 h-8 rounded-full bg-primary text-white font-bold">

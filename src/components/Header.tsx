@@ -15,7 +15,7 @@ interface HeaderProps {
 
 const Header: React.FC<HeaderProps> = ({ onMenuClick }) => {
   const { user, logout } = useAuth()
-  const { notifications, unreadCount, markAsRead } = useNotification()
+  const { notifications, unreadCount, markAsRead } = useNotifications()
   const [showNotifications, setShowNotifications] = useState(false)
   const [showProfile, setShowProfile] = useState(false)
   const notifRef = useRef<HTMLDivElement>(null)

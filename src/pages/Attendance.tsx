@@ -1,93 +1,108 @@
-"use client"
+"use client";
 
-import { useState, useEffect, useCallback } from "react"
-import { motion } from "framer-motion"
-import { Search, Filter, Download, RefreshCw } from "lucide-react"
-import LoadingSpinner from "../components/LoadingSpinner"
-import attendanceService from "../services/attendance.service"
-import departmentService from "../services/department.service"
-import type { Attendance as AttendanceType, Filter as FilterType, Department } from "../types"
-import { format } from "date-fns"
-import { fr } from "date-fns/locale"
+import { useState, useEffect, useCallback } from "react";
+import { motion } from "framer-motion";
+import { Search, Filter, Download, RefreshCw } from "lucide-react";
+import LoadingSpinner from "../components/LoadingSpinner";
+import attendanceService from "../services/attendance.service";
+import departmentService from "../services/department.service";
+import type {
+  Attendance as AttendanceType,
+  Filter as FilterType,
+  Department,
+} from "../types";
+import { format } from "date-fns";
+import { fr } from "date-fns/locale";
 
 const Attendance = () => {
-  const [attendances, setAttendances] = useState<AttendanceType[]>([])
-  const [departments, setDepartments] = useState<Department[]>([])
-  const [isLoading, setIsLoading] = useState(true)
-  const [isRefreshing, setIsRefreshing] = useState(false)
+  const [attendances, setAttendances] = useState<AttendanceType[]>([]);
+  const [departments, setDepartments] = useState<Department[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [isRefreshing, setIsRefreshing] = useState(false);
   const [filters, setFilters] = useState<FilterType>({
     search: "",
     departement: "",
     statut: "",
     classe: "",
-  })
-  const [showFilters, setShowFilters] = useState(false)
+  });
+  const [showFilters, setShowFilters] = useState(false);
 
   useEffect(() => {
-    fetchInitialData()
-  }, [])
+    fetchInitialData();
+  }, []);
 
   useEffect(() => {
-    fetchAttendances()
+    fetchAttendances();
     // Rafraîchir automatiquement toutes les 30 secondes
-    const interval = setInterval(fetchAttendances, 30000)
-    return () => clearInterval(interval)
-  }, [filters, fetchAttendances])
+    const interval = setInterval(fetchAttendances, 30000);
+    return () => clearInterval(interval);
+  }, [filters, fetchAttendances]);
 
   const fetchInitialData = async () => {
     try {
-      const deptResponse = await departmentService.getDepartments()
-      setDepartments(deptResponse.data)
+      const deptResponse = await departmentService.getDepartments();
+      setDepartments(deptResponse.data);
     } catch (error) {
-      console.error("Erreur lors de la récupération des départements:", error)
+      console.error("Erreur lors de la récupération des départements:", error);
     }
-  }
+  };
 
   const fetchAttendances = useCallback(async () => {
     try {
-      setIsRefreshing(true)
-      const data = await attendanceService.getRealtime(filters)
-      setAttendances(data)
+      setIsRefreshing(true);
+      const data = await attendanceService.getRealtime(filters);
+      setAttendances(data);
     } catch (error) {
-      console.error("Erreur lors de la récupération des présences:", error)
+      console.error("Erreur lors de la récupération des présences:", error);
     } finally {
-      setIsLoading(false)
-      setIsRefreshing(false)
+      setIsLoading(false);
+      setIsRefreshing(false);
     }
-  }, [filters])
+  }, [filters]);
+
+  useEffect(() => {
+    fetchInitialData();
+  }, []);
+
+  useEffect(() => {
+    fetchAttendances();
+    // Rafraîchir automatiquement toutes les 30 secondes
+    const interval = setInterval(fetchAttendances, 30000);
+    return () => clearInterval(interval);
+  }, [fetchAttendances]);
 
   const handleSearch = (value: string) => {
-    setFilters({ ...filters, search: value })
-  }
+    setFilters({ ...filters, search: value });
+  };
 
   const getStatusBadge = (statut: string) => {
     switch (statut) {
       case "present":
-        return <span className="badge-success">Présent</span>
+        return <span className="badge-success">Présent</span>;
       case "absent":
-        return <span className="badge-danger">Absent</span>
+        return <span className="badge-danger">Absent</span>;
       case "retard":
-        return <span className="badge-warning">En retard</span>
+        return <span className="badge-warning">En retard</span>;
       case "sortie_anticipee":
-        return <span className="badge-info">Sortie anticipée</span>
+        return <span className="badge-info">Sortie anticipée</span>;
       default:
-        return <span className="badge">{statut}</span>
+        return <span className="badge">{statut}</span>;
     }
-  }
+  };
 
   const formatDuration = (minutes?: number) => {
-    if (!minutes) return "-"
-    const hours = Math.floor(minutes / 60)
-    const mins = minutes % 60
-    return `${hours}h${mins.toString().padStart(2, "0")}`
-  }
+    if (!minutes) return "-";
+    const hours = Math.floor(minutes / 60);
+    const mins = minutes % 60;
+    return `${hours}h${mins.toString().padStart(2, "0")}`;
+  };
 
   if (isLoading) {
     return (
       <div className="flex items-center justify-center min-h-[60vh]">
         <LoadingSpinner size="large" />
       </div>
-    )
+    );
   }
 
   return (
@@ -95,13 +110,24 @@ const Attendance = () => {
       {/* En-tête */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
-          <h1 className="text-3xl font-bold text-secondary mb-2">Présences en temps réel</h1>
-          <p className="text-accent">Dernière mise à jour: {format(new Date(), "HH:mm:ss", { locale: fr })}</p>
+          <h1 className="text-3xl font-bold text-secondary mb-2">
+            Présences en temps réel
+          </h1>
+          <p className="text-accent">
+            Dernière mise à jour:{" "}
+            {format(new Date(), "HH:mm:ss", { locale: fr })}
+          </p>
         </div>
 
         <div className="flex items-center gap-2">
-          <button onClick={fetchAttendances} disabled={isRefreshing} className="btn-outline flex items-center gap-2">
-            <RefreshCw className={`w-4 h-4 ${isRefreshing ? "animate-spin" : ""}`} />
+          <button
+            onClick={fetchAttendances}
+            disabled={isRefreshing}
+            className="btn-outline flex items-center gap-2"
+          >
+            <RefreshCw
+              className={`w-4 h-4 ${isRefreshing ? "animate-spin" : ""}`}
+            />
             <span className="hidden sm:inline">Actualiser</span>
           </button>
 
@@ -130,7 +156,10 @@ const Attendance = () => {
           </div>
 
           {/* Bouton filtres */}
-          <button onClick={() => setShowFilters(!showFilters)} className="btn-outline flex items-center gap-2">
+          <button
+            onClick={() => setShowFilters(!showFilters)}
+            className="btn-outline flex items-center gap-2"
+          >
             <Filter className="w-4 h-4" />
             Filtres
           </button>
@@ -145,10 +174,14 @@ const Attendance = () => {
             className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-4 pt-4 border-t border-gray-200"
           >
             <div>
-              <label className="block text-sm font-medium text-secondary mb-2">Département</label>
+              <label className="block text-sm font-medium text-secondary mb-2">
+                Département
+              </label>
               <select
                 value={filters.departement}
-                onChange={(e) => setFilters({ ...filters, departement: e.target.value })}
+                onChange={(e) =>
+                  setFilters({ ...filters, departement: e.target.value })
+                }
                 className="input"
               >
                 <option value="">Tous les départements</option>
@@ -161,21 +194,29 @@ const Attendance = () => {
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-secondary mb-2">Classe / Niveau</label>
+              <label className="block text-sm font-medium text-secondary mb-2">
+                Classe / Niveau
+              </label>
               <input
                 type="text"
                 placeholder="Ex: 6ème, L1..."
                 value={filters.classe}
-                onChange={(e) => setFilters({ ...filters, classe: e.target.value })}
+                onChange={(e) =>
+                  setFilters({ ...filters, classe: e.target.value })
+                }
                 className="input"
               />
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-secondary mb-2">Statut</label>
+              <label className="block text-sm font-medium text-secondary mb-2">
+                Statut
+              </label>
               <select
                 value={filters.statut}
-                onChange={(e) => setFilters({ ...filters, statut: e.target.value })}
+                onChange={(e) =>
+                  setFilters({ ...filters, statut: e.target.value })
+                }
                 className="input"
               >
                 <option value="">Tous les statuts</option>
@@ -187,7 +228,9 @@ const Attendance = () => {
 
             <div className="flex items-end">
               <button
-                onClick={() => setFilters({ search: "", departement: "", statut: "" })}
+                onClick={() =>
+                  setFilters({ search: "", departement: "", statut: "" })
+                }
                 className="btn-outline w-full"
               >
                 Réinitialiser
@@ -215,7 +258,9 @@ const Attendance = () => {
             {attendances.length === 0 ? (
               <tr>
                 <td colSpan={7} className="table-cell text-center py-8">
-                  <p className="text-accent">Aucune donnée de présence disponible</p>
+                  <p className="text-accent">
+                    Aucune donnée de présence disponible
+                  </p>
                 </td>
               </tr>
             ) : (
@@ -226,19 +271,31 @@ const Attendance = () => {
                   animate={{ opacity: 1 }}
                   className="hover:bg-gray-50 transition-colors"
                 >
-                  <td className="table-cell font-medium">{attendance.employee_name}</td>
+                  <td className="table-cell font-medium">
+                    {attendance.employee_name}
+                  </td>
                   <td className="table-cell">{attendance.matricule}</td>
                   <td className="table-cell">{attendance.departement}</td>
                   <td className="table-cell">
                     {attendance.heure_arrivee
-                      ? format(new Date(attendance.heure_arrivee), "HH:mm", { locale: fr })
+                      ? format(new Date(attendance.heure_arrivee), "HH:mm", {
+                          locale: fr,
+                        })
                       : "-"}
                   </td>
                   <td className="table-cell">
-                    {attendance.heure_depart ? format(new Date(attendance.heure_depart), "HH:mm", { locale: fr }) : "-"}
+                    {attendance.heure_depart
+                      ? format(new Date(attendance.heure_depart), "HH:mm", {
+                          locale: fr,
+                        })
+                      : "-"}
                   </td>
-                  <td className="table-cell">{formatDuration(attendance.duree)}</td>
-                  <td className="table-cell">{getStatusBadge(attendance.statut)}</td>
+                  <td className="table-cell">
+                    {formatDuration(attendance.duree)}
+                  </td>
+                  <td className="table-cell">
+                    {getStatusBadge(attendance.statut)}
+                  </td>
                 </motion.tr>
               ))
             )}
@@ -249,7 +306,9 @@ const Attendance = () => {
       {/* Pagination */}
       {attendances.length > 0 && (
         <div className="flex items-center justify-between">
-          <p className="text-sm text-accent">Affichage de {attendances.length} résultat(s)</p>
+          <p className="text-sm text-accent">
+            Affichage de {attendances.length} résultat(s)
+          </p>
 
           <div className="flex items-center gap-2">
             <button className="btn-outline px-3 py-1 text-sm">Précédent</button>
@@ -261,7 +320,7 @@ const Attendance = () => {
         </div>
       )}
     </div>
-  )
-}
+  );
+};
 
-export default Attendance
+export default Attendance;

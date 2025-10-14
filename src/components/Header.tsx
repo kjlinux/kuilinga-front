@@ -6,7 +6,7 @@ import { useState, useRef, useEffect } from "react"
 import { Link } from "react-router-dom"
 import { Menu, Bell, User, LogOut, SettingsIcon } from "lucide-react"
 import { useAuth } from "../hooks/useAuth"
-import { useNotifications } from "../hooks/useNotification"
+import { useNotification } from "../hooks/useNotification"
 import { motion, AnimatePresence } from "framer-motion"
 
 interface HeaderProps {

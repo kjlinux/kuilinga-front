@@ -4,41 +4,40 @@ export const API_CONFIG = {
   TIMEOUT: 30000,
   ENDPOINTS: {
     // Auth
-    LOGIN: "/auth/login",
-    LOGOUT: "/auth/logout",
-    REFRESH: "/auth/refresh",
-    FORGOT_PASSWORD: "/auth/forgot-password",
+    LOGIN: "/api/v1/auth/login",
+    REFRESH: "/api/v1/auth/refresh",
+    ME: "/api/v1/auth/me",
 
     // Users
-    EMPLOYEES: "/employees",
-    EMPLOYEE_IMPORT: "/employees/import",
-
-    // Attendance
-    ATTENDANCE_REALTIME: "/attendance/realtime",
-    ATTENDANCE_HISTORY: "/attendance/history",
-    ATTENDANCE_MANUAL: "/attendance/manual",
-    ATTENDANCE_STATS: "/attendance/stats",
-
-    // Reports
-    REPORTS: "/reports",
-    REPORTS_PRESENCE: "/reports/presence",
-    REPORTS_DELAYS: "/reports/delays",
-    REPORTS_OVERTIME: "/reports/overtime",
-    REPORTS_EXPORT: "/reports/export",
-    REPORTS_STATS: "/reports/stats",
+    USERS: "/api/v1/users/",
 
     // Organizations
-    ORGANIZATIONS: "/orgs",
-    SITES: "/sites",
-    DEPARTMENTS: "/departments",
-    CLASSES: "/classes",
+    ORGANIZATIONS: "/api/v1/organizations/",
 
-    // Notifications
-    NOTIFICATIONS: "/notifications",
-    NOTIFICATIONS_SETTINGS: "/notifications/settings",
+    // Employees
+    EMPLOYEES: "/api/v1/employees/",
 
     // Devices
-    DEVICES: "/devices",
+    DEVICES: "/api/v1/devices/",
+
+    // Attendance
+    ATTENDANCE: "/api/v1/attendance/",
+
+    // Reports
+    REPORTS_ATTENDANCE: "/api/v1/reports/attendance",
+
+    // Departments
+    DEPARTMENTS: "/api/v1/departments/",
+
+    // Roles & Permissions
+    ROLES: "/api/v1/roles/",
+    PERMISSIONS: "/api/v1/permissions/",
+
+    // Sites
+    SITES: "/api/v1/sites/",
+
+    // Leaves
+    LEAVES: "/api/v1/leaves/",
   },
 }
 

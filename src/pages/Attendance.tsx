@@ -27,17 +27,6 @@ const Attendance = () => {
   });
   const [showFilters, setShowFilters] = useState(false);
 
-  useEffect(() => {
-    fetchInitialData();
-  }, []);
-
-  useEffect(() => {
-    fetchAttendances();
-    // Rafraîchir automatiquement toutes les 30 secondes
-    const interval = setInterval(fetchAttendances, 30000);
-    return () => clearInterval(interval);
-  }, [filters, fetchAttendances]);
-
   const fetchInitialData = async () => {
     try {
       const deptResponse = await departmentService.getDepartments();
@@ -69,7 +58,7 @@ const Attendance = () => {
     // Rafraîchir automatiquement toutes les 30 secondes
     const interval = setInterval(fetchAttendances, 30000);
     return () => clearInterval(interval);
-  }, [fetchAttendances]);
+  }, [filters, fetchAttendances]);
 
   const handleSearch = (value: string) => {
     setFilters({ ...filters, search: value });

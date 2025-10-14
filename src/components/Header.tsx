@@ -1,12 +1,9 @@
-"use client"
-
 import type React from "react"
-
 import { useState, useRef, useEffect } from "react"
 import { Link } from "react-router-dom"
 import { Menu, Bell, User, LogOut, SettingsIcon } from "lucide-react"
 import { useAuth } from "../hooks/useAuth"
-import { useNotification } from "../hooks/useNotification"
+import { useNotifications } from "../hooks/useNotification"
 import { motion, AnimatePresence } from "framer-motion"
 
 interface HeaderProps {
@@ -21,7 +18,7 @@ const Header: React.FC<HeaderProps> = ({ onMenuClick }) => {
   const notifRef = useRef<HTMLDivElement>(null)
   const profileRef = useRef<HTMLDivElement>(null)
 
-  // Fermer les dropdowns quand on clique ailleurs
+  // Close dropdowns when clicking outside
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (notifRef.current && !notifRef.current.contains(event.target as Node)) {
@@ -40,14 +37,14 @@ const Header: React.FC<HeaderProps> = ({ onMenuClick }) => {
     try {
       await logout()
     } catch (error) {
-      console.error("Erreur lors de la déconnexion:", error)
+      console.error("Logout error:", error)
     }
   }
 
   return (
     <header className="fixed top-0 left-0 right-0 bg-white shadow-md z-50">
       <div className="flex items-center justify-between px-4 py-3 md:px-6">
-        {/* Logo et menu burger */}
+        {/* Logo and burger menu */}
         <div className="flex items-center gap-4">
           <button
             onClick={onMenuClick}
@@ -95,7 +92,7 @@ const Header: React.FC<HeaderProps> = ({ onMenuClick }) => {
                   </div>
 
                   {notifications.length === 0 ? (
-                    <div className="p-4 text-center text-accent">Aucune notification</div>
+                    <div className="p-4 text-center text-accent">No notifications</div>
                   ) : (
                     <div className="divide-y divide-gray-200">
                       {notifications.slice(0, 5).map((notif) => (
@@ -138,7 +135,7 @@ const Header: React.FC<HeaderProps> = ({ onMenuClick }) => {
                         className="text-sm text-primary hover:underline block text-center"
                         onClick={() => setShowNotifications(false)}
                       >
-                        Voir toutes les notifications
+                        View all notifications
                       </Link>
                     </div>
                   )}
@@ -147,7 +144,7 @@ const Header: React.FC<HeaderProps> = ({ onMenuClick }) => {
             </AnimatePresence>
           </div>
 
-          {/* Profil utilisateur */}
+          {/* User profile */}
           <div className="relative" ref={profileRef}>
             <button
               onClick={() => setShowProfile(!showProfile)}
@@ -155,7 +152,7 @@ const Header: React.FC<HeaderProps> = ({ onMenuClick }) => {
             >
               {user?.photo ? (
                 <img
-                  src={user.photo || "/placeholder.svg"}
+                  src={user.photo}
                   alt={`${user.prenom} ${user.nom}`}
                   className="w-8 h-8 rounded-full object-cover"
                 />
@@ -194,7 +191,7 @@ const Header: React.FC<HeaderProps> = ({ onMenuClick }) => {
                       onClick={() => setShowProfile(false)}
                     >
                       <SettingsIcon className="w-5 h-5 text-accent" />
-                      <span className="text-sm text-secondary">Paramètres</span>
+                      <span className="text-sm text-secondary">Settings</span>
                     </Link>
 
                     <button
@@ -202,7 +199,7 @@ const Header: React.FC<HeaderProps> = ({ onMenuClick }) => {
                       className="w-full flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-red-50 transition-colors text-red-600"
                     >
                       <LogOut className="w-5 h-5" />
-                      <span className="text-sm">Déconnexion</span>
+                      <span className="text-sm">Logout</span>
                     </button>
                   </div>
                 </motion.div>

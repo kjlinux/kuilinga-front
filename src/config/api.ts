@@ -5,39 +5,54 @@ export const API_CONFIG = {
   ENDPOINTS: {
     // Auth
     LOGIN: "/api/v1/auth/login",
+    LOGOUT: "/api/v1/auth/logout",
     REFRESH: "/api/v1/auth/refresh",
     ME: "/api/v1/auth/me",
+    FORGOT_PASSWORD: "/api/v1/auth/forgot-password",
 
     // Users
-    USERS: "/api/v1/users/",
-
-    // Organizations
-    ORGANIZATIONS: "/api/v1/organizations/",
-
-    // Employees
-    EMPLOYEES: "/api/v1/employees/",
-
-    // Devices
-    DEVICES: "/api/v1/devices/",
+    USERS: "/api/v1/users",
+    EMPLOYEES: "/api/v1/employees",
+    EMPLOYEE_IMPORT: "/api/v1/employees/import",
 
     // Attendance
-    ATTENDANCE: "/api/v1/attendance/",
+    ATTENDANCE: "/api/v1/attendance",
+    ATTENDANCE_REALTIME: "/api/v1/attendance/realtime",
+    ATTENDANCE_HISTORY: "/api/v1/attendance/history",
+    ATTENDANCE_MANUAL: "/api/v1/attendance/manual",
+    ATTENDANCE_STATS: "/api/v1/attendance/stats",
 
     // Reports
+    REPORTS: "/api/v1/reports",
+    REPORTS_PRESENCE: "/api/v1/reports/presence",
     REPORTS_ATTENDANCE: "/api/v1/reports/attendance",
+    REPORTS_DELAYS: "/api/v1/reports/delays",
+    REPORTS_OVERTIME: "/api/v1/reports/overtime",
+    REPORTS_EXPORT: "/api/v1/reports/export",
+    REPORTS_STATS: "/api/v1/reports/stats",
 
-    // Departments
-    DEPARTMENTS: "/api/v1/departments/",
-
-    // Roles & Permissions
-    ROLES: "/api/v1/roles/",
-    PERMISSIONS: "/api/v1/permissions/",
-
-    // Sites
-    SITES: "/api/v1/sites/",
+    // Organizations
+    ORGANIZATIONS: "/api/v1/organizations",
+    SITES: "/api/v1/sites",
+    DEPARTMENTS: "/api/v1/departments",
+    CLASSES: "/api/v1/classes",
 
     // Leaves
-    LEAVES: "/api/v1/leaves/",
+    LEAVES: "/api/v1/leaves",
+
+    // Roles & Permissions
+    ROLES: "/api/v1/roles",
+    PERMISSIONS: "/api/v1/permissions",
+
+    // Notifications
+    NOTIFICATIONS: "/api/v1/notifications",
+    NOTIFICATIONS_SETTINGS: "/api/v1/notifications/settings",
+
+    // Devices
+    DEVICES: "/api/v1/devices",
+
+    // Health
+    HEALTH: "/health",
   },
 }
 

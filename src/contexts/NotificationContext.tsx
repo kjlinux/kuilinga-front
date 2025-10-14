@@ -1,71 +1,78 @@
-"use "
+"use client";
 
-import type React from "react"
-import { useState, useEffect, type ReactNode } from "react"
-import type { Notification } from "../types"
-import notificationService from "../services/notification.service"
-import { NotificationContext } from "./definitions/NotificationContext"
+import type React from "react";
+import { useState, useEffect, type ReactNode } from "react";
+import type { Notification } from "../types";
+import notificationService from "../services/notification.service";
+import { NotificationContext } from "./definitions/NotificationContext";
 
 export interface NotificationContextType {
-  notifications: Notification[]
-  unreadCount: number
-  fetchNotifications: () => Promise<void>
-  markAsRead: (id: string) => Promise<void>
-  markAllAsRead: () => Promise<void>
-  deleteNotification: (id: string) => Promise<void>
+  notifications: Notification[];
+  unreadCount: number;
+  fetchNotifications: () => Promise<void>;
+  markAsRead: (id: string) => Promise<void>;
+  markAllAsRead: () => Promise<void>;
+  deleteNotification: (id: string) => Promise<void>;
 }
 
 interface NotificationProviderProps {
-  children: ReactNode
+  children: ReactNode;
 }
 
-export const NotificationProvider: React.FC<NotificationProviderProps> = ({ children }) => {
-  const [notifications, setNotifications] = useState<Notification[]>([])
+export const NotificationProvider: React.FC<NotificationProviderProps> = ({
+  children,
+}) => {
+  const [notifications, setNotifications] = useState<Notification[]>([]);
 
   const fetchNotifications = async () => {
     try {
-      const data = await notificationService.getNotifications()
-      setNotifications(data)
+      const data = await notificationService.getNotifications();
+      // Ensure data is an array
+      setNotifications(Array.isArray(data) ? data : []);
     } catch (error) {
-      console.error("Erreur lors de la récupération des notifications:", error)
+      console.error("Error fetching notifications:", error);
+      // Set empty array on error to prevent crashes
+      setNotifications([]);
     }
-  }
+  };
 
   const markAsRead = async (id: string) => {
     try {
-      await notificationService.markAsRead(id)
-      setNotifications((prev) => prev.map((notif) => (notif.id === id ? { ...notif, lu: true } : notif)))
+      await notificationService.markAsRead(id);
+      setNotifications((prev) =>
+        prev.map((notif) => (notif.id === id ? { ...notif, lu: true } : notif))
+      );
     } catch (error) {
-      console.error("Erreur lors du marquage de la notification:", error)
+      console.error("Error marking notification as read:", error);
     }
-  }
+  };
 
   const markAllAsRead = async () => {
     try {
-      await notificationService.markAllAsRead()
-      setNotifications((prev) => prev.map((notif) => ({ ...notif, lu: true })))
+      await notificationService.markAllAsRead();
+      setNotifications((prev) => prev.map((notif) => ({ ...notif, lu: true })));
     } catch (error) {
-      console.error("Erreur lors du marquage de toutes les notifications:", error)
+      console.error("Error marking all notifications as read:", error);
     }
-  }
+  };
 
   const deleteNotification = async (id: string) => {
     try {
-      await notificationService.deleteNotification(id)
-      setNotifications((prev) => prev.filter((notif) => notif.id !== id))
+      await notificationService.deleteNotification(id);
+      setNotifications((prev) => prev.filter((notif) => notif.id !== id));
     } catch (error) {
-      console.error("Erreur lors de la suppression de la notification:", error)
+      console.error("Error deleting notification:", error);
     }
-  }
+  };
 
-  const unreadCount = notifications.filter((n) => !n.lu).length
+  const unreadCount = notifications.filter((n) => !n.lu).length;
 
   useEffect(() => {
-    fetchNotifications()
-    // Rafraîchir les notifications toutes les 30 secondes
-    const interval = setInterval(fetchNotifications, 30000)
-    return () => clearInterval(interval)
-  }, [])
+    fetchNotifications();
+    // Refresh notifications every 30 seconds
+    const interval = setInterval(fetchNotifications, 30000);
+    return () => clearInterval(interval);
+  }, []);
 
   const value: NotificationContextType = {
     notifications,
@@ -74,7 +81,11 @@ export const NotificationProvider: React.FC<NotificationProviderProps> = ({ chil
     markAsRead,
     markAllAsRead,
     deleteNotification,
-  }
+  };
 
-  return <NotificationContext.Provider value={value}>{children}</NotificationContext.Provider>
-}
+  return (
+    <NotificationContext.Provider value={value}>
+      {children}
+    </NotificationContext.Provider>
+  );
+};

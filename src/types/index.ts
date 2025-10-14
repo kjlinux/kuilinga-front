@@ -1,20 +1,16 @@
-// Types pour l'authentification
+// User and Authentication Types
 export interface User {
   id: string
   email: string
-  nom: string
   prenom: string
-  role: "admin" | "manager" | "employee" | "teacher" | "student"
+  nom: string
+  role: string
   photo?: string
-  organisation_id: string
-  site_id?: string
-  departement_id?: string
-}
-
-export interface AuthResponse {
-  access_token: string
-  refresh_token: string
-  user: User
+  organization_id?: string
+  roles?: Role[]
+  permissions?: string[]
+  created_at?: string
+  updated_at?: string
 }
 
 export interface LoginCredentials {
@@ -22,166 +18,187 @@ export interface LoginCredentials {
   password: string
 }
 
-// Types pour les présences
-export interface Attendance {
-  id: string
-  employee_id: string
-  employee_name: string
-  matricule: string
-  heure_arrivee: string
-  heure_depart?: string
-  statut: "present" | "absent" | "retard" | "sortie_anticipee"
-  duree?: number
-  departement: string
-  classe?: string
-  device_id?: string
-  timestamp: string
+export interface AuthResponse {
+  access_token: string
+  refresh_token: string
+  token_type: string
+  user: User
 }
 
-export interface AttendanceStats {
-  presents: number
-  absents: number
-  retards: number
-  heures_travail: number
-  taux_presence: number
+// Role and Permission Types
+export interface Role {
+  id: string
+  name: string
+  description?: string
+  permissions?: Permission[]
 }
 
-// Types pour les rapports
-export interface Report {
+export interface Permission {
   id: string
-  type: "presence" | "retards" | "absences" | "heures_sup"
-  periode: {
-    debut: string
-    fin: string
-  }
-  data: unknown
+  name: string
+  description?: string
+  resource: string
+  action: string
+}
+
+// Organization Types
+export interface Organization {
+  id: string
+  nom: string
+  description?: string
+  adresse?: string
+  telephone?: string
+  email?: string
+  logo?: string
   created_at: string
+  updated_at?: string
 }
 
-export interface ReportFilter {
-  periode: "jour" | "semaine" | "mois" | "annee" | "personnalise"
-  date_debut?: string
-  date_fin?: string
-  departement?: string
-  classe?: string
-  site?: string
+// Site Types
+export interface Site {
+  id: string
+  nom: string
+  adresse?: string
+  organization_id: string
+  created_at: string
+  updated_at?: string
 }
 
-// Types pour les utilisateurs
+// Department Types
+export interface Department {
+  id: string
+  nom: string
+  description?: string
+  organization_id: string
+  site_id?: string
+  created_at: string
+  updated_at?: string
+}
+
+// Employee Types
 export interface Employee {
   id: string
   matricule: string
-  nom: string
   prenom: string
-  email: string
-  role: string
-  badge_id?: string
+  nom: string
+  email?: string
+  telephone?: string
   photo?: string
-  departement: string
-  site: string
-  statut: "actif" | "inactif" | "suspendu"
-  date_embauche: string
-}
-
-// Types pour les organisations, sites et départements
-export interface Organization {
-  id: string
-  name: string
-  industry?: string
-  contact_email?: string
-  phone_number?: string
-  timezone: string
-  subscription_plan: string
-  is_active: boolean
-  settings?: Record<string, unknown>
-  sites?: Site[]
-}
-
-export interface Site {
-  id: string
-  name: string
-  location?: string
-  timezone: string
+  poste?: string
+  departement?: string
+  date_embauche?: string
   organization_id: string
+  department_id?: string
+  site_id?: string
+  created_at: string
+  updated_at?: string
 }
 
-export interface Department {
-  id: string
-  name: string
-  site_id: string
-  manager_id?: string
-}
-
-// Types pour les terminaux (Devices)
-export type DeviceStatus = "online" | "offline" | "maintenance"
-
+// Device Types
 export interface Device {
   id: string
-  serial_number: string
-  model: string
-  status: DeviceStatus
+  nom: string
+  type: string
+  serial_number?: string
+  ip_address?: string
+  status: 'active' | 'inactive' | 'maintenance'
   organization_id: string
+  site_id?: string
+  created_at: string
+  updated_at?: string
 }
 
-// Types pour les congés (Leaves)
-export type LeaveStatus = "pending" | "approved" | "rejected" | "cancelled"
-export type LeaveType = "annual" | "sick" | "maternity" | "paternity" | "unpaid" | "other"
+// Attendance Types
+export interface Attendance {
+  id: string
+  employee_id: string
+  device_id?: string
+  type: 'entry' | 'exit'
+  timestamp: string
+  location?: string
+  method?: 'biometric' | 'card' | 'manual'
+  notes?: string
+  created_at: string
+}
 
+export interface AttendanceStats {
+  total_employees: number
+  present_today: number
+  absent_today: number
+  late_today: number
+  on_leave: number
+}
+
+// Leave Types
 export interface Leave {
   id: string
-  leave_type: LeaveType
+  employee_id: string
+  type: 'vacation' | 'sick' | 'personal' | 'other'
   start_date: string
   end_date: string
-  reason: string
-  employee_id: string
-  status: LeaveStatus
-  approver_id?: string
+  reason?: string
+  status: 'pending' | 'approved' | 'rejected'
+  approved_by?: string
   notes?: string
-  employee?: Employee
-  approver?: User
+  created_at: string
+  updated_at?: string
 }
 
-// Types pour les notifications
+// Notification Types
 export interface Notification {
   id: string
-  type: "info" | "warning" | "error" | "success"
   titre: string
   message: string
+  type: 'info' | 'success' | 'warning' | 'error'
   lu: boolean
   timestamp: string
-  action_url?: string
+  user_id?: string
+  created_at?: string
 }
 
-// Types pour les graphiques
-export interface ChartData {
-  name: string
-  value: number
-  [key: string]: unknown
+// Report Types
+export interface ReportFilters {
+  start_date?: string
+  end_date?: string
+  employee_id?: string
+  department_id?: string
+  site_id?: string
+  organization_id?: string
 }
 
-// Types pour les filtres
-export interface Filter {
-  search?: string
-  departement?: string
-  classe?: string
-  site?: string
-  statut?: string
-  date?: string
+export interface AttendanceReport {
+  employee_id: string
+  employee_name: string
+  total_days: number
+  present_days: number
+  absent_days: number
+  late_days: number
+  overtime_hours: number
 }
 
-// Types pour la pagination
+// Pagination Types
 export interface PaginationParams {
-  page: number
-  limit: number
-  total?: number
+  skip?: number
+  limit?: number
+  search?: string
+  sort_by?: string
+  sort_order?: 'asc' | 'desc'
 }
 
 export interface PaginatedResponse<T> {
-  data: T[]
-  pagination: {
-    page: number
-    limit: number
-    total: number
-    total_pages: number
-  }
+  items: T[]
+  total: number
+  skip: number
+  limit: number
+}
+
+// Dashboard Types
+export interface DashboardStats {
+  total_employees: number
+  present_today: number
+  absent_today: number
+  late_today: number
+  on_leave: number
+  total_attendance_today: number
+  attendance_rate: number
 }

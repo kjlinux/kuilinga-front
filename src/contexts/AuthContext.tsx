@@ -24,12 +24,21 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const [isLoading, setIsLoading] = useState(true)
 
   useEffect(() => {
-    // Vérifier si l'utilisateur est déjà connecté
-    const currentUser = authService.getCurrentUser()
-    if (currentUser) {
-      setUser(currentUser)
+    // Check if user is already logged in
+    const initAuth = async () => {
+      try {
+        const currentUser = authService.getStoredUser()
+        if (currentUser) {
+          setUser(currentUser)
+        }
+      } catch (error) {
+        console.error("Error initializing auth:", error)
+      } finally {
+        setIsLoading(false)
+      }
     }
-    setIsLoading(false)
+
+    initAuth()
   }, [])
 
   const login = async (email: string, password: string) => {
@@ -37,7 +46,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       const response = await authService.login({ email, password })
       setUser(response.user)
     } catch (error) {
-      console.error("Erreur de connexion:", error)
+      console.error("Login error:", error)
       throw error
     }
   }
@@ -47,8 +56,9 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       await authService.logout()
       setUser(null)
     } catch (error) {
-      console.error("Erreur de déconnexion:", error)
-      throw error
+      console.error("Logout error:", error)
+      // Still clear user even if logout call fails
+      setUser(null)
     }
   }
 

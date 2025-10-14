@@ -21,10 +21,26 @@ const Login = () => {
     setIsLoading(true)
 
     try {
-      await login(email, password)
+      // Simuler un délai de chargement pour l'UX
+      await new Promise((resolve) => setTimeout(resolve, 500))
+
+      // Créer un utilisateur fictif pour la session
+      const mockUser = {
+        id: "1",
+        email: email,
+        name: "Utilisateur Test",
+        role: "admin" as const,
+        organization: "TANGA GROUP",
+      }
+
+      // Stocker les données dans le localStorage pour simuler une session
+      localStorage.setItem("user", JSON.stringify(mockUser))
+      localStorage.setItem("token", "mock-token-123")
+
+      // Rediriger vers le dashboard
       navigate("/dashboard")
     } catch (err: any) {
-      setError(err.response?.data?.message || "Identifiants incorrects")
+      setError("Une erreur est survenue")
     } finally {
       setIsLoading(false)
     }

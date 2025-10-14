@@ -1,27 +1,18 @@
-"use client"
+"use "
 
 import type React from "react"
-import { createContext, useContext, useState, useEffect, type ReactNode } from "react"
+import { useState, useEffect, type ReactNode } from "react"
 import type { Notification } from "../types"
 import notificationService from "../services/notification.service"
+import { NotificationContext } from "./definitions/NotificationContext"
 
-interface NotificationContextType {
+export interface NotificationContextType {
   notifications: Notification[]
   unreadCount: number
   fetchNotifications: () => Promise<void>
   markAsRead: (id: string) => Promise<void>
   markAllAsRead: () => Promise<void>
   deleteNotification: (id: string) => Promise<void>
-}
-
-const NotificationContext = createContext<NotificationContextType | undefined>(undefined)
-
-export const useNotifications = () => {
-  const context = useContext(NotificationContext)
-  if (!context) {
-    throw new Error("useNotifications must be used within a NotificationProvider")
-  }
-  return context
 }
 
 interface NotificationProviderProps {

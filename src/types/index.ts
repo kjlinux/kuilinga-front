@@ -54,7 +54,7 @@ export interface Report {
     debut: string
     fin: string
   }
-  data: any
+  data: unknown
   created_at: string
 }
 
@@ -83,6 +83,64 @@ export interface Employee {
   date_embauche: string
 }
 
+// Types pour les organisations, sites et départements
+export interface Organization {
+  id: string
+  name: string
+  industry?: string
+  contact_email?: string
+  phone_number?: string
+  timezone: string
+  subscription_plan: string
+  is_active: boolean
+  settings?: Record<string, unknown>
+  sites?: Site[]
+}
+
+export interface Site {
+  id: string
+  name: string
+  location?: string
+  timezone: string
+  organization_id: string
+}
+
+export interface Department {
+  id: string
+  name: string
+  site_id: string
+  manager_id?: string
+}
+
+// Types pour les terminaux (Devices)
+export type DeviceStatus = "online" | "offline" | "maintenance"
+
+export interface Device {
+  id: string
+  serial_number: string
+  model: string
+  status: DeviceStatus
+  organization_id: string
+}
+
+// Types pour les congés (Leaves)
+export type LeaveStatus = "pending" | "approved" | "rejected" | "cancelled"
+export type LeaveType = "annual" | "sick" | "maternity" | "paternity" | "unpaid" | "other"
+
+export interface Leave {
+  id: string
+  leave_type: LeaveType
+  start_date: string
+  end_date: string
+  reason: string
+  employee_id: string
+  status: LeaveStatus
+  approver_id?: string
+  notes?: string
+  employee?: Employee
+  approver?: User
+}
+
 // Types pour les notifications
 export interface Notification {
   id: string
@@ -98,7 +156,7 @@ export interface Notification {
 export interface ChartData {
   name: string
   value: number
-  [key: string]: any
+  [key: string]: unknown
 }
 
 // Types pour les filtres

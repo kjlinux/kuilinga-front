@@ -1,33 +1,49 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, useCallback } from "react"
 import { motion } from "framer-motion"
 import { Search, Filter, Download, RefreshCw } from "lucide-react"
 import LoadingSpinner from "../components/LoadingSpinner"
 import attendanceService from "../services/attendance.service"
-import type { Attendance as AttendanceType, Filter as FilterType } from "../types"
+import departmentService from "../services/department.service"
+import type { Attendance as AttendanceType, Filter as FilterType, Department } from "../types"
 import { format } from "date-fns"
 import { fr } from "date-fns/locale"
 
 const Attendance = () => {
   const [attendances, setAttendances] = useState<AttendanceType[]>([])
+  const [departments, setDepartments] = useState<Department[]>([])
   const [isLoading, setIsLoading] = useState(true)
   const [isRefreshing, setIsRefreshing] = useState(false)
   const [filters, setFilters] = useState<FilterType>({
     search: "",
     departement: "",
     statut: "",
+    classe: "",
   })
   const [showFilters, setShowFilters] = useState(false)
+
+  useEffect(() => {
+    fetchInitialData()
+  }, [])
 
   useEffect(() => {
     fetchAttendances()
     // Rafraîchir automatiquement toutes les 30 secondes
     const interval = setInterval(fetchAttendances, 30000)
     return () => clearInterval(interval)
-  }, [filters])
+  }, [filters, fetchAttendances])
 
-  const fetchAttendances = async () => {
+  const fetchInitialData = async () => {
+    try {
+      const deptResponse = await departmentService.getDepartments()
+      setDepartments(deptResponse.data)
+    } catch (error) {
+      console.error("Erreur lors de la récupération des départements:", error)
+    }
+  }
+
+  const fetchAttendances = useCallback(async () => {
     try {
       setIsRefreshing(true)
       const data = await attendanceService.getRealtime(filters)
@@ -38,7 +54,7 @@ const Attendance = () => {
       setIsLoading(false)
       setIsRefreshing(false)
     }
-  }
+  }, [filters])
 
   const handleSearch = (value: string) => {
     setFilters({ ...filters, search: value })
@@ -136,11 +152,23 @@ const Attendance = () => {
                 className="input"
               >
                 <option value="">Tous les départements</option>
-                <option value="IT">IT</option>
-                <option value="RH">RH</option>
-                <option value="Finance">Finance</option>
-                <option value="Marketing">Marketing</option>
+                {departments.map((dept) => (
+                  <option key={dept.id} value={dept.id}>
+                    {dept.name}
+                  </option>
+                ))}
               </select>
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-secondary mb-2">Classe / Niveau</label>
+              <input
+                type="text"
+                placeholder="Ex: 6ème, L1..."
+                value={filters.classe}
+                onChange={(e) => setFilters({ ...filters, classe: e.target.value })}
+                className="input"
+              />
             </div>
 
             <div>

@@ -4,7 +4,7 @@ import { useState, type FormEvent } from "react"
 import { useNavigate } from "react-router-dom"
 import { motion } from "framer-motion"
 import { Mail, Lock, AlertCircle } from "lucide-react"
-import { useAuth } from "../contexts/AuthContext"
+import { useAuth } from "../hooks/useAuth"
 import LoadingSpinner from "../components/LoadingSpinner"
 
 const Login = () => {
@@ -39,8 +39,8 @@ const Login = () => {
 
       // Rediriger vers le dashboard
       navigate("/dashboard")
-    } catch (err: any) {
-      setError("Une erreur est survenue")
+    } catch (err) {
+      setError((err as Error).message || "Identifiants incorrects")
     } finally {
       setIsLoading(false)
     }

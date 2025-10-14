@@ -3,7 +3,7 @@
 import { useState } from "react"
 import { motion } from "framer-motion"
 import { Save, User, Bell, Lock, Globe } from "lucide-react"
-import { useAuth } from "../contexts/AuthContext"
+import { useAuth } from "../hooks/useAuth"
 
 const Settings = () => {
   const { user } = useAuth()

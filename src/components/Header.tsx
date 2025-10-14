@@ -5,8 +5,8 @@ import type React from "react"
 import { useState, useRef, useEffect } from "react"
 import { Link } from "react-router-dom"
 import { Menu, Bell, User, LogOut, SettingsIcon } from "lucide-react"
-import { useAuth } from "../contexts/AuthContext"
-import { useNotifications } from "../contexts/NotificationContext"
+import { useAuth } from "../hooks/useAuth"
+import { useNotifications } from "../hooks/useNotification"
 import { motion, AnimatePresence } from "framer-motion"
 
 interface HeaderProps {
@@ -15,7 +15,7 @@ interface HeaderProps {
 
 const Header: React.FC<HeaderProps> = ({ onMenuClick }) => {
   const { user, logout } = useAuth()
-  const { notifications, unreadCount, markAsRead } = useNotifications()
+  const { notifications, unreadCount, markAsRead } = useNotification()
   const [showNotifications, setShowNotifications] = useState(false)
   const [showProfile, setShowProfile] = useState(false)
   const notifRef = useRef<HTMLDivElement>(null)

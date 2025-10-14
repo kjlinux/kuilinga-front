@@ -10,6 +10,11 @@ import Reports from "./pages/Reports"
 import Users from "./pages/Users"
 import Settings from "./pages/Settings"
 import NotFound from "./pages/NotFound"
+import Organizations from "./pages/Organizations"
+import Sites from "./pages/Sites"
+import Departments from "./pages/Departments"
+import Devices from "./pages/Devices"
+import Leaves from "./pages/Leaves"
 
 function App() {
   return (
@@ -27,6 +32,11 @@ function App() {
                 <Route path="/reports" element={<Reports />} />
                 <Route path="/users" element={<Users />} />
                 <Route path="/settings" element={<Settings />} />
+                <Route path="/organizations" element={<Organizations />} />
+                <Route path="/sites" element={<Sites />} />
+                <Route path="/departments" element={<Departments />} />
+                <Route path="/devices" element={<Devices />} />
+                <Route path="/leaves" element={<Leaves />} />
               </Route>
             </Route>
 

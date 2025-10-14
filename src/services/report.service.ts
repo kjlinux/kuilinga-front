@@ -1,22 +1,14 @@
 import apiService from "./api.service"
 import { API_CONFIG } from "../config/api"
-import type { ReportFilter } from "../types"
+import type { ReportFilter, Report } from "../types"
 
 class ReportService {
-  async getPresenceReport(filters: ReportFilter): Promise<any> {
-    return apiService.post(API_CONFIG.ENDPOINTS.REPORTS_PRESENCE, filters)
-  }
-
-  async getDelaysReport(filters: ReportFilter): Promise<any> {
-    return apiService.post(API_CONFIG.ENDPOINTS.REPORTS_DELAYS, filters)
-  }
-
-  async getOvertimeReport(filters: ReportFilter): Promise<any> {
-    return apiService.post(API_CONFIG.ENDPOINTS.REPORTS_OVERTIME, filters)
-  }
-
-  async getStats(filters: ReportFilter): Promise<any> {
-    return apiService.post(API_CONFIG.ENDPOINTS.REPORTS_STATS, filters)
+  async generateReport(type: string, filters: ReportFilter): Promise<Report> {
+    const response = await apiService.post<Report>(
+      `${API_CONFIG.ENDPOINTS.REPORTS}/${type}`,
+      filters,
+    )
+    return response
   }
 
   async exportReport(type: string, filters: ReportFilter, format: "csv" | "xlsx" | "pdf"): Promise<Blob> {

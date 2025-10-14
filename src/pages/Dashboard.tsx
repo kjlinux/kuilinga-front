@@ -42,7 +42,7 @@ const Dashboard = () => {
     }
   }
 
-  // Données pour les graphiques (exemple)
+  // TODO: Ces données devraient provenir de l'API
   const trendData = [
     { jour: "Lun", presents: 85, absents: 15 },
     { jour: "Mar", presents: 88, absents: 12 },
@@ -57,6 +57,7 @@ const Dashboard = () => {
     { name: "Retards", value: stats?.retards || 0, color: "#f59e0b" },
   ]
 
+  // TODO: Ces données devraient provenir de l'API
   const departmentData = [
     { name: "IT", taux: 95 },
     { name: "RH", taux: 88 },

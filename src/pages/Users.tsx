@@ -16,10 +16,6 @@ const Users = () => {
     statut: "",
   })
 
-  useEffect(() => {
-    fetchEmployees()
-  }, [fetchEmployees])
-
   const fetchEmployees = useCallback(async () => {
     try {
       const response = await userService.getEmployees(1, 20, filters)
@@ -30,6 +26,10 @@ const Users = () => {
       setIsLoading(false)
     }
   }, [filters])
+
+  useEffect(() => {
+    fetchEmployees()
+  }, [fetchEmployees])
 
   const handleDelete = async (id: string) => {
     if (window.confirm("Êtes-vous sûr de vouloir supprimer cet employé ?")) {

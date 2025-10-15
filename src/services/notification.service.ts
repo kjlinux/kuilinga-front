@@ -8,9 +8,12 @@ class NotificationService {
       // Check if notifications endpoint exists
       const response = await apiService.get<Notification[]>(API_CONFIG.ENDPOINTS.NOTIFICATIONS)
       return Array.isArray(response) ? response : []
-    } catch (error: any) {
+    } catch (error: unknown) {
       // If endpoint doesn't exist (404) or any other error, return empty array
-      console.warn("Notifications endpoint not available, returning empty array:", error?.response?.status)
+      console.warn(
+        "Notifications endpoint not available, returning empty array:",
+        error
+      )
       return []
     }
   }
@@ -18,7 +21,7 @@ class NotificationService {
   async markAsRead(id: string): Promise<void> {
     try {
       return apiService.put(`${API_CONFIG.ENDPOINTS.NOTIFICATIONS}/${id}/read`)
-    } catch (error) {
+    } catch (error: unknown) {
       console.warn("Could not mark notification as read:", error)
     }
   }
@@ -26,7 +29,7 @@ class NotificationService {
   async markAllAsRead(): Promise<void> {
     try {
       return apiService.put(`${API_CONFIG.ENDPOINTS.NOTIFICATIONS}/read-all`)
-    } catch (error) {
+    } catch (error: unknown) {
       console.warn("Could not mark all notifications as read:", error)
     }
   }
@@ -34,7 +37,7 @@ class NotificationService {
   async deleteNotification(id: string): Promise<void> {
     try {
       return apiService.delete(`${API_CONFIG.ENDPOINTS.NOTIFICATIONS}/${id}`)
-    } catch (error) {
+    } catch (error: unknown) {
       console.warn("Could not delete notification:", error)
     }
   }

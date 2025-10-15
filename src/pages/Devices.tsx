@@ -14,10 +14,6 @@ const Devices = () => {
     search: "",
   })
 
-  useEffect(() => {
-    fetchDevices()
-  }, [fetchDevices])
-
   const fetchDevices = useCallback(async () => {
     setIsLoading(true)
     try {
@@ -29,6 +25,10 @@ const Devices = () => {
       setIsLoading(false)
     }
   }, [filters])
+
+  useEffect(() => {
+    fetchDevices()
+  }, [fetchDevices])
 
   const handleDelete = async (id: string) => {
     if (window.confirm("Êtes-vous sûr de vouloir supprimer ce terminal ?")) {

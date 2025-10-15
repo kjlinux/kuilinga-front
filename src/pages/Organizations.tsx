@@ -14,10 +14,6 @@ const Organizations = () => {
     search: "",
   })
 
-  useEffect(() => {
-    fetchOrganizations()
-  }, [fetchOrganizations])
-
   const fetchOrganizations = useCallback(async () => {
     setIsLoading(true)
     try {
@@ -29,6 +25,10 @@ const Organizations = () => {
       setIsLoading(false)
     }
   }, [filters])
+
+  useEffect(() => {
+    fetchOrganizations()
+  }, [fetchOrganizations])
 
   const handleDelete = async (id: string) => {
     if (window.confirm("Êtes-vous sûr de vouloir supprimer cette organisation ?")) {

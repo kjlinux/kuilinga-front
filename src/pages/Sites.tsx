@@ -14,10 +14,6 @@ const Sites = () => {
     search: "",
   })
 
-  useEffect(() => {
-    fetchSites()
-  }, [fetchSites])
-
   const fetchSites = useCallback(async () => {
     setIsLoading(true)
     try {
@@ -29,6 +25,10 @@ const Sites = () => {
       setIsLoading(false)
     }
   }, [filters])
+
+  useEffect(() => {
+    fetchSites()
+  }, [fetchSites])
 
   const handleDelete = async (id: string) => {
     if (window.confirm("Êtes-vous sûr de vouloir supprimer ce site ?")) {

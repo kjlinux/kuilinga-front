@@ -14,10 +14,6 @@ const Departments = () => {
     search: "",
   })
 
-  useEffect(() => {
-    fetchDepartments()
-  }, [fetchDepartments])
-
   const fetchDepartments = useCallback(async () => {
     setIsLoading(true)
     try {
@@ -29,6 +25,10 @@ const Departments = () => {
       setIsLoading(false)
     }
   }, [filters])
+
+  useEffect(() => {
+    fetchDepartments()
+  }, [fetchDepartments])
 
   const handleDelete = async (id: string) => {
     if (window.confirm("Êtes-vous sûr de vouloir supprimer ce département ?")) {

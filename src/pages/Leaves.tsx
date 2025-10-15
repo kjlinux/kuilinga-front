@@ -14,10 +14,6 @@ const Leaves = () => {
     search: "",
   })
 
-  useEffect(() => {
-    fetchLeaves()
-  }, [fetchLeaves])
-
   const fetchLeaves = useCallback(async () => {
     setIsLoading(true)
     try {
@@ -29,6 +25,10 @@ const Leaves = () => {
       setIsLoading(false)
     }
   }, [filters])
+
+  useEffect(() => {
+    fetchLeaves()
+  }, [fetchLeaves])
 
   const handleDelete = async (id: string) => {
     if (window.confirm("Êtes-vous sûr de vouloir supprimer cette demande de congé ?")) {

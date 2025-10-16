@@ -127,10 +127,9 @@ const Attendance = () => {
           <thead className="table-header">
             <tr>
               <th className="table-header-cell">Employé</th>
-              <th className="table-header-cell">Département</th>
-              <th className="table-header-cell">Site</th>
               <th className="table-header-cell">Date/Heure</th>
               <th className="table-header-cell">Type</th>
+              <th className="table-header-cell">Durée</th>
               <th className="table-header-cell">Dispositif</th>
               <th className="table-header-cell">Géolocalisation</th>
             </tr>
@@ -138,7 +137,7 @@ const Attendance = () => {
           <tbody className="table-body">
             {attendances.length === 0 ? (
               <tr>
-                <td colSpan={7} className="table-cell text-center py-8">
+                <td colSpan={6} className="table-cell text-center py-8">
                   <p className="text-accent">
                     Aucune donnée de présence disponible
                   </p>
@@ -153,18 +152,19 @@ const Attendance = () => {
                   className="hover:bg-gray-50 transition-colors"
                 >
                   <td className="table-cell font-medium">
-                    {attendance.employee ? `${attendance.employee.first_name} ${attendance.employee.last_name}` : "N/A"}
+                    {attendance.employee
+                      ? `${attendance.employee.first_name} ${attendance.employee.last_name}`
+                      : "N/A"}
                   </td>
-                  <td className="table-cell">{attendance.employee?.department?.name || "N/A"}</td>
-                  <td className="table-cell">{attendance.employee?.department?.site?.name || "N/A"}</td>
                   <td className="table-cell">
                     {format(new Date(attendance.timestamp), "Pp", {
                       locale: fr,
                     })}
                   </td>
                   <td className="table-cell">{attendance.type}</td>
-                  <td className="table-cell">{attendance.device?.serial_number || "N/A"}</td>
-                  <td className="table-cell">{attendance.geo || "N/A"}</td>
+                  <td className="table-cell">{attendance.duration ?? "N/A"}</td>
+                  <td className="table-cell">{attendance.device?.serial_number ?? "N/A"}</td>
+                  <td className="table-cell">{attendance.geo ?? "N/A"}</td>
                 </motion.tr>
               ))
             )}

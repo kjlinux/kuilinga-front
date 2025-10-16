@@ -95,7 +95,7 @@ const Departments = () => {
               <th className="table-header-cell">Nom</th>
               <th className="table-header-cell">Site</th>
               <th className="table-header-cell">Manager</th>
-              <th className="table-header-cell">Nombre d'employés</th>
+              <th className="table-header-cell">N° Employés</th>
               <th className="table-header-cell">Actions</th>
             </tr>
           </thead>
@@ -115,11 +115,9 @@ const Departments = () => {
                   className="hover:bg-gray-50 transition-colors"
                 >
                   <td className="table-cell">{dept.name}</td>
-                  <td className="table-cell">{dept.site?.name || "N/A"}</td>
-                  <td className="table-cell">
-                    {dept.manager ? `${dept.manager.first_name} ${dept.manager.last_name}` : "N/A"}
-                  </td>
-                  <td className="table-cell">{dept.employees?.length || 0}</td>
+                  <td className="table-cell">{dept.site?.name ?? "N/A"}</td>
+                  <td className="table-cell">{dept.manager?.full_name ?? "N/A"}</td>
+                  <td className="table-cell">{dept.employees_count}</td>
                   <td className="table-cell">
                     <div className="flex items-center gap-2">
                       <button

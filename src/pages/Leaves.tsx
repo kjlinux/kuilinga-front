@@ -125,45 +125,40 @@ const Leaves = () => {
                 </td>
               </tr>
             ) : (
-              leaves.map((leave) => {
-                const startDate = new Date(leave.start_date);
-                const endDate = new Date(leave.end_date);
-                const duration = Math.ceil((endDate.getTime() - startDate.getTime()) / (1000 * 3600 * 24)) + 1;
-                return (
-                  <motion.tr
-                    key={leave.id}
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 1 }}
-                    className="hover:bg-gray-50 transition-colors"
-                  >
-                    <td className="table-cell">{leave.employee ? `${leave.employee.first_name} ${leave.employee.last_name}` : "N/A"}</td>
-                    <td className="table-cell">{leave.leave_type}</td>
-                    <td className="table-cell">{leave.start_date}</td>
-                    <td className="table-cell">{leave.end_date}</td>
-                    <td className="table-cell">{duration} jours</td>
-                    <td className="table-cell">{leave.reason}</td>
-                    <td className="table-cell">{getStatusBadge(leave.status)}</td>
-                    <td className="table-cell">{leave.approver?.full_name || "N/A"}</td>
-                    <td className="table-cell">
-                      <div className="flex items-center gap-2">
-                        <button
-                          className="p-2 rounded-lg hover:bg-blue-50 text-blue-600 transition-colors"
-                          title="Modifier"
-                        >
-                          <Edit className="w-4 h-4" />
-                        </button>
-                        <button
-                          onClick={() => handleDelete(leave.id)}
-                          className="p-2 rounded-lg hover:bg-red-50 text-red-600 transition-colors"
-                          title="Supprimer"
-                        >
-                          <Trash2 className="w-4 h-4" />
-                        </button>
-                      </div>
-                    </td>
-                  </motion.tr>
-                )
-              })
+              leaves.map((leave) => (
+                <motion.tr
+                  key={leave.id}
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  className="hover:bg-gray-50 transition-colors"
+                >
+                  <td className="table-cell">{leave.employee?.full_name ?? "N/A"}</td>
+                  <td className="table-cell">{leave.leave_type}</td>
+                  <td className="table-cell">{new Date(leave.start_date).toLocaleDateString()}</td>
+                  <td className="table-cell">{new Date(leave.end_date).toLocaleDateString()}</td>
+                  <td className="table-cell">{leave.duration} jours</td>
+                  <td className="table-cell">{leave.reason}</td>
+                  <td className="table-cell">{getStatusBadge(leave.status)}</td>
+                  <td className="table-cell">{leave.approver?.full_name ?? "N/A"}</td>
+                  <td className="table-cell">
+                    <div className="flex items-center gap-2">
+                      <button
+                        className="p-2 rounded-lg hover:bg-blue-50 text-blue-600 transition-colors"
+                        title="Modifier"
+                      >
+                        <Edit className="w-4 h-4" />
+                      </button>
+                      <button
+                        onClick={() => handleDelete(leave.id)}
+                        className="p-2 rounded-lg hover:bg-red-50 text-red-600 transition-colors"
+                        title="Supprimer"
+                      >
+                        <Trash2 className="w-4 h-4" />
+                      </button>
+                    </div>
+                  </td>
+                </motion.tr>
+              ))
             )}
           </tbody>
         </table>

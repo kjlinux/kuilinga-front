@@ -107,7 +107,7 @@ const Employees = () => {
               <th className="table-header-cell">Poste</th>
               <th className="table-header-cell">Département</th>
               <th className="table-header-cell">Site</th>
-              <th className="table-header-cell">Badge ID</th>
+              <th className="table-header-cell">N° Badge</th>
               <th className="table-header-cell">Statut</th>
               <th className="table-header-cell">Actions</th>
             </tr>
@@ -127,22 +127,24 @@ const Employees = () => {
                   animate={{ opacity: 1 }}
                   className="hover:bg-gray-50 transition-colors"
                 >
-                  <td className="table-cell">{employee.employee_id || "N/A"}</td>
+                  <td className="table-cell">{employee.employee_number ?? "N/A"}</td>
                   <td className="table-cell">
                     {employee.first_name} {employee.last_name}
                   </td>
                   <td className="table-cell">{employee.email}</td>
-                  <td className="table-cell">{employee.phone_number || "N/A"}</td>
-                  <td className="table-cell">{employee.position || "N/A"}</td>
-                  <td className="table-cell">{employee.department?.name || "N/A"}</td>
-                  <td className="table-cell">{employee.department?.site?.name || "N/A"}</td>
-                  <td className="table-cell">{employee.badge_number || "N/A"}</td>
+                  <td className="table-cell">{employee.phone ?? "N/A"}</td>
+                  <td className="table-cell">{employee.position ?? "N/A"}</td>
+                  <td className="table-cell">{employee.department?.name ?? "N/A"}</td>
+                  <td className="table-cell">{employee.site?.name ?? "N/A"}</td>
+                  <td className="table-cell">{employee.badge_id ?? "N/A"}</td>
                   <td className="table-cell">
-                    {employee.user?.is_active ? (
-                      <span className="badge-success">Actif</span>
-                    ) : (
-                      <span className="badge-danger">Inactif</span>
-                    )}
+                    <span
+                      className={
+                        employee.status === "Actif" ? "badge-success" : "badge-danger"
+                      }
+                    >
+                      {employee.status}
+                    </span>
                   </td>
                   <td className="table-cell">
                     <div className="flex items-center gap-2">

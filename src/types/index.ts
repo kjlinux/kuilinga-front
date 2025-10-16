@@ -48,7 +48,6 @@ export enum ReportPeriod {
   Custom = "custom",
 }
 
-
 // -----------------
 // # Schemas
 // -----------------
@@ -72,20 +71,12 @@ export interface UserInLogin {
   roles: Role[];
 }
 
-export interface LoginCredentials {
-  email: string;
-  password: string;
-}
-
 export interface Token {
   access_token: string;
   refresh_token: string;
   token_type: string;
   user: UserInLogin;
 }
-
-// This is the old AuthResponse, renamed to Token to match the spec
-export type AuthResponse = Token;
 
 export interface RefreshTokenRequest {
   refresh_token: string;
@@ -106,63 +97,148 @@ export interface Permission {
 
 export interface Organization {
   name: string;
-  industry?: string | null;
-  contact_email?: string | null;
-  phone_number?: string | null;
+  description?: string | null;
+  email?: string | null;
+  phone?: string | null;
   timezone: string;
-  subscription_plan: string;
+  plan?: string | null;
   is_active: boolean;
-  settings?: Record<string, unknown> | null;
   id: string;
-  sites: Site[];
+  sites_count: number;
+  employees_count: number;
+  users_count: number;
+}
+
+export interface SiteOrganization {
+  name: string;
+  description?: string | null;
+  email?: string | null;
+  phone?: string | null;
+  timezone: string;
+  plan?: string | null;
+  is_active: boolean;
+  id: string;
 }
 
 export interface Site {
   name: string;
-  location?: string | null;
+  address?: string | null;
   timezone: string;
   id: string;
-  organization_id: string;
-  organization?: Organization;
-  departments?: Department[];
-  employees?: Employee[];
+  organization?: SiteOrganization | null;
+  departments_count: number;
+  employees_count: number;
+  devices_count: number;
+}
+
+export interface DepartmentSite {
+  id: string;
+  name: string;
+}
+
+export interface DepartmentManager {
+  id: string;
+  first_name: string;
+  last_name: string;
+  full_name?: string | null;
 }
 
 export interface Department {
   name: string;
   id: string;
-  site_id: string;
-  manager_id?: string | null;
-  site?: Site | null;
-  manager?: Employee | null;
-  employees?: Employee[];
+  site?: DepartmentSite | null;
+  manager?: DepartmentManager | null;
+  employees_count: number;
+}
+
+export interface EmployeeDepartment {
+  name: string;
+  id: string;
+}
+
+export interface EmployeeSite {
+  name: string;
+  address?: string | null;
+  timezone: string;
+  id: string;
+}
+
+export interface EmployeeOrganization {
+  name: string;
+  description?: string | null;
+  email?: string | null;
+  phone?: string | null;
+  timezone: string;
+  plan?: string | null;
+  is_active: boolean;
+  id: string;
+}
+
+export interface EmployeeUser {
+  email: string;
+  full_name?: string | null;
+  phone_number?: string | null;
+  organization_id?: string | null;
+  id: string;
+  is_active: boolean;
 }
 
 export interface Employee {
-  last_name: string;
   first_name: string;
+  last_name: string;
   email: string;
-  phone_number?: string | null;
-  employee_id?: string | null;
-  department?: Department | null;
+  phone?: string | null;
+  employee_number?: string | null;
   position?: string | null;
-  badge_number?: string | null;
-  metadata?: Record<string, unknown> | null;
+  badge_id?: string | null;
   id: string;
-  organization_id: string;
-  user_id?: string | null;
-  user?: User | null;
+  status: string;
+  department?: EmployeeDepartment | null;
+  site?: EmployeeSite | null;
+  organization?: EmployeeOrganization | null;
+  user?: EmployeeUser | null;
+}
+
+export interface DeviceOrganization {
+  name: string;
+  description?: string | null;
+  email?: string | null;
+  phone?: string | null;
+  timezone: string;
+  plan?: string | null;
+  is_active: boolean;
+  id: string;
+}
+
+export interface DeviceSite {
+  name: string;
+  address?: string | null;
+  timezone: string;
+  id: string;
 }
 
 export interface Device {
   serial_number: string;
-  model: string;
+  type: string;
   status: DeviceStatus;
-  organization_id: string;
   id: string;
-  organization?: Organization;
-  site?: Site;
-  last_attendance?: Attendance;
+  organization?: DeviceOrganization | null;
+  site?: DeviceSite | null;
+  last_attendance_timestamp?: string | null; // "date-time"
+  daily_attendance_count: number;
+}
+
+export interface AttendanceEmployee {
+  id: string;
+  first_name: string;
+  last_name: string;
+  employee_number?: string | null;
+}
+
+export interface AttendanceDevice {
+  id: string;
+  serial_number: string;
+  type: string;
 }
 
 export interface Attendance {
@@ -171,10 +247,27 @@ export interface Attendance {
   geo?: string | null;
   extra_data?: Record<string, unknown> | null;
   id: string;
-  employee_id: string;
-  device_id?: string | null;
-  employee?: Employee;
-  device?: Device;
+  duration?: string | null;
+  employee?: AttendanceEmployee | null;
+  device?: AttendanceDevice | null;
+}
+
+export interface LeaveDepartment {
+  id: string;
+  name: string;
+}
+
+export interface LeaveEmployee {
+  id: string;
+  first_name: string;
+  last_name: string;
+  department?: LeaveDepartment | null;
+  full_name?: string | null;
+}
+
+export interface LeaveApprover {
+  id: string;
+  full_name?: string | null;
 }
 
 export interface Leave {
@@ -182,13 +275,12 @@ export interface Leave {
   start_date: string; // "date"
   end_date: string; // "date"
   reason: string;
-  id: string;
-  employee_id: string;
-  status: LeaveStatus;
-  approver_id?: string | null;
   notes?: string | null;
-  employee?: Employee | null;
-  approver?: User | null;
+  id: string;
+  status: LeaveStatus;
+  duration: number;
+  employee?: LeaveEmployee | null;
+  approver?: LeaveApprover | null;
 }
 
 // -----------------
@@ -213,50 +305,36 @@ export interface UserUpdate {
 
 export interface OrganizationCreate {
   name: string;
-  industry?: string | null;
-  contact_email?: string | null;
-  phone_number?: string | null;
+  description?: string | null;
+  email?: string | null;
+  phone?: string | null;
   timezone?: string;
-  subscription_plan?: string;
+  plan?: string | null;
   is_active?: boolean;
-  settings?: Record<string, unknown> | null;
 }
 
 export interface OrganizationUpdate {
   name?: string | null;
-  industry?: string | null;
-  contact_email?: string | null;
-  phone_number?: string | null;
+  description?: string | null;
+  email?: string | null;
+  phone?: string | null;
   timezone?: string | null;
-  subscription_plan?: string | null;
+  plan?: string | null;
   is_active?: boolean | null;
-  settings?: Record<string, unknown> | null;
 }
 
 export interface EmployeeCreate {
-  last_name: string;
   first_name: string;
+  last_name: string;
   email: string;
-  phone_number?: string | null;
-  employee_id?: string | null;
-  department?: string | null;
+  phone?: string | null;
+  employee_number?: string | null;
   position?: string | null;
-  badge_number?: string | null;
-  metadata?: Record<string, unknown> | null;
+  badge_id?: string | null;
   organization_id: string;
+  department_id?: string | null;
+  site_id?: string | null;
   user_id?: string | null;
-}
-
-export interface EmployeeUpdate {
-  last_name?: string | null;
-  first_name?: string | null;
-  email?: string | null;
-  phone_number?: string | null;
-  employee_id?: string | null;
-  department?: string | null;
-  position?: string | null;
-  badge_number?: string | null;
-  metadata?: Record<string, unknown> | null;
 }
 
 export interface DepartmentCreate {
@@ -272,28 +350,30 @@ export interface DepartmentUpdate {
 
 export interface SiteCreate {
   name: string;
-  location?: string | null;
+  address?: string | null;
   timezone?: string;
   organization_id: string;
 }
 
 export interface SiteUpdate {
   name?: string | null;
-  location?: string | null;
+  address?: string | null;
   timezone?: string | null;
 }
 
 export interface DeviceCreate {
   serial_number: string;
-  model?: string;
+  type?: string;
   status?: DeviceStatus;
   organization_id: string;
+  site_id?: string | null;
 }
 
 export interface DeviceUpdate {
   serial_number?: string | null;
-  model?: string | null;
+  type?: string | null;
   status?: DeviceStatus | null;
+  site_id?: string | null;
 }
 
 export interface AttendanceCreate {
@@ -310,11 +390,12 @@ export interface LeaveCreate {
   start_date: string; // "date"
   end_date: string; // "date"
   reason: string;
+  notes?: string | null;
   employee_id: string;
 }
 
 export interface LeaveUpdate {
-  status?: LeaveStatus | null;
+  status: LeaveStatus;
   notes?: string | null;
 }
 

@@ -95,15 +95,16 @@ const Sites = () => {
               <th className="table-header-cell">Adresse</th>
               <th className="table-header-cell">Organisation</th>
               <th className="table-header-cell">Fuseau horaire</th>
-              <th className="table-header-cell">Nombre de départements</th>
-              <th className="table-header-cell">Nombre d'employés</th>
+              <th className="table-header-cell">Départements</th>
+              <th className="table-header-cell">Employés</th>
+              <th className="table-header-cell">Terminaux</th>
               <th className="table-header-cell">Actions</th>
             </tr>
           </thead>
           <tbody className="table-body">
             {sites.length === 0 ? (
               <tr>
-                <td colSpan={7} className="table-cell text-center py-8">
+                <td colSpan={8} className="table-cell text-center py-8">
                   <p className="text-accent">Aucun site trouvé</p>
                 </td>
               </tr>
@@ -116,11 +117,12 @@ const Sites = () => {
                   className="hover:bg-gray-50 transition-colors"
                 >
                   <td className="table-cell">{site.name}</td>
-                  <td className="table-cell">{site.location || "N/A"}</td>
-                  <td className="table-cell">{site.organization?.name || "N/A"}</td>
+                  <td className="table-cell">{site.address ?? "N/A"}</td>
+                  <td className="table-cell">{site.organization?.name ?? "N/A"}</td>
                   <td className="table-cell">{site.timezone}</td>
-                  <td className="table-cell">{site.departments?.length || 0}</td>
-                  <td className="table-cell">{site.employees?.length || 0}</td>
+                  <td className="table-cell">{site.departments_count}</td>
+                  <td className="table-cell">{site.employees_count}</td>
+                  <td className="table-cell">{site.devices_count}</td>
                   <td className="table-cell">
                     <div className="flex items-center gap-2">
                       <button

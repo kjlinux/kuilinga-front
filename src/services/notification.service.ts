@@ -10,10 +10,7 @@ class NotificationService {
       return Array.isArray(response) ? response : []
     } catch (error: unknown) {
       // If endpoint doesn't exist (404) or any other error, return empty array
-      console.warn(
-        "Notifications endpoint not available, returning empty array:",
-        error
-      )
+      console.warn("Notifications endpoint not available, returning empty array:", (error as { response?: { status?: number } })?.response?.status)
       return []
     }
   }

@@ -5,26 +5,33 @@ import { motion } from "framer-motion"
 import { Search, Plus, Edit, Trash2 } from "lucide-react"
 import LoadingSpinner from "../components/LoadingSpinner"
 import departmentService from "../services/department.service"
-import type { Department, Filter } from "../types"
+import type { Department, PaginationParams } from "../types"
 
 const Departments = () => {
   const [departments, setDepartments] = useState<Department[]>([])
   const [isLoading, setIsLoading] = useState(true)
-  const [filters, setFilters] = useState<Filter>({
+  const [pagination, setPagination] = useState<PaginationParams>({
+    skip: 0,
+    limit: 10,
     search: "",
-  })
+  });
 
   const fetchDepartments = useCallback(async () => {
-    setIsLoading(true)
+    setIsLoading(true);
     try {
-      const response = await departmentService.getDepartments(1, 20, filters)
-      setDepartments(response.data)
+      const response = await departmentService.getDepartments(pagination)
+      setDepartments(response.items)
     } catch (error) {
       console.error("Erreur lors de la récupération des départements:", error)
     } finally {
       setIsLoading(false)
     }
-  }, [filters])
+  }, [pagination])
+
+  useEffect(() => {
+    fetchDepartments()
+  }, [fetchDepartments])
+
 
   useEffect(() => {
     fetchDepartments()
@@ -73,8 +80,8 @@ const Departments = () => {
           <input
             type="text"
             placeholder="Rechercher par nom..."
-            value={filters.search}
-            onChange={(e) => setFilters({ ...filters, search: e.target.value })}
+            value={pagination.search}
+            onChange={(e) => setPagination({ ...pagination, search: e.target.value })}
             className="input pl-10 w-full"
           />
         </div>

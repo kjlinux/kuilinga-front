@@ -5,9 +5,18 @@ import type { LoginCredentials, AuthResponse, User } from "../types"
 class AuthService {
   async login(credentials: LoginCredentials): Promise<AuthResponse> {
     try {
+      const params = new URLSearchParams()
+      params.append("username", credentials.email)
+      params.append("password", credentials.password)
+
       const response = await apiService.post<AuthResponse>(
         API_CONFIG.ENDPOINTS.LOGIN,
-        credentials
+        params,
+        {
+          headers: {
+            "Content-Type": "application/x-www-form-urlencoded",
+          },
+        }
       )
 
       // Store tokens

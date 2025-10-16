@@ -14,8 +14,9 @@ interface SidebarProps {
 const menuItems = [
   { path: "/dashboard", icon: LayoutDashboard, label: "Tableau de bord" },
   { path: "/attendance", icon: ClipboardList, label: "Présences" },
-  { path: "/reports", icon: BarChart3, label: "Rapports" },
-  { path: "/users", icon: Users, label: "Utilisateurs" },
+  { path:
+"/reports", icon: BarChart3, label: "Rapports" },
+  { path: "/employees", icon: Users, label: "Employés" },
   { path: "/organizations", icon: Building, label: "Organisations" },
   { path: "/sites", icon: Globe, label: "Sites" },
   { path: "/departments", icon: Briefcase, label: "Départements" },

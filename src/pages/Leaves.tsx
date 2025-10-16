@@ -5,30 +5,32 @@ import { motion } from "framer-motion"
 import { Search, Plus, Edit, Trash2 } from "lucide-react"
 import LoadingSpinner from "../components/LoadingSpinner"
 import leaveService from "../services/leave.service"
-import type { Leave, Filter } from "../types"
+import type { Leave, PaginationParams, LeaveStatus } from "../types"
 
 const Leaves = () => {
   const [leaves, setLeaves] = useState<Leave[]>([])
   const [isLoading, setIsLoading] = useState(true)
-  const [filters, setFilters] = useState<Filter>({
+  const [pagination, setPagination] = useState<PaginationParams>({
+    skip: 0,
+    limit: 10,
     search: "",
-  })
-
-  useEffect(() => {
-    fetchLeaves()
-  }, [fetchLeaves])
+  });
 
   const fetchLeaves = useCallback(async () => {
-    setIsLoading(true)
+    setIsLoading(true);
     try {
-      const response = await leaveService.getLeaves(1, 20, filters)
-      setLeaves(response.data)
+      const response = await leaveService.getLeaves(pagination)
+      setLeaves(response.items)
     } catch (error) {
       console.error("Erreur lors de la récupération des congés:", error)
     } finally {
       setIsLoading(false)
     }
-  }, [filters])
+  }, [pagination])
+
+  useEffect(() => {
+    fetchLeaves()
+  }, [fetchLeaves])
 
   const handleDelete = async (id: string) => {
     if (window.confirm("Êtes-vous sûr de vouloir supprimer cette demande de congé ?")) {
@@ -41,7 +43,7 @@ const Leaves = () => {
     }
   }
 
-  const getStatusBadge = (status: string) => {
+  const getStatusBadge = (status: LeaveStatus) => {
     switch (status) {
       case "pending":
         return <span className="badge-warning">En attente</span>
@@ -88,8 +90,8 @@ const Leaves = () => {
           <input
             type="text"
             placeholder="Rechercher par employé..."
-            value={filters.search}
-            onChange={(e) => setFilters({ ...filters, search: e.target.value })}
+            value={pagination.search}
+            onChange={(e) => setPagination({ ...pagination, search: e.target.value })}
             className="input pl-10 w-full"
           />
         </div>
@@ -123,7 +125,7 @@ const Leaves = () => {
                   animate={{ opacity: 1 }}
                   className="hover:bg-gray-50 transition-colors"
                 >
-                  <td className="table-cell">{leave.employee?.nom} {leave.employee?.prenom}</td>
+                  <td className="table-cell">{leave.employee?.first_name} {leave.employee?.last_name}</td>
                   <td className="table-cell">{leave.leave_type}</td>
                   <td className="table-cell">{leave.start_date}</td>
                   <td className="table-cell">{leave.end_date}</td>

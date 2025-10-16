@@ -5,30 +5,32 @@ import { motion } from "framer-motion"
 import { Search, Plus, Edit, Trash2 } from "lucide-react"
 import LoadingSpinner from "../components/LoadingSpinner"
 import siteService from "../services/site.service"
-import type { Site, Filter } from "../types"
+import type { Site, PaginationParams } from "../types"
 
 const Sites = () => {
   const [sites, setSites] = useState<Site[]>([])
   const [isLoading, setIsLoading] = useState(true)
-  const [filters, setFilters] = useState<Filter>({
+  const [pagination, setPagination] = useState<PaginationParams>({
+    skip: 0,
+    limit: 10,
     search: "",
-  })
-
-  useEffect(() => {
-    fetchSites()
-  }, [fetchSites])
+  });
 
   const fetchSites = useCallback(async () => {
-    setIsLoading(true)
+    setIsLoading(true);
     try {
-      const response = await siteService.getSites(1, 20, filters)
-      setSites(response.data)
+      const response = await siteService.getSites(pagination)
+      setSites(response.items)
     } catch (error) {
       console.error("Erreur lors de la récupération des sites:", error)
     } finally {
       setIsLoading(false)
     }
-  }, [filters])
+  }, [pagination])
+
+  useEffect(() => {
+    fetchSites()
+  }, [fetchSites])
 
   const handleDelete = async (id: string) => {
     if (window.confirm("Êtes-vous sûr de vouloir supprimer ce site ?")) {
@@ -73,8 +75,8 @@ const Sites = () => {
           <input
             type="text"
             placeholder="Rechercher par nom..."
-            value={filters.search}
-            onChange={(e) => setFilters({ ...filters, search: e.target.value })}
+            value={pagination.search}
+            onChange={(e) => setPagination({ ...pagination, search: e.target.value })}
             className="input pl-10 w-full"
           />
         </div>

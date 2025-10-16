@@ -5,85 +5,46 @@ import { motion } from "framer-motion";
 import { Search, Filter, Download, RefreshCw } from "lucide-react";
 import LoadingSpinner from "../components/LoadingSpinner";
 import attendanceService from "../services/attendance.service";
-import departmentService from "../services/department.service";
 import type {
   Attendance as AttendanceType,
-  Filter as FilterType,
-  Department,
+  PaginationParams,
 } from "../types";
 import { format } from "date-fns";
 import { fr } from "date-fns/locale";
 
 const Attendance = () => {
   const [attendances, setAttendances] = useState<AttendanceType[]>([]);
-  const [departments, setDepartments] = useState<Department[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isRefreshing, setIsRefreshing] = useState(false);
-  const [filters, setFilters] = useState<FilterType>({
+  const [pagination, setPagination] = useState<PaginationParams>({
+    skip: 0,
+    limit: 10,
     search: "",
-    departement: "",
-    statut: "",
-    classe: "",
   });
   const [showFilters, setShowFilters] = useState(false);
-
-  const fetchInitialData = async () => {
-    try {
-      const deptResponse = await departmentService.getDepartments();
-      setDepartments(deptResponse.data);
-    } catch (error) {
-      console.error("Erreur lors de la récupération des départements:", error);
-    }
-  };
 
   const fetchAttendances = useCallback(async () => {
     try {
       setIsRefreshing(true);
-      const data = await attendanceService.getRealtime(filters);
-      setAttendances(data);
+      const data = await attendanceService.getAttendances(pagination);
+      setAttendances(data.items);
     } catch (error) {
       console.error("Erreur lors de la récupération des présences:", error);
     } finally {
       setIsLoading(false);
       setIsRefreshing(false);
     }
-  }, [filters]);
-
-  useEffect(() => {
-    fetchInitialData();
-  }, []);
+  }, [pagination]);
 
   useEffect(() => {
     fetchAttendances();
     // Rafraîchir automatiquement toutes les 30 secondes
     const interval = setInterval(fetchAttendances, 30000);
     return () => clearInterval(interval);
-  }, [filters, fetchAttendances]);
+  }, [pagination, fetchAttendances]);
 
   const handleSearch = (value: string) => {
-    setFilters({ ...filters, search: value });
-  };
-
-  const getStatusBadge = (statut: string) => {
-    switch (statut) {
-      case "present":
-        return <span className="badge-success">Présent</span>;
-      case "absent":
-        return <span className="badge-danger">Absent</span>;
-      case "retard":
-        return <span className="badge-warning">En retard</span>;
-      case "sortie_anticipee":
-        return <span className="badge-info">Sortie anticipée</span>;
-      default:
-        return <span className="badge">{statut}</span>;
-    }
-  };
-
-  const formatDuration = (minutes?: number) => {
-    if (!minutes) return "-";
-    const hours = Math.floor(minutes / 60);
-    const mins = minutes % 60;
-    return `${hours}h${mins.toString().padStart(2, "0")}`;
+    setPagination({ ...pagination, search: value });
   };
 
   if (isLoading) {
@@ -136,8 +97,8 @@ const Attendance = () => {
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-accent" />
               <input
                 type="text"
-                placeholder="Rechercher par nom, matricule..."
-                value={filters.search}
+                placeholder="Rechercher par ID employé..."
+                value={pagination.search}
                 onChange={(e) => handleSearch(e.target.value)}
                 className="input pl-10 w-full"
               />
@@ -153,80 +114,6 @@ const Attendance = () => {
             Filtres
           </button>
         </div>
-
-        {/* Filtres avancés */}
-        {showFilters && (
-          <motion.div
-            initial={{ opacity: 0, height: 0 }}
-            animate={{ opacity: 1, height: "auto" }}
-            exit={{ opacity: 0, height: 0 }}
-            className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-4 pt-4 border-t border-gray-200"
-          >
-            <div>
-              <label className="block text-sm font-medium text-secondary mb-2">
-                Département
-              </label>
-              <select
-                value={filters.departement}
-                onChange={(e) =>
-                  setFilters({ ...filters, departement: e.target.value })
-                }
-                className="input"
-              >
-                <option value="">Tous les départements</option>
-                {departments.map((dept) => (
-                  <option key={dept.id} value={dept.id}>
-                    {dept.name}
-                  </option>
-                ))}
-              </select>
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium text-secondary mb-2">
-                Classe / Niveau
-              </label>
-              <input
-                type="text"
-                placeholder="Ex: 6ème, L1..."
-                value={filters.classe}
-                onChange={(e) =>
-                  setFilters({ ...filters, classe: e.target.value })
-                }
-                className="input"
-              />
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium text-secondary mb-2">
-                Statut
-              </label>
-              <select
-                value={filters.statut}
-                onChange={(e) =>
-                  setFilters({ ...filters, statut: e.target.value })
-                }
-                className="input"
-              >
-                <option value="">Tous les statuts</option>
-                <option value="present">Présent</option>
-                <option value="absent">Absent</option>
-                <option value="retard">En retard</option>
-              </select>
-            </div>
-
-            <div className="flex items-end">
-              <button
-                onClick={() =>
-                  setFilters({ search: "", departement: "", statut: "" })
-                }
-                className="btn-outline w-full"
-              >
-                Réinitialiser
-              </button>
-            </div>
-          </motion.div>
-        )}
       </div>
 
       {/* Tableau des présences */}
@@ -234,19 +121,17 @@ const Attendance = () => {
         <table className="table">
           <thead className="table-header">
             <tr>
-              <th className="table-header-cell">Nom</th>
-              <th className="table-header-cell">Matricule</th>
-              <th className="table-header-cell">Département</th>
-              <th className="table-header-cell">Arrivée</th>
-              <th className="table-header-cell">Départ</th>
-              <th className="table-header-cell">Durée</th>
-              <th className="table-header-cell">Statut</th>
+              <th className="table-header-cell">ID Employé</th>
+              <th className="table-header-cell">Timestamp</th>
+              <th className="table-header-cell">Type</th>
+              <th className="table-header-cell">Geo</th>
+              <th className="table-header-cell">ID Appareil</th>
             </tr>
           </thead>
           <tbody className="table-body">
             {attendances.length === 0 ? (
               <tr>
-                <td colSpan={7} className="table-cell text-center py-8">
+                <td colSpan={5} className="table-cell text-center py-8">
                   <p className="text-accent">
                     Aucune donnée de présence disponible
                   </p>
@@ -261,30 +146,16 @@ const Attendance = () => {
                   className="hover:bg-gray-50 transition-colors"
                 >
                   <td className="table-cell font-medium">
-                    {attendance.employee_name}
-                  </td>
-                  <td className="table-cell">{attendance.matricule}</td>
-                  <td className="table-cell">{attendance.departement}</td>
-                  <td className="table-cell">
-                    {attendance.heure_arrivee
-                      ? format(new Date(attendance.heure_arrivee), "HH:mm", {
-                          locale: fr,
-                        })
-                      : "-"}
+                    {attendance.employee_id}
                   </td>
                   <td className="table-cell">
-                    {attendance.heure_depart
-                      ? format(new Date(attendance.heure_depart), "HH:mm", {
-                          locale: fr,
-                        })
-                      : "-"}
+                    {format(new Date(attendance.timestamp), "Pp", {
+                      locale: fr,
+                    })}
                   </td>
-                  <td className="table-cell">
-                    {formatDuration(attendance.duree)}
-                  </td>
-                  <td className="table-cell">
-                    {getStatusBadge(attendance.statut)}
-                  </td>
+                  <td className="table-cell">{attendance.type}</td>
+                  <td className="table-cell">{attendance.geo}</td>
+                  <td className="table-cell">{attendance.device_id}</td>
                 </motion.tr>
               ))
             )}

@@ -8,9 +8,9 @@ class NotificationService {
       // Check if notifications endpoint exists
       const response = await apiService.get<Notification[]>(API_CONFIG.ENDPOINTS.NOTIFICATIONS)
       return Array.isArray(response) ? response : []
-    } catch (error: any) {
+    } catch (error: unknown) {
       // If endpoint doesn't exist (404) or any other error, return empty array
-      console.warn("Notifications endpoint not available, returning empty array:", error?.response?.status)
+      console.warn("Notifications endpoint not available, returning empty array:", (error as { response?: { status?: number } })?.response?.status)
       return []
     }
   }

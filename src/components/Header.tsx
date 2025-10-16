@@ -153,7 +153,7 @@ const Header: React.FC<HeaderProps> = ({ onMenuClick }) => {
               {user?.photo ? (
                 <img
                   src={user.photo}
-                  alt={`${user.prenom} ${user.nom}`}
+                  alt={user.full_name ?? ""}
                   className="w-8 h-8 rounded-full object-cover"
                 />
               ) : (
@@ -163,9 +163,9 @@ const Header: React.FC<HeaderProps> = ({ onMenuClick }) => {
               )}
               <div className="hidden md:block text-left">
                 <p className="text-sm font-medium text-secondary">
-                  {user?.prenom} {user?.nom}
+                  {user?.full_name}
                 </p>
-                <p className="text-xs text-accent capitalize">{user?.role}</p>
+                <p className="text-xs text-accent capitalize">{user?.roles?.[0]?.name}</p>
               </div>
             </button>
 
@@ -179,7 +179,7 @@ const Header: React.FC<HeaderProps> = ({ onMenuClick }) => {
                 >
                   <div className="p-4 border-b border-gray-200">
                     <p className="font-medium text-secondary">
-                      {user?.prenom} {user?.nom}
+                      {user?.full_name}
                     </p>
                     <p className="text-sm text-accent">{user?.email}</p>
                   </div>

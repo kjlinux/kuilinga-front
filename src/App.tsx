@@ -7,7 +7,7 @@ import Login from "./pages/Login"
 import Dashboard from "./pages/Dashboard"
 import Attendance from "./pages/Attendance"
 import Reports from "./pages/Reports"
-import Users from "./pages/Users"
+import Employees from "./pages/Employees"
 import Settings from "./pages/Settings"
 import NotFound from "./pages/NotFound"
 import Organizations from "./pages/Organizations"
@@ -30,7 +30,7 @@ function App() {
                 <Route path="/dashboard" element={<Dashboard />} />
                 <Route path="/attendance" element={<Attendance />} />
                 <Route path="/reports" element={<Reports />} />
-                <Route path="/users" element={<Users />} />
+                <Route path="/employees" element={<Employees />} />
                 <Route path="/settings" element={<Settings />} />
                 <Route path="/organizations" element={<Organizations />} />
                 <Route path="/sites" element={<Sites />} />

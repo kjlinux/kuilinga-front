@@ -5,30 +5,32 @@ import { motion } from "framer-motion"
 import { Search, Plus, Edit, Trash2 } from "lucide-react"
 import LoadingSpinner from "../components/LoadingSpinner"
 import deviceService from "../services/device.service"
-import type { Device, Filter } from "../types"
+import type { Device, PaginationParams, DeviceStatus } from "../types"
 
 const Devices = () => {
   const [devices, setDevices] = useState<Device[]>([])
   const [isLoading, setIsLoading] = useState(true)
-  const [filters, setFilters] = useState<Filter>({
+  const [pagination, setPagination] = useState<PaginationParams>({
+    skip: 0,
+    limit: 10,
     search: "",
-  })
-
-  useEffect(() => {
-    fetchDevices()
-  }, [fetchDevices])
+  });
 
   const fetchDevices = useCallback(async () => {
-    setIsLoading(true)
+    setIsLoading(true);
     try {
-      const response = await deviceService.getDevices(1, 20, filters)
-      setDevices(response.data)
+      const response = await deviceService.getDevices(pagination)
+      setDevices(response.items)
     } catch (error) {
       console.error("Erreur lors de la récupération des terminaux:", error)
     } finally {
       setIsLoading(false)
     }
-  }, [filters])
+  }, [pagination])
+
+  useEffect(() => {
+    fetchDevices()
+  }, [fetchDevices])
 
   const handleDelete = async (id: string) => {
     if (window.confirm("Êtes-vous sûr de vouloir supprimer ce terminal ?")) {
@@ -41,7 +43,7 @@ const Devices = () => {
     }
   }
 
-  const getStatusBadge = (status: string) => {
+  const getStatusBadge = (status: DeviceStatus) => {
     switch (status) {
       case "online":
         return <span className="badge-success">En ligne</span>
@@ -86,8 +88,8 @@ const Devices = () => {
           <input
             type="text"
             placeholder="Rechercher par numéro de série..."
-            value={filters.search}
-            onChange={(e) => setFilters({ ...filters, search: e.target.value })}
+            value={pagination.search}
+            onChange={(e) => setPagination({ ...pagination, search: e.target.value })}
             className="input pl-10 w-full"
           />
         </div>

@@ -5,30 +5,32 @@ import { motion } from "framer-motion"
 import { Search, Plus, Edit, Trash2 } from "lucide-react"
 import LoadingSpinner from "../components/LoadingSpinner"
 import organizationService from "../services/organization.service"
-import type { Organization, Filter } from "../types"
+import type { Organization, PaginationParams } from "../types"
 
 const Organizations = () => {
   const [organizations, setOrganizations] = useState<Organization[]>([])
   const [isLoading, setIsLoading] = useState(true)
-  const [filters, setFilters] = useState<Filter>({
+  const [pagination, setPagination] = useState<PaginationParams>({
+    skip: 0,
+    limit: 10,
     search: "",
-  })
-
-  useEffect(() => {
-    fetchOrganizations()
-  }, [fetchOrganizations])
+  });
 
   const fetchOrganizations = useCallback(async () => {
-    setIsLoading(true)
+    setIsLoading(true);
     try {
-      const response = await organizationService.getOrganizations(1, 20, filters)
-      setOrganizations(response.data)
+      const response = await organizationService.getOrganizations(pagination)
+      setOrganizations(response.items)
     } catch (error) {
       console.error("Erreur lors de la récupération des organisations:", error)
     } finally {
       setIsLoading(false)
     }
-  }, [filters])
+  }, [pagination])
+
+  useEffect(() => {
+    fetchOrganizations()
+  }, [fetchOrganizations])
 
   const handleDelete = async (id: string) => {
     if (window.confirm("Êtes-vous sûr de vouloir supprimer cette organisation ?")) {
@@ -73,8 +75,8 @@ const Organizations = () => {
           <input
             type="text"
             placeholder="Rechercher par nom..."
-            value={filters.search}
-            onChange={(e) => setFilters({ ...filters, search: e.target.value })}
+            value={pagination.search}
+            onChange={(e) => setPagination({ ...pagination, search: e.target.value })}
             className="input pl-10 w-full"
           />
         </div>

@@ -11,8 +11,8 @@ import { Label } from "@/components/ui/label"
 import { Leave, LeaveCreate, LeaveUpdate, Employee, LeaveType, LeaveStatus } from "../types"
 import { useEffect, useState } from "react"
 import employeeService from "@/services/employee.service"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "./ui/select"
-import { Textarea } from "./ui/textarea"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { Textarea } from "@/components/ui/textarea"
 
 interface LeaveDialogProps {
   isOpen: boolean

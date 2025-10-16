@@ -12,7 +12,7 @@ import { Department, DepartmentCreate, DepartmentUpdate, Site, Employee } from "
 import { useEffect, useState } from "react"
 import siteService from "@/services/site.service"
 import employeeService from "@/services/employee.service"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "./ui/select"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 
 interface DepartmentDialogProps {
   isOpen: boolean

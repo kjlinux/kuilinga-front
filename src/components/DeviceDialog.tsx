@@ -12,7 +12,7 @@ import { Device, DeviceCreate, DeviceUpdate, Site, Organization } from "../types
 import { useEffect, useState } from "react"
 import siteService from "@/services/site.service"
 import organizationService from "@/services/organization.service"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "./ui/select"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 
 interface DeviceDialogProps {
   isOpen: boolean

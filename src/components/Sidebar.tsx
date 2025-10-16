@@ -1,21 +1,32 @@
-"use client"
+"use client";
 
-import type React from "react"
+import type React from "react";
 
-import { Link, useLocation } from "react-router-dom"
-import { motion, AnimatePresence } from "framer-motion"
-import { LayoutDashboard, Users, ClipboardList, BarChart3, Settings, X, Building, Globe, Briefcase, HardDrive, Calendar } from "lucide-react"
+import { Link, useLocation } from "react-router-dom";
+import { motion, AnimatePresence } from "framer-motion";
+import {
+  LayoutDashboard,
+  Users,
+  ClipboardList,
+  BarChart3,
+  Settings,
+  X,
+  Building,
+  Globe,
+  Briefcase,
+  HardDrive,
+  Calendar,
+} from "lucide-react";
 
 interface SidebarProps {
-  isOpen: boolean
-  onClose: () => void
+  isOpen: boolean;
+  onClose: () => void;
 }
 
 const menuItems = [
   { path: "/dashboard", icon: LayoutDashboard, label: "Tableau de bord" },
   { path: "/attendance", icon: ClipboardList, label: "Présences" },
-  { path:
-"/reports", icon: BarChart3, label: "Rapports" },
+  { path: "/reports", icon: BarChart3, label: "Rapports" },
   { path: "/employees", icon: Users, label: "Employés" },
   { path: "/organizations", icon: Building, label: "Organisations" },
   { path: "/sites", icon: Globe, label: "Sites" },
@@ -23,10 +34,10 @@ const menuItems = [
   { path: "/devices", icon: HardDrive, label: "Terminaux" },
   { path: "/leaves", icon: Calendar, label: "Congés" },
   { path: "/settings", icon: Settings, label: "Paramètres" },
-]
+];
 
 const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
-  const location = useLocation()
+  const location = useLocation();
 
   return (
     <>
@@ -45,24 +56,24 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
 
       {/* Sidebar */}
       <aside
-        className={`fixed top-16 left-0 bottom-0 w-64 bg-white shadow-lg z-40 transform transition-transform duration-300 ease-in-out ${
+        className={`fixed top-16 left-0 bottom-0 w-64 bg-white shadow-lg z-40 transform transition-transform duration-300 ease-in-out flex flex-col ${
           isOpen ? "translate-x-0" : "-translate-x-full"
         } lg:translate-x-0`}
       >
         {/* Bouton fermer pour mobile */}
         <button
           onClick={onClose}
-          className="absolute top-4 right-4 p-2 rounded-lg hover:bg-gray-100 lg:hidden"
+          className="absolute top-4 right-4 p-2 rounded-lg hover:bg-gray-100 lg:hidden z-10"
           aria-label="Fermer le menu"
         >
           <X className="w-5 h-5 text-secondary" />
         </button>
 
-        {/* Menu de navigation */}
-        <nav className="p-4 space-y-2 mt-4 lg:mt-0">
+        {/* Menu de navigation avec scroll */}
+        <nav className="flex-1 overflow-y-auto p-4 space-y-2 mt-4 lg:mt-0 pb-20">
           {menuItems.map((item) => {
-            const Icon = item.icon
-            const isActive = location.pathname === item.path
+            const Icon = item.icon;
+            const isActive = location.pathname === item.path;
 
             return (
               <Link
@@ -70,18 +81,20 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
                 to={item.path}
                 onClick={onClose}
                 className={`flex items-center gap-3 px-4 py-3 rounded-lg transition-all duration-200 ${
-                  isActive ? "bg-primary text-white shadow-md" : "text-secondary hover:bg-gray-100"
+                  isActive
+                    ? "bg-primary text-white shadow-md"
+                    : "text-secondary hover:bg-gray-100"
                 }`}
               >
                 <Icon className="w-5 h-5" />
                 <span className="font-medium">{item.label}</span>
               </Link>
-            )
+            );
           })}
         </nav>
 
-        {/* Footer */}
-        <div className="absolute bottom-0 left-0 right-0 p-4 border-t border-gray-200">
+        {/* Footer fixe */}
+        <div className="flex-shrink-0 p-4 border-t border-gray-200 bg-white">
           <p className="text-xs text-center text-accent">
             KUILINGA v2.0
             <br />© 2025 TANGA GROUP
@@ -89,7 +102,7 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
         </div>
       </aside>
     </>
-  )
-}
+  );
+};
 
-export default Sidebar
+export default Sidebar;

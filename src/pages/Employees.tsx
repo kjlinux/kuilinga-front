@@ -140,7 +140,7 @@ const Employees = () => {
                   </td>
                   <td className="table-cell">{employee.employee_id}</td>
                   <td className="table-cell">{employee.email}</td>
-                  <td className="table-cell">{employee.department}</td>
+                  <td className="table-cell">{employee.department?.name || 'N/A'}</td>
                   <td className="table-cell capitalize">{employee.position}</td>
                   <td className="table-cell">
                     <div className="flex items-center gap-2">

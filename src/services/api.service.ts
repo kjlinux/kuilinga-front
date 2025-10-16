@@ -33,6 +33,16 @@ class ApiService {
       async (error) => {
         const originalRequest = error.config
 
+        if (
+          error.response?.status === 403 &&
+          error.response?.data?.detail === "Could not validate credentials"
+        ) {
+          localStorage.removeItem("access_token")
+          localStorage.removeItem("refresh_token")
+          window.location.href = "/login"
+          return Promise.reject(error)
+        }
+
         // Si erreur 401 et pas déjà tenté de refresh
         if (error.response?.status === 401 && !originalRequest._retry) {
           originalRequest._retry = true

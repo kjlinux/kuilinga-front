@@ -92,16 +92,19 @@ const Organizations = () => {
           <thead className="table-header">
             <tr>
               <th className="table-header-cell">Nom</th>
-              <th className="table-header-cell">Industrie</th>
-              <th className="table-header-cell">Email de contact</th>
+              <th className="table-header-cell">Email</th>
+              <th className="table-header-cell">Téléphone</th>
+              <th className="table-header-cell">Fuseau horaire</th>
+              <th className="table-header-cell">Plan</th>
               <th className="table-header-cell">Statut</th>
+              <th className="table-header-cell">Nombre de sites</th>
               <th className="table-header-cell">Actions</th>
             </tr>
           </thead>
           <tbody className="table-body">
             {organizations.length === 0 ? (
               <tr>
-                <td colSpan={5} className="table-cell text-center py-8">
+                <td colSpan={8} className="table-cell text-center py-8">
                   <p className="text-accent">Aucune organisation trouvée</p>
                 </td>
               </tr>
@@ -114,8 +117,10 @@ const Organizations = () => {
                   className="hover:bg-gray-50 transition-colors"
                 >
                   <td className="table-cell">{org.name}</td>
-                  <td className="table-cell">{org.industry}</td>
                   <td className="table-cell">{org.contact_email}</td>
+                  <td className="table-cell">{org.phone_number}</td>
+                  <td className="table-cell">{org.timezone}</td>
+                  <td className="table-cell">{org.subscription_plan}</td>
                   <td className="table-cell">
                     {org.is_active ? (
                       <span className="badge-success">Active</span>
@@ -123,6 +128,7 @@ const Organizations = () => {
                       <span className="badge-danger">Inactive</span>
                     )}
                   </td>
+                  <td className="table-cell">{org.sites.length}</td>
                   <td className="table-cell">
                     <div className="flex items-center gap-2">
                       <button

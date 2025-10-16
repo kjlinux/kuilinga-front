@@ -93,14 +93,16 @@ const Departments = () => {
           <thead className="table-header">
             <tr>
               <th className="table-header-cell">Nom</th>
-              <th className="table-header-cell">ID du Site</th>
+              <th className="table-header-cell">Site</th>
+              <th className="table-header-cell">Manager</th>
+              <th className="table-header-cell">Nombre d'employés</th>
               <th className="table-header-cell">Actions</th>
             </tr>
           </thead>
           <tbody className="table-body">
             {departments.length === 0 ? (
               <tr>
-                <td colSpan={3} className="table-cell text-center py-8">
+                <td colSpan={5} className="table-cell text-center py-8">
                   <p className="text-accent">Aucun département trouvé</p>
                 </td>
               </tr>
@@ -113,7 +115,11 @@ const Departments = () => {
                   className="hover:bg-gray-50 transition-colors"
                 >
                   <td className="table-cell">{dept.name}</td>
-                  <td className="table-cell">{dept.site_id}</td>
+                  <td className="table-cell">{dept.site?.name || "N/A"}</td>
+                  <td className="table-cell">
+                    {dept.manager ? `${dept.manager.first_name} ${dept.manager.last_name}` : "N/A"}
+                  </td>
+                  <td className="table-cell">{dept.employees?.length || 0}</td>
                   <td className="table-cell">
                     <div className="flex items-center gap-2">
                       <button

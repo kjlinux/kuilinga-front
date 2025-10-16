@@ -123,6 +123,9 @@ export interface Site {
   timezone: string;
   id: string;
   organization_id: string;
+  organization?: Organization;
+  departments?: Department[];
+  employees?: Employee[];
 }
 
 export interface Department {
@@ -130,6 +133,9 @@ export interface Department {
   id: string;
   site_id: string;
   manager_id?: string | null;
+  site?: Site | null;
+  manager?: Employee | null;
+  employees?: Employee[];
 }
 
 export interface Employee {
@@ -138,13 +144,14 @@ export interface Employee {
   email: string;
   phone_number?: string | null;
   employee_id?: string | null;
-  department?: string | null;
+  department?: Department | null;
   position?: string | null;
   badge_number?: string | null;
   metadata?: Record<string, unknown> | null;
   id: string;
   organization_id: string;
   user_id?: string | null;
+  user?: User | null;
 }
 
 export interface Device {
@@ -153,6 +160,9 @@ export interface Device {
   status: DeviceStatus;
   organization_id: string;
   id: string;
+  organization?: Organization;
+  site?: Site;
+  last_attendance?: Attendance;
 }
 
 export interface Attendance {
@@ -163,6 +173,8 @@ export interface Attendance {
   id: string;
   employee_id: string;
   device_id?: string | null;
+  employee?: Employee;
+  device?: Device;
 }
 
 export interface Leave {

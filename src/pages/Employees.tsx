@@ -100,18 +100,22 @@ const Employees = () => {
         <table className="table">
           <thead className="table-header">
             <tr>
-              <th className="table-header-cell">Employé</th>
-              <th className="table-header-cell">Matricule</th>
+              <th className="table-header-cell">N° Employé</th>
+              <th className="table-header-cell">Nom complet</th>
               <th className="table-header-cell">Email</th>
-              <th className="table-header-cell">Département</th>
+              <th className="table-header-cell">Téléphone</th>
               <th className="table-header-cell">Poste</th>
+              <th className="table-header-cell">Département</th>
+              <th className="table-header-cell">Site</th>
+              <th className="table-header-cell">Badge ID</th>
+              <th className="table-header-cell">Statut</th>
               <th className="table-header-cell">Actions</th>
             </tr>
           </thead>
           <tbody className="table-body">
             {employees.length === 0 ? (
               <tr>
-                <td colSpan={6} className="table-cell text-center py-8">
+                <td colSpan={10} className="table-cell text-center py-8">
                   <p className="text-accent">Aucun employé trouvé</p>
                 </td>
               </tr>
@@ -123,25 +127,23 @@ const Employees = () => {
                   animate={{ opacity: 1 }}
                   className="hover:bg-gray-50 transition-colors"
                 >
+                  <td className="table-cell">{employee.employee_id || "N/A"}</td>
                   <td className="table-cell">
-                    <div className="flex items-center gap-3">
-                      <div className="w-10 h-10 bg-primary rounded-full flex items-center justify-center">
-                        <span className="text-white font-medium">
-                          {employee.first_name[0]}
-                          {employee.last_name[0]}
-                        </span>
-                      </div>
-                      <div>
-                        <p className="font-medium text-secondary">
-                          {employee.first_name} {employee.last_name}
-                        </p>
-                      </div>
-                    </div>
+                    {employee.first_name} {employee.last_name}
                   </td>
-                  <td className="table-cell">{employee.employee_id}</td>
                   <td className="table-cell">{employee.email}</td>
-                  <td className="table-cell">{employee.department?.name || 'N/A'}</td>
-                  <td className="table-cell capitalize">{employee.position}</td>
+                  <td className="table-cell">{employee.phone_number || "N/A"}</td>
+                  <td className="table-cell">{employee.position || "N/A"}</td>
+                  <td className="table-cell">{employee.department?.name || "N/A"}</td>
+                  <td className="table-cell">{employee.department?.site?.name || "N/A"}</td>
+                  <td className="table-cell">{employee.badge_number || "N/A"}</td>
+                  <td className="table-cell">
+                    {employee.user?.is_active ? (
+                      <span className="badge-success">Actif</span>
+                    ) : (
+                      <span className="badge-danger">Inactif</span>
+                    )}
+                  </td>
                   <td className="table-cell">
                     <div className="flex items-center gap-2">
                       <button

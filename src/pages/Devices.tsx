@@ -104,17 +104,19 @@ const Devices = () => {
         <table className="table">
           <thead className="table-header">
             <tr>
-              <th className="table-header-cell">Numéro de série</th>
-              <th className="table-header-cell">Modèle</th>
+              <th className="table-header-cell">N° Série</th>
+              <th className="table-header-cell">Type</th>
               <th className="table-header-cell">Statut</th>
-              <th className="table-header-cell">ID Organisation</th>
+              <th className="table-header-cell">Organisation</th>
+              <th className="table-header-cell">Site</th>
+              <th className="table-header-cell">Dernier pointage</th>
               <th className="table-header-cell">Actions</th>
             </tr>
           </thead>
           <tbody className="table-body">
             {devices.length === 0 ? (
               <tr>
-                <td colSpan={5} className="table-cell text-center py-8">
+                <td colSpan={7} className="table-cell text-center py-8">
                   <p className="text-accent">Aucun terminal trouvé</p>
                 </td>
               </tr>
@@ -129,7 +131,11 @@ const Devices = () => {
                   <td className="table-cell">{device.serial_number}</td>
                   <td className="table-cell">{device.model}</td>
                   <td className="table-cell">{getStatusBadge(device.status)}</td>
-                  <td className="table-cell">{device.organization_id}</td>
+                  <td className="table-cell">{device.organization?.name || "N/A"}</td>
+                  <td className="table-cell">{device.site?.name || "N/A"}</td>
+                  <td className="table-cell">
+                    {device.last_attendance ? new Date(device.last_attendance.timestamp).toLocaleString() : "N/A"}
+                  </td>
                   <td className="table-cell">
                     <div className="flex items-center gap-2">
                       <button

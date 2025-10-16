@@ -27,9 +27,14 @@ const Attendance = () => {
     try {
       setIsRefreshing(true);
       const data = await attendanceService.getAttendances(pagination);
-      setAttendances(data.items);
+      if (data) {
+        setAttendances(data.items);
+      } else {
+        setAttendances([]);
+      }
     } catch (error) {
       console.error("Erreur lors de la récupération des présences:", error);
+      setAttendances([]);
     } finally {
       setIsLoading(false);
       setIsRefreshing(false);

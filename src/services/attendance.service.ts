@@ -3,7 +3,7 @@ import { API_CONFIG } from "../config/api";
 import type { Attendance, PaginatedResponse, PaginationParams, AttendanceCreate } from "../types";
 
 class AttendanceService {
-  async getAttendances(params: PaginationParams = {}): Promise<PaginatedResponse<Attendance>> {
+  async getAttendances(params: PaginationParams = {}): Promise<PaginatedResponse<Attendance> | undefined> {
     const query = new URLSearchParams({
         skip: (params.skip ?? 0).toString(),
         limit: (params.limit ?? 20).toString(),
@@ -16,7 +16,7 @@ class AttendanceService {
     return apiService.get<PaginatedResponse<Attendance>>(url);
   }
 
-  async createAttendance(data: AttendanceCreate): Promise<Attendance> {
+  async createAttendance(data: AttendanceCreate): Promise<Attendance | undefined> {
     return apiService.post<Attendance>(API_CONFIG.ENDPOINTS.ATTENDANCE, data);
   }
 }

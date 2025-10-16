@@ -1,63 +1,75 @@
 "use client"
 
-import { useState, useEffect, useCallback } from "react"
-import { motion } from "framer-motion"
-import { Search, Plus, Edit, Trash2 } from "lucide-react"
-import LoadingSpinner from "../components/LoadingSpinner"
+import { useState } from "react"
+import { Plus } from "lucide-react"
+import DataTable from "../components/DataTable"
+import useDataTable from "../hooks/useDataTable"
 import siteService from "../services/site.service"
-import type { Site, PaginationParams } from "../types"
+import type { Site, SiteCreate, SiteUpdate } from "../types"
+import SiteDialog from "../components/SiteDialog"
 
 const Sites = () => {
-  const [sites, setSites] = useState<Site[]>([])
-  const [isLoading, setIsLoading] = useState(true)
-  const [pagination, setPagination] = useState<PaginationParams>({
-    skip: 0,
-    limit: 10,
-    search: "",
-  });
+  const [isDialogOpen, setIsDialogOpen] = useState(false)
+  const [selectedSite, setSelectedSite] = useState<Site | null>(null)
 
-  const fetchSites = useCallback(async () => {
-    setIsLoading(true);
+  const {
+    data,
+    isLoading,
+    pagination,
+    handlePageChange,
+    handleSearchChange,
+    refresh,
+  } = useDataTable<Site>({
+    fetchData: siteService.getSites,
+  })
+
+  const handleOpenDialog = (site: Site | null = null) => {
+    setSelectedSite(site)
+    setIsDialogOpen(true)
+  }
+
+  const handleCloseDialog = () => {
+    setSelectedSite(null)
+    setIsDialogOpen(false)
+  }
+
+  const handleConfirm = async (formData: SiteCreate | SiteUpdate) => {
     try {
-      const response = await siteService.getSites(pagination)
-      setSites(response.items)
+      if (selectedSite) {
+        await siteService.updateSite(selectedSite.id, formData as SiteUpdate)
+      } else {
+        await siteService.createSite(formData as SiteCreate)
+      }
+      refresh()
+      handleCloseDialog()
     } catch (error) {
-      console.error("Erreur lors de la récupération des sites:", error)
-    } finally {
-      setIsLoading(false)
+      console.error("Erreur lors de la sauvegarde du site:", error)
     }
-  }, [pagination])
+  }
 
-  useEffect(() => {
-    fetchSites()
-  }, [fetchSites])
-
-  useEffect(() => {
-    fetchSites()
-  }, [fetchSites])
-
-  const handleDelete = async (id: string) => {
+  const handleDelete = async (site: Site) => {
     if (window.confirm("Êtes-vous sûr de vouloir supprimer ce site ?")) {
       try {
-        await siteService.deleteSite(id)
-        fetchSites()
+        await siteService.deleteSite(site.id)
+        refresh()
       } catch (error) {
         console.error("Erreur lors de la suppression:", error)
       }
     }
   }
 
-  if (isLoading) {
-    return (
-      <div className="flex items-center justify-center min-h-[60vh]">
-        <LoadingSpinner size="large" />
-      </div>
-    )
-  }
+  const columns = [
+    { key: "name", header: "Nom" },
+    { key: "address", header: "Adresse" },
+    { key: "organization", header: "Organisation" },
+    { key: "timezone", header: "Fuseau horaire" },
+    { key: "departments_count", header: "Départements" },
+    { key: "employees_count", header: "Employés" },
+    { key: "devices_count", header: "Terminaux" },
+  ]
 
   return (
     <div className="space-y-6">
-      {/* En-tête */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
           <h1 className="text-3xl font-bold text-secondary mb-2">Gestion des sites</h1>
@@ -65,87 +77,33 @@ const Sites = () => {
         </div>
 
         <div className="flex items-center gap-2">
-          <button className="btn-primary flex items-center gap-2">
+          <button
+            onClick={() => handleOpenDialog()}
+            className="btn-primary flex items-center gap-2"
+          >
             <Plus className="w-4 h-4" />
             <span className="hidden sm:inline">Nouveau site</span>
           </button>
         </div>
       </div>
 
-      {/* Filtres */}
-      <div className="card">
-        <div className="relative">
-          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-accent" />
-          <input
-            type="text"
-            placeholder="Rechercher par nom..."
-            value={pagination.search}
-            onChange={(e) => setPagination({ ...pagination, search: e.target.value })}
-            className="input pl-10 w-full"
-          />
-        </div>
-      </div>
+      <DataTable
+        data={data.map(s => ({...s, organization: s.organization?.name}))}
+        columns={columns}
+        isLoading={isLoading}
+        pagination={pagination}
+        onPageChange={handlePageChange}
+        onSearchChange={handleSearchChange}
+        onEdit={handleOpenDialog}
+        onDelete={handleDelete}
+      />
 
-      {/* Tableau des sites */}
-      <div className="table-container">
-        <table className="table">
-          <thead className="table-header">
-            <tr>
-              <th className="table-header-cell">Nom</th>
-              <th className="table-header-cell">Adresse</th>
-              <th className="table-header-cell">Organisation</th>
-              <th className="table-header-cell">Fuseau horaire</th>
-              <th className="table-header-cell">Départements</th>
-              <th className="table-header-cell">Employés</th>
-              <th className="table-header-cell">Terminaux</th>
-              <th className="table-header-cell">Actions</th>
-            </tr>
-          </thead>
-          <tbody className="table-body">
-            {sites.length === 0 ? (
-              <tr>
-                <td colSpan={8} className="table-cell text-center py-8">
-                  <p className="text-accent">Aucun site trouvé</p>
-                </td>
-              </tr>
-            ) : (
-              sites.map((site) => (
-                <motion.tr
-                  key={site.id}
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  className="hover:bg-gray-50 transition-colors"
-                >
-                  <td className="table-cell">{site.name}</td>
-                  <td className="table-cell">{site.address ?? "N/A"}</td>
-                  <td className="table-cell">{site.organization?.name ?? "N/A"}</td>
-                  <td className="table-cell">{site.timezone}</td>
-                  <td className="table-cell">{site.departments_count}</td>
-                  <td className="table-cell">{site.employees_count}</td>
-                  <td className="table-cell">{site.devices_count}</td>
-                  <td className="table-cell">
-                    <div className="flex items-center gap-2">
-                      <button
-                        className="p-2 rounded-lg hover:bg-blue-50 text-blue-600 transition-colors"
-                        title="Modifier"
-                      >
-                        <Edit className="w-4 h-4" />
-                      </button>
-                      <button
-                        onClick={() => handleDelete(site.id)}
-                        className="p-2 rounded-lg hover:bg-red-50 text-red-600 transition-colors"
-                        title="Supprimer"
-                      >
-                        <Trash2 className="w-4 h-4" />
-                      </button>
-                    </div>
-                  </td>
-                </motion.tr>
-              ))
-            )}
-          </tbody>
-        </table>
-      </div>
+      <SiteDialog
+        isOpen={isDialogOpen}
+        onClose={handleCloseDialog}
+        onConfirm={handleConfirm}
+        site={selectedSite}
+      />
     </div>
   )
 }

@@ -1,46 +1,57 @@
 "use client"
 
-import { useState, useEffect, useCallback } from "react"
-import { motion } from "framer-motion"
-import { Search, Plus, Edit, Trash2 } from "lucide-react"
-import LoadingSpinner from "../components/LoadingSpinner"
+import { useState } from "react"
+import { Plus } from "lucide-react"
+import DataTable from "../components/DataTable"
+import useDataTable from "../hooks/useDataTable"
 import deviceService from "../services/device.service"
-import type { Device, PaginationParams, DeviceStatus } from "../types"
+import type { Device, DeviceCreate, DeviceUpdate, DeviceStatus } from "../types"
+import DeviceDialog from "../components/DeviceDialog"
 
 const Devices = () => {
-  const [devices, setDevices] = useState<Device[]>([])
-  const [isLoading, setIsLoading] = useState(true)
-  const [pagination, setPagination] = useState<PaginationParams>({
-    skip: 0,
-    limit: 10,
-    search: "",
-  });
+  const [isDialogOpen, setIsDialogOpen] = useState(false)
+  const [selectedDevice, setSelectedDevice] = useState<Device | null>(null)
 
-  const fetchDevices = useCallback(async () => {
-    setIsLoading(true);
+  const {
+    data,
+    isLoading,
+    pagination,
+    handlePageChange,
+    handleSearchChange,
+    refresh,
+  } = useDataTable<Device>({
+    fetchData: deviceService.getDevices,
+  })
+
+  const handleOpenDialog = (device: Device | null = null) => {
+    setSelectedDevice(device)
+    setIsDialogOpen(true)
+  }
+
+  const handleCloseDialog = () => {
+    setSelectedDevice(null)
+    setIsDialogOpen(false)
+  }
+
+  const handleConfirm = async (formData: DeviceCreate | DeviceUpdate) => {
     try {
-      const response = await deviceService.getDevices(pagination)
-      setDevices(response.items)
+      if (selectedDevice) {
+        await deviceService.updateDevice(selectedDevice.id, formData as DeviceUpdate)
+      } else {
+        await deviceService.createDevice(formData as DeviceCreate)
+      }
+      refresh()
+      handleCloseDialog()
     } catch (error) {
-      console.error("Erreur lors de la récupération des terminaux:", error)
-    } finally {
-      setIsLoading(false)
+      console.error("Erreur lors de la sauvegarde du terminal:", error)
     }
-  }, [pagination])
+  }
 
-  useEffect(() => {
-    fetchDevices()
-  }, [fetchDevices])
-
-  useEffect(() => {
-    fetchDevices()
-  }, [fetchDevices])
-
-  const handleDelete = async (id: string) => {
+  const handleDelete = async (device: Device) => {
     if (window.confirm("Êtes-vous sûr de vouloir supprimer ce terminal ?")) {
       try {
-        await deviceService.deleteDevice(id)
-        fetchDevices()
+        await deviceService.deleteDevice(device.id)
+        refresh()
       } catch (error) {
         console.error("Erreur lors de la suppression:", error)
       }
@@ -50,27 +61,28 @@ const Devices = () => {
   const getStatusBadge = (status: DeviceStatus) => {
     switch (status) {
       case "online":
-        return <span className="badge-success">En ligne</span>
+        return "En ligne"
       case "offline":
-        return <span className="badge-danger">Hors ligne</span>
+        return "Hors ligne"
       case "maintenance":
-        return <span className="badge-warning">Maintenance</span>
+        return "Maintenance"
       default:
-        return <span className="badge">{status}</span>
+        return status
     }
   }
 
-  if (isLoading) {
-    return (
-      <div className="flex items-center justify-center min-h-[60vh]">
-        <LoadingSpinner size="large" />
-      </div>
-    )
-  }
+  const columns = [
+    { key: "serial_number", header: "N° Série" },
+    { key: "type", header: "Type" },
+    { key: "status", header: "Statut" },
+    { key: "organization", header: "Organisation" },
+    { key: "site", header: "Site" },
+    { key: "last_attendance_timestamp", header: "Dernier Pointage" },
+    { key: "daily_attendance_count", header: "Pointages du Jour" },
+  ]
 
   return (
     <div className="space-y-6">
-      {/* En-tête */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
           <h1 className="text-3xl font-bold text-secondary mb-2">Gestion des terminaux</h1>
@@ -78,91 +90,41 @@ const Devices = () => {
         </div>
 
         <div className="flex items-center gap-2">
-          <button className="btn-primary flex items-center gap-2">
+          <button
+            onClick={() => handleOpenDialog()}
+            className="btn-primary flex items-center gap-2"
+          >
             <Plus className="w-4 h-4" />
             <span className="hidden sm:inline">Nouveau terminal</span>
           </button>
         </div>
       </div>
 
-      {/* Filtres */}
-      <div className="card">
-        <div className="relative">
-          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-accent" />
-          <input
-            type="text"
-            placeholder="Rechercher par numéro de série..."
-            value={pagination.search}
-            onChange={(e) => setPagination({ ...pagination, search: e.target.value })}
-            className="input pl-10 w-full"
-          />
-        </div>
-      </div>
+      <DataTable
+        data={data.map(d => ({
+          ...d,
+          status: getStatusBadge(d.status),
+          organization: d.organization?.name,
+          site: d.site?.name,
+          last_attendance_timestamp: d.last_attendance_timestamp
+            ? new Date(d.last_attendance_timestamp).toLocaleString()
+            : "N/A",
+        }))}
+        columns={columns}
+        isLoading={isLoading}
+        pagination={pagination}
+        onPageChange={handlePageChange}
+        onSearchChange={handleSearchChange}
+        onEdit={handleOpenDialog}
+        onDelete={handleDelete}
+      />
 
-      {/* Tableau des terminaux */}
-      <div className="table-container">
-        <table className="table">
-          <thead className="table-header">
-            <tr>
-              <th className="table-header-cell">N° Série</th>
-              <th className="table-header-cell">Type</th>
-              <th className="table-header-cell">Statut</th>
-              <th className="table-header-cell">Organisation</th>
-              <th className="table-header-cell">Site</th>
-              <th className="table-header-cell">Dernier Pointage</th>
-              <th className="table-header-cell">Pointages du Jour</th>
-              <th className="table-header-cell">Actions</th>
-            </tr>
-          </thead>
-          <tbody className="table-body">
-            {devices.length === 0 ? (
-              <tr>
-                <td colSpan={8} className="table-cell text-center py-8">
-                  <p className="text-accent">Aucun terminal trouvé</p>
-                </td>
-              </tr>
-            ) : (
-              devices.map((device) => (
-                <motion.tr
-                  key={device.id}
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  className="hover:bg-gray-50 transition-colors"
-                >
-                  <td className="table-cell">{device.serial_number}</td>
-                  <td className="table-cell">{device.type}</td>
-                  <td className="table-cell">{getStatusBadge(device.status)}</td>
-                  <td className="table-cell">{device.organization?.name ?? "N/A"}</td>
-                  <td className="table-cell">{device.site?.name ?? "N/A"}</td>
-                  <td className="table-cell">
-                    {device.last_attendance_timestamp
-                      ? new Date(device.last_attendance_timestamp).toLocaleString()
-                      : "N/A"}
-                  </td>
-                  <td className="table-cell">{device.daily_attendance_count}</td>
-                  <td className="table-cell">
-                    <div className="flex items-center gap-2">
-                      <button
-                        className="p-2 rounded-lg hover:bg-blue-50 text-blue-600 transition-colors"
-                        title="Modifier"
-                      >
-                        <Edit className="w-4 h-4" />
-                      </button>
-                      <button
-                        onClick={() => handleDelete(device.id)}
-                        className="p-2 rounded-lg hover:bg-red-50 text-red-600 transition-colors"
-                        title="Supprimer"
-                      >
-                        <Trash2 className="w-4 h-4" />
-                      </button>
-                    </div>
-                  </td>
-                </motion.tr>
-              ))
-            )}
-          </tbody>
-        </table>
-      </div>
+      <DeviceDialog
+        isOpen={isDialogOpen}
+        onClose={handleCloseDialog}
+        onConfirm={handleConfirm}
+        device={selectedDevice}
+      />
     </div>
   )
 }

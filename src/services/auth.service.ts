@@ -21,13 +21,13 @@ class AuthService {
       )
 
       // Store tokens
-      localStorage.setItem("access_token", response.access_token)
-      localStorage.setItem("refresh_token", response.refresh_token)
+      localStorage.setItem("access_token", response.data.access_token)
+      localStorage.setItem("refresh_token", response.data.refresh_token)
       
       // Store user info
-      // localStorage.setItem("user", JSON.stringify(response.user))
+      // localStorage.setItem("user", JSON.stringify(response.data.user))
 
-      return response
+      return response.data
     } catch (error) {
       console.error("Login error:", error)
       throw error
@@ -61,8 +61,8 @@ class AuthService {
         { refresh_token: refreshToken }
       )
 
-      localStorage.setItem("access_token", response.access_token)
-      return response.access_token
+      localStorage.setItem("access_token", response.data.access_token)
+      return response.data.access_token
     } catch (error) {
       // If refresh fails, clear everything and redirect to login
       this.logout()
@@ -72,9 +72,9 @@ class AuthService {
 
   async getCurrentUser(): Promise<User> {
     try {
-      const user = await apiService.get<User>(API_CONFIG.ENDPOINTS.ME)
-      localStorage.setItem("user", JSON.stringify(user))
-      return user
+      const response = await apiService.get<User>(API_CONFIG.ENDPOINTS.ME)
+      localStorage.setItem("user", JSON.stringify(response.data))
+      return response.data
     } catch (error) {
       console.error("Error getting current user:", error)
       // If fetching user fails, assume token is invalid and log out

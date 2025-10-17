@@ -13,23 +13,27 @@ class DeviceService {
     }).toString();
 
     const url = `${API_CONFIG.ENDPOINTS.DEVICES}?${query}`;
-    return apiService.get<PaginatedResponse<Device>>(url);
+    const response = await apiService.get<PaginatedResponse<Device>>(url);
+    return response.data;
   }
 
   async getDevice(id: string): Promise<Device> {
-    return apiService.get<Device>(`${API_CONFIG.ENDPOINTS.DEVICES}/${id}`);
+    const response = await apiService.get<Device>(`${API_CONFIG.ENDPOINTS.DEVICES}/${id}`);
+    return response.data;
   }
 
   async createDevice(data: DeviceCreate): Promise<Device> {
-    return apiService.post<Device>(API_CONFIG.ENDPOINTS.DEVICES, data);
+    const response = await apiService.post<Device>(API_CONFIG.ENDPOINTS.DEVICES, data);
+    return response.data;
   }
 
   async updateDevice(id: string, data: DeviceUpdate): Promise<Device> {
-    return apiService.put<Device>(`${API_CONFIG.ENDPOINTS.DEVICES}/${id}`, data);
+    const response = await apiService.put<Device>(`${API_CONFIG.ENDPOINTS.DEVICES}/${id}`, data);
+    return response.data;
   }
 
   async deleteDevice(id: string): Promise<void> {
-    return apiService.delete<void>(`${API_CONFIG.ENDPOINTS.DEVICES}/${id}`);
+    await apiService.delete<void>(`${API_CONFIG.ENDPOINTS.DEVICES}/${id}`);
   }
 }
 

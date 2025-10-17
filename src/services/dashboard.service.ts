@@ -11,28 +11,38 @@ import type {
 const { DASHBOARD_ENDPOINTS } = API_CONFIG.ENDPOINTS
 
 const dashboardService = {
-  getAdminDashboard: () =>
-    apiService.get<AdminDashboard>(DASHBOARD_ENDPOINTS.ADMIN),
+  getAdminDashboard: async () => {
+    const response = await apiService.get<AdminDashboard>(DASHBOARD_ENDPOINTS.ADMIN)
+    return response.data
+  },
 
-  getManagerDashboard: (organizationId: string) =>
-    apiService.get<ManagerDashboard>(
+  getManagerDashboard: async (organizationId: string) => {
+    const response = await apiService.get<ManagerDashboard>(
       `${DASHBOARD_ENDPOINTS.MANAGER}/${organizationId}`,
-    ),
+    )
+    return response.data
+  },
 
-  getEmployeeDashboard: (employeeId: string) =>
-    apiService.get<EmployeeDashboard>(
+  getEmployeeDashboard: async (employeeId: string) => {
+    const response = await apiService.get<EmployeeDashboard>(
       `${DASHBOARD_ENDPOINTS.EMPLOYEE}/${employeeId}`,
-    ),
+    )
+    return response.data
+  },
 
-  getIntegratorDashboard: (organizationId: string) =>
-    apiService.get<IntegratorDashboard>(
+  getIntegratorDashboard: async (organizationId: string) => {
+    const response = await apiService.get<IntegratorDashboard>(
       `${DASHBOARD_ENDPOINTS.INTEGRATOR}/${organizationId}`,
-    ),
+    )
+    return response.data
+  },
 
-  getAdvancedAnalytics: (organizationId: string) =>
-    apiService.get<AdvancedAnalytics>(
+  getAdvancedAnalytics: async (organizationId: string) => {
+    const response = await apiService.get<AdvancedAnalytics>(
       `${DASHBOARD_ENDPOINTS.ANALYTICS}/${organizationId}`,
-    ),
+    )
+    return response.data
+  },
 }
 
 export default dashboardService

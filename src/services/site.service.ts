@@ -13,23 +13,27 @@ class SiteService {
     }).toString();
 
     const url = `${API_CONFIG.ENDPOINTS.SITES}?${query}`;
-    return apiService.get<PaginatedResponse<Site>>(url);
+    const response = await apiService.get<PaginatedResponse<Site>>(url);
+    return response.data;
   }
 
   async getSite(id: string): Promise<Site> {
-    return apiService.get<Site>(`${API_CONFIG.ENDPOINTS.SITES}/${id}`);
+    const response = await apiService.get<Site>(`${API_CONFIG.ENDPOINTS.SITES}/${id}`);
+    return response.data;
   }
 
   async createSite(data: SiteCreate): Promise<Site> {
-    return apiService.post<Site>(API_CONFIG.ENDPOINTS.SITES, data);
+    const response = await apiService.post<Site>(API_CONFIG.ENDPOINTS.SITES, data);
+    return response.data;
   }
 
   async updateSite(id: string, data: SiteUpdate): Promise<Site> {
-    return apiService.put<Site>(`${API_CONFIG.ENDPOINTS.SITES}/${id}`, data);
+    const response = await apiService.put<Site>(`${API_CONFIG.ENDPOINTS.SITES}/${id}`, data);
+    return response.data;
   }
 
   async deleteSite(id: string): Promise<void> {
-    return apiService.delete<void>(`${API_CONFIG.ENDPOINTS.SITES}/${id}`);
+    await apiService.delete<void>(`${API_CONFIG.ENDPOINTS.SITES}/${id}`);
   }
 }
 

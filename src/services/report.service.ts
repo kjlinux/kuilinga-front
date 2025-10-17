@@ -3,7 +3,7 @@ import apiService from "./api.service";
 class ReportService {
   async generateReportPreview(endpoint: string, filters: Record<string, unknown>): Promise<Record<string, unknown>> {
     const response = await apiService.post<Record<string, unknown>>(endpoint, filters);
-    return response;
+    return response.data;
   }
 
   async downloadReport(endpoint: string, filters: Record<string, unknown>): Promise<void> {

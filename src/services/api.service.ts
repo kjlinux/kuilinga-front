@@ -33,7 +33,11 @@ class ApiService {
       async (error) => {
         const originalRequest = error.config
 
-        if (
+        // Si la réponse d'erreur est un blob, ne pas tenter de lire `error.response.data.detail`
+        if (error.response?.data instanceof Blob) {
+          // Gérer l'erreur de blob ici, si nécessaire.
+          // Par exemple, on peut essayer de lire le blob comme du texte pour voir s'il contient un message d'erreur JSON.
+        } else if (
           error.response?.status === 403 &&
           error.response?.data?.detail === "Could not validate credentials"
         ) {
@@ -75,10 +79,10 @@ class ApiService {
   }
 
   // Méthodes HTTP génériques
-  async get<T>(url: string, config?: AxiosRequestConfig): Promise<T> {
+  async get<T>(url: string, config?: AxiosRequestConfig): Promise<AxiosResponse<T>> {
     try {
       const response: AxiosResponse<T> = await this.api.get(url, config)
-      return response.data
+      return response
     } catch (error) {
       console.error(`GET ${url} failed:`, error)
       throw error
@@ -89,10 +93,10 @@ class ApiService {
     url: string,
     data?: unknown,
     config?: AxiosRequestConfig,
-  ): Promise<T> {
+  ): Promise<AxiosResponse<T>> {
     try {
       const response: AxiosResponse<T> = await this.api.post(url, data, config)
-      return response.data
+      return response
     } catch (error) {
       console.error(`POST ${url} failed:`, error)
       throw error
@@ -103,20 +107,20 @@ class ApiService {
     url: string,
     data?: unknown,
     config?: AxiosRequestConfig,
-  ): Promise<T> {
+  ): Promise<AxiosResponse<T>> {
     try {
       const response: AxiosResponse<T> = await this.api.put(url, data, config)
-      return response.data
+      return response
     } catch (error) {
       console.error(`PUT ${url} failed:`, error)
       throw error
     }
   }
 
-  async delete<T>(url: string, config?: AxiosRequestConfig): Promise<T> {
+  async delete<T>(url: string, config?: AxiosRequestConfig): Promise<AxiosResponse<T>> {
     try {
       const response: AxiosResponse<T> = await this.api.delete(url, config)
-      return response.data
+      return response
     } catch (error) {
       console.error(`DELETE ${url} failed:`, error)
       throw error
@@ -127,10 +131,10 @@ class ApiService {
     url: string,
     data?: unknown,
     config?: AxiosRequestConfig,
-  ): Promise<T> {
+  ): Promise<AxiosResponse<T>> {
     try {
       const response: AxiosResponse<T> = await this.api.patch(url, data, config)
-      return response.data
+      return response
     } catch (error) {
       console.error(`PATCH ${url} failed:`, error)
       throw error

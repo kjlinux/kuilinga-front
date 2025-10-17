@@ -13,23 +13,27 @@ class LeaveService {
     }).toString();
 
     const url = `${API_CONFIG.ENDPOINTS.LEAVES}?${query}`;
-    return apiService.get<PaginatedResponse<Leave>>(url);
+    const response = await apiService.get<PaginatedResponse<Leave>>(url);
+    return response.data;
   }
 
   async getLeave(id: string): Promise<Leave> {
-    return apiService.get<Leave>(`${API_CONFIG.ENDPOINTS.LEAVES}/${id}`);
+    const response = await apiService.get<Leave>(`${API_CONFIG.ENDPOINTS.LEAVES}/${id}`);
+    return response.data;
   }
 
   async createLeave(data: LeaveCreate): Promise<Leave> {
-    return apiService.post<Leave>(API_CONFIG.ENDPOINTS.LEAVES, data);
+    const response = await apiService.post<Leave>(API_CONFIG.ENDPOINTS.LEAVES, data);
+    return response.data;
   }
 
   async updateLeave(id: string, data: LeaveUpdate): Promise<Leave> {
-    return apiService.put<Leave>(`${API_CONFIG.ENDPOINTS.LEAVES}/${id}`, data);
+    const response = await apiService.put<Leave>(`${API_CONFIG.ENDPOINTS.LEAVES}/${id}`, data);
+    return response.data;
   }
 
   async deleteLeave(id: string): Promise<void> {
-    return apiService.delete<void>(`${API_CONFIG.ENDPOINTS.LEAVES}/${id}`);
+    await apiService.delete<void>(`${API_CONFIG.ENDPOINTS.LEAVES}/${id}`);
   }
 }
 

@@ -1,171 +1,155 @@
-"use client"
+"use client";
 
-import { useState } from "react"
-import { motion } from "framer-motion"
-import { FileText } from "lucide-react"
-import type { ReportRequest, AttendanceReport, ReportPeriod } from "../types"
-import reportService from "../services/report.service"
-import LoadingSpinner from "../components/LoadingSpinner"
+import { useState } from "react";
+import { motion } from "framer-motion";
+import { FileText } from "lucide-react";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { REPORTS_CONFIG, ReportId } from "@/config/reports.config";
+import { useAuth } from "@/hooks/useAuth";
+import { ReportFilters } from "@/components/reports/ReportFilters";
+import { ReportPreview } from "@/components/reports/ReportPreview";
+import reportService from "@/services/report.service";
+import { toast } from "sonner";
 
-const Reports = () => {
-  const [filters, setFilters] = useState<Partial<ReportRequest>>({
-    period: "monthly",
-    start_date: "",
-    end_date: "",
-    organization_id: 0,
-    format: "pdf"
-  })
-  const [reportData, setReportData] = useState<AttendanceReport | null>(null)
-  const [isGenerating, setIsGenerating] = useState(false)
+const ReportsPage = () => {
+  const { user } = useAuth();
+  const [selectedReportId, setSelectedReportId] = useState<ReportId | null>(null);
+  const [filters, setFilters] = useState<Record<string, unknown>>({});
+  const [previewData, setPreviewData] = useState<Record<string, unknown> | null>(null);
+  const [isGenerating, setIsGenerating] = useState(false);
+  const [isDownloading, setIsDownloading] = useState(false);
 
-  const generateReport = async () => {
-    if (!filters.organization_id || !filters.period || !filters.start_date || !filters.end_date) {
-      alert("Veuillez remplir tous les champs obligatoires.");
-      return;
-    }
+  // Filter reports based on user's role
+  const availableReports = REPORTS_CONFIG.filter(report =>
+    report.roles.some(role => user?.roles.map(r => r.name).includes(role))
+  );
+
+  const selectedReport = REPORTS_CONFIG.find(r => r.id === selectedReportId);
+
+  const handleGeneratePreview = async () => {
+    if (!selectedReport) return;
+
+    setIsGenerating(true);
+    setPreviewData(null);
     try {
-      setIsGenerating(true)
-      const data = await reportService.generateAttendanceReport(filters as ReportRequest)
-      setReportData(data)
+      const data = await reportService.generateReportPreview(selectedReport.previewEndpoint, filters);
+      setPreviewData(data);
+      toast.success("La prévisualisation du rapport a été générée avec succès.");
     } catch (error) {
-      console.error("Erreur lors de la génération du rapport:", error)
+      console.error("Erreur lors de la génération de la prévisualisation:", error);
+      toast.error("Échec de la génération de la prévisualisation du rapport.");
     } finally {
-      setIsGenerating(false)
+      setIsGenerating(false);
     }
-  }
+  };
+
+  const handleDownloadReport = async (format: "pdf" | "csv" | "excel") => {
+    if (!selectedReport) return;
+
+    setIsDownloading(true);
+    try {
+      const downloadFilters = { ...filters, format };
+      await reportService.downloadReport(selectedReport.downloadEndpoint, downloadFilters);
+      toast.success(`Le rapport a été téléchargé en format ${format.toUpperCase()}.`);
+    } catch (error) {
+      console.error(`Erreur lors du téléchargement du rapport en ${format}:`, error);
+      toast.error(`Échec du téléchargement du rapport en ${format.toUpperCase()}.`);
+    } finally {
+      setIsDownloading(false);
+    }
+  };
 
   return (
     <div className="space-y-6">
-      {/* En-tête */}
       <div>
         <h1 className="text-3xl font-bold text-secondary mb-2">Rapports et Analyses</h1>
-        <p className="text-accent">Visualisez et exportez vos rapports de présence</p>
+        <p className="text-accent">Visualisez et exportez vos rapports de présence.</p>
       </div>
 
-      {/* Filtres */}
-      <div className="card">
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-          <div>
-            <label className="block text-sm font-medium text-secondary mb-2">ID Organisation</label>
-            <input
-              type="number"
-              value={filters.organization_id}
-              onChange={(e) => setFilters({ ...filters, organization_id: parseInt(e.target.value) })}
-              className="input"
-            />
-          </div>
-          <div>
-            <label className="block text-sm font-medium text-secondary mb-2">Période</label>
-            <select
-              value={filters.period}
-              onChange={(e) => setFilters({ ...filters, period: e.target.value as ReportPeriod })}
-              className="input"
-            >
-              <option value="daily">Aujourd'hui</option>
-              <option value="weekly">Cette semaine</option>
-              <option value="monthly">Ce mois</option>
-              <option value="custom">Personnalisé</option>
-            </select>
-          </div>
+      <Card>
+        <CardHeader>
+          <CardTitle>Sélection du Rapport</CardTitle>
+        </CardHeader>
+        <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <Select onValueChange={(value: ReportId) => {
+            setSelectedReportId(value);
+            setFilters({});
+            setPreviewData(null);
+          }}>
+            <SelectTrigger className="w-full">
+              <SelectValue placeholder="Choisissez un rapport..." />
+            </SelectTrigger>
+            <SelectContent>
+              {availableReports.map(report => (
+                <SelectItem key={report.id} value={report.id}>
+                  {report.title}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </CardContent>
+      </Card>
 
-          {filters.period === "custom" && (
-            <>
-              <div>
-                <label className="block text-sm font-medium text-secondary mb-2">Date début</label>
-                <input
-                  type="date"
-                  value={filters.start_date}
-                  onChange={(e) => setFilters({ ...filters, start_date: e.target.value })}
-                  className="input"
-                />
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-secondary mb-2">Date fin</label>
-                <input
-                  type="date"
-                  value={filters.end_date}
-                  onChange={(e) => setFilters({ ...filters, end_date: e.target.value })}
-                  className="input"
-                />
-              </div>
-            </>
-          )}
-
-          <div className="flex items-end gap-2">
-            <button
-              onClick={generateReport}
-              disabled={isGenerating}
-              className="btn-primary flex-1 flex items-center justify-center gap-2"
-            >
-              <FileText className="w-4 h-4" />
-              {isGenerating ? "Génération..." : "Générer"}
-            </button>
-          </div>
-        </div>
-      </div>
-
-      {isGenerating && (
-        <div className="flex items-center justify-center min-h-[30vh]">
-          <LoadingSpinner size="large" />
-        </div>
-      )}
-
-      {reportData && (
+      {selectedReport && (
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          className="card"
+          transition={{ duration: 0.3 }}
+          className="space-y-6"
         >
-          <h2 className="text-xl font-semibold text-secondary mb-4 flex items-center gap-2">
-            <FileText className="w-5 h-5" />
-            Rapport de présence
-          </h2>
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-4">
-            <div><strong>Organisation:</strong> {reportData.organization_name}</div>
-            <div><strong>Période:</strong> {reportData.period}</div>
-            <div><strong>Date de début:</strong> {reportData.start_date}</div>
-            <div><strong>Date de fin:</strong> {reportData.end_date}</div>
-            <div><strong>Total des employés:</strong> {reportData.total_employees}</div>
-          </div>
-          <div className="overflow-x-auto">
-            <table className="table">
-              <thead className="table-header">
-                <tr>
-                  <th className="table-header-cell">Employé</th>
-                  <th className="table-header-cell">Badge</th>
-                  <th className="table-header-cell">Département</th>
-                  <th className="table-header-cell">Jours totaux</th>
-                  <th className="table-header-cell">Jours présents</th>
-                  <th className="table-header-cell">Jours absents</th>
-                  <th className="table-header-cell">Jours en retard</th>
-                  <th className="table-header-cell">Jours en congé</th>
-                  <th className="table-header-cell">Taux de présence</th>
-                  <th className="table-header-cell">Heures totales</th>
-                </tr>
-              </thead>
-              <tbody className="table-body">
-                {reportData.rows.map((row) => (
-                  <tr key={row.employee_id}>
-                    <td className="table-cell">{row.employee_name}</td>
-                    <td className="table-cell">{row.badge_id}</td>
-                    <td className="table-cell">{row.department}</td>
-                    <td className="table-cell">{row.total_days}</td>
-                    <td className="table-cell">{row.present_days}</td>
-                    <td className="table-cell">{row.absent_days}</td>
-                    <td className="table-cell">{row.late_days}</td>
-                    <td className="table-cell">{row.on_leave_days}</td>
-                    <td className="table-cell">{row.attendance_rate}%</td>
-                    <td className="table-cell">{row.total_hours}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+          <Card>
+            <CardHeader>
+              <CardTitle>{selectedReport.title}</CardTitle>
+              <p className="text-sm text-muted-foreground">{selectedReport.description}</p>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <ReportFilters
+                filters={selectedReport.filters}
+                onFilterChange={setFilters}
+              />
+              <div className="flex flex-col sm:flex-row gap-2">
+                <Button onClick={handleGeneratePreview} disabled={isGenerating} className="w-full sm:w-auto">
+                  <FileText className="mr-2 h-4 w-4" />
+                  {isGenerating ? "Génération en cours..." : "Générer la prévisualisation"}
+                </Button>
+                <Select onValueChange={(value: "pdf" | "csv" | "excel") => handleDownloadReport(value)} disabled={isDownloading}>
+                  <SelectTrigger className="w-full sm:w-auto">
+                    <SelectValue placeholder="Télécharger" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="pdf">PDF</SelectItem>
+                    <SelectItem value="csv">CSV</SelectItem>
+                    <SelectItem value="excel">Excel</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+            </CardContent>
+          </Card>
+
+          {isGenerating && <p>Chargement de la prévisualisation...</p>}
+
+          {previewData && (
+            <Card>
+              <CardHeader>
+                <CardTitle>Prévisualisation du Rapport</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <ReportPreview reportId={selectedReport.id} data={previewData} />
+              </CardContent>
+            </Card>
+          )}
         </motion.div>
       )}
     </div>
-  )
-}
+  );
+};
 
-export default Reports
+export default ReportsPage;

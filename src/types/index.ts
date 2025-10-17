@@ -48,6 +48,14 @@ export enum ReportPeriod {
   Custom = "custom",
 }
 
+export enum UserRole {
+    SuperAdmin = "super-admin",
+    AdminOrganization = "admin-organization",
+    RH = "rh",
+    Manager = "manager",
+    Employee = "employee",
+}
+
 // -----------------
 // # Schemas
 // -----------------
@@ -444,39 +452,239 @@ export interface HTTPValidationError {
 // # Reporting & Misc
 // -----------------
 
-export interface ReportRequest {
-  organization_id: number;
-  period: ReportPeriod;
-  start_date: string; // "date"
-  end_date: string; // "date"
+// --- Generic ---
+export interface ReportRequestBase {
   format?: ReportFormat;
-  employee_ids?: number[] | null;
-  department?: string | null;
-  include_charts?: boolean;
 }
 
-export interface AttendanceReportRow {
-  employee_id: string; // "uuid"
+// --- R1: Multi-Org Consolidated ---
+export interface MultiOrgConsolidatedRequest extends ReportRequestBase {
+  start_date: string; // "date"
+  end_date: string; // "date"
+  organization_ids?: string[] | null;
+  metric_type: string;
+  grouping: string;
+}
+export interface MultiOrgConsolidatedRow {
+  organization_name: string;
+  present_days: number;
+  on_leave_days: number;
+  total_hours_worked: number;
+}
+export interface MultiOrgConsolidatedResponse {
+  period: string;
+  data: MultiOrgConsolidatedRow[];
+}
+
+// --- R5: Organization Presence ---
+export interface OrganizationPresenceRequest extends ReportRequestBase {
+  start_date: string; // "date"
+  end_date: string; // "date"
+  site_ids?: string[] | null;
+  department_ids?: string[] | null;
+}
+export interface DepartmentPresenceReportRow {
+  employee_id: string;
   employee_name: string;
-  badge_id: string;
-  department?: string | null;
-  total_days: number;
   present_days: number;
   absent_days: number;
-  late_days: number;
   on_leave_days: number;
-  attendance_rate: number;
-  total_hours: number;
+  total_hours_worked: number;
 }
-
-export interface AttendanceReport {
+export interface OrganizationPresenceResponse {
   organization_name: string;
   period: string;
+  data: DepartmentPresenceReportRow[];
+  summary: Record<string, unknown>;
+}
+
+// --- R6: Monthly Synthetic ---
+export interface MonthlySyntheticReportRequest extends ReportRequestBase {
+  year: number;
+  month: number;
+  site_ids?: string[] | null;
+  department_ids?: string[] | null;
+  include_overtime?: boolean;
+}
+
+// --- R7: Organization Leaves Analysis ---
+export interface OrganizationLeavesRequest extends ReportRequestBase {
   start_date: string; // "date"
   end_date: string; // "date"
+  leave_type?: LeaveType | null;
+  status?: LeaveStatus | null;
+  department_ids?: string[] | null;
+  employee_ids?: string[] | null;
+}
+export interface DepartmentLeaveReportRow {
+    employee_name: string;
+    start_date: string; // "date"
+    end_date: string; // "date"
+    leave_type: string;
+    status: string;
+    reason: string;
+    total_days: number;
+}
+export interface DepartmentLeavesResponse {
+    department_name: string;
+    period: string;
+    data: DepartmentLeaveReportRow[];
+}
+
+// --- R9: Worked Hours per Employee ---
+export interface WorkedHoursRequest extends ReportRequestBase {
+  start_date: string; // "date"
+  end_date: string; // "date"
+  department_ids?: string[] | null;
+  employee_ids?: string[] | null;
+}
+export interface WorkedHoursRow {
+  employee_name: string;
+  department_name?: string | null;
+  date: string; // "date"
+  status: string;
+  check_in?: string | null;
+  check_out?: string | null;
+  total_hours: number;
+}
+export interface WorkedHoursResponse {
+  organization_name: string;
+  period: string;
+  data: WorkedHoursRow[];
+}
+
+// --- R10: Site Activity Report ---
+export interface SiteActivityRequest extends ReportRequestBase {
+  start_date: string; // "date"
+  end_date: string; // "date"
+  site_ids: string[];
+  detailed?: boolean;
+}
+export interface SiteActivityRow {
+  site_name: string;
   total_employees: number;
-  rows: AttendanceReportRow[];
+  present_employees: number;
+  on_leave_employees: number;
+  total_hours_worked: number;
+  average_hours_per_employee: number;
+}
+export interface SiteActivityResponse {
+  organization_name: string;
+  period: string;
+  data: SiteActivityRow[];
+}
+
+// --- R12: Department Presence Report ---
+export interface DepartmentPresenceRequest extends ReportRequestBase {
+  start_date: string; // "date"
+  end_date: string; // "date"
+  employee_ids?: string[] | null;
+  grouping?: string;
+}
+export interface DepartmentPresenceResponse {
+  department_name: string;
+  period: string;
+  data: DepartmentPresenceReportRow[];
   summary: Record<string, unknown>;
+}
+
+// --- R13: Team Weekly Report ---
+export interface TeamWeeklyReportRequest extends ReportRequestBase {
+  year: number;
+  week_number: number;
+  detailed?: boolean;
+}
+
+// --- R15: Department Leave Requests ---
+export interface DepartmentLeavesRequest extends ReportRequestBase {
+  start_date: string; // "date"
+  end_date: string; // "date"
+  leave_type?: LeaveType | null;
+  status?: LeaveStatus | null;
+  employee_ids?: string[] | null;
+}
+
+// --- R16: Team Performance Report ---
+export interface TeamPerformanceRequest extends ReportRequestBase {
+  year: number;
+  month?: number | null;
+  quarter?: number | null;
+}
+export interface TeamPerformanceRow {
+  employee_id: string;
+  employee_name: string;
+  attendance_rate: number;
+  total_hours_worked: number;
+}
+export interface TeamPerformanceResponse {
+  department_name: string;
+  period: string;
+  data: TeamPerformanceRow[];
+}
+
+// --- R17: Employee Presence Report ---
+export interface EmployeePresenceReportRequest extends ReportRequestBase {
+  start_date: string; // "date"
+  end_date: string; // "date"
+  detailed?: boolean;
+}
+export interface EmployeePresenceReportRow {
+  date: string; // "date"
+  check_in?: string | null;
+  check_out?: string | null;
+  total_hours?: number | null;
+  status: string;
+}
+export interface EmployeePresenceReportResponse {
+  employee_name: string;
+  employee_badge_id: string;
+  department_name?: string | null;
+  start_date: string; // "date"
+  end_date: string; // "date"
+  data: EmployeePresenceReportRow[];
+  summary: Record<string, unknown>;
+}
+
+// --- R18: Employee Monthly Summary ---
+export interface EmployeeMonthlySummaryRequest {
+  year: number;
+  month: number;
+  include_charts?: boolean;
+}
+export interface EmployeeMonthlySummaryResponse {
+  employee_name: string;
+  employee_badge_id: string;
+  department_name?: string | null;
+  period: string;
+  summary: Record<string, unknown>;
+  daily_data: Record<string, unknown>[];
+}
+
+// --- R19: Employee Leaves Report ---
+export interface EmployeeLeavesReportRequest extends ReportRequestBase {
+  year: number;
+  leave_type?: LeaveType | null;
+  status?: LeaveStatus | null;
+}
+export interface EmployeeLeaveReportRow {
+  start_date: string; // "date"
+  end_date: string; // "date"
+  leave_type: string;
+  status: string;
+  reason: string;
+  total_days: number;
+}
+export interface EmployeeLeavesReportResponse {
+  employee_name: string;
+  year: number;
+  data: EmployeeLeaveReportRow[];
+  summary: Record<string, number>;
+}
+
+// --- R20: Presence Certificate ---
+export interface PresenceCertificateRequest {
+  start_date: string; // "date"
+  end_date: string; // "date"
 }
 
 // -----------------

@@ -16,11 +16,15 @@ import {
   Briefcase,
   HardDrive,
   Calendar,
+  ChevronLeft,
+  ChevronRight,
 } from "lucide-react";
 
 interface SidebarProps {
   isOpen: boolean;
   onClose: () => void;
+  collapsed: boolean;
+  onToggleCollapse: () => void;
 }
 
 const menuItems = [
@@ -36,7 +40,12 @@ const menuItems = [
   { path: "/settings", icon: Settings, label: "Paramètres" },
 ];
 
-const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
+const Sidebar: React.FC<SidebarProps> = ({
+  isOpen,
+  onClose,
+  collapsed,
+  onToggleCollapse,
+}) => {
   const location = useLocation();
 
   return (
@@ -56,9 +65,9 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
 
       {/* Sidebar */}
       <aside
-        className={`fixed top-16 left-0 bottom-0 w-64 bg-white shadow-lg z-40 transform transition-transform duration-300 ease-in-out flex flex-col ${
+        className={`fixed top-16 left-0 bottom-0 bg-white shadow-lg z-40 transform transition-all duration-300 ease-in-out flex flex-col ${
           isOpen ? "translate-x-0" : "-translate-x-full"
-        } lg:translate-x-0`}
+        } lg:translate-x-0 ${collapsed ? "lg:w-20" : "lg:w-64"} w-64`}
       >
         {/* Bouton fermer pour mobile */}
         <button
@@ -67,6 +76,19 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
           aria-label="Fermer le menu"
         >
           <X className="w-5 h-5 text-secondary" />
+        </button>
+
+        {/* Bouton collapse pour desktop */}
+        <button
+          onClick={onToggleCollapse}
+          className="hidden lg:flex absolute -right-3 top-8 w-6 h-6 bg-primary text-white rounded-full items-center justify-center hover:bg-accent transition-colors z-10 shadow-md"
+          aria-label={collapsed ? "Expand sidebar" : "Collapse sidebar"}
+        >
+          {collapsed ? (
+            <ChevronRight className="w-4 h-4" />
+          ) : (
+            <ChevronLeft className="w-4 h-4" />
+          )}
         </button>
 
         {/* Menu de navigation avec scroll */}
@@ -80,14 +102,21 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
                 key={item.path}
                 to={item.path}
                 onClick={onClose}
+                title={collapsed ? item.label : ""}
                 className={`flex items-center gap-3 px-4 py-3 rounded-lg transition-all duration-200 ${
                   isActive
                     ? "bg-primary text-white shadow-md"
                     : "text-secondary hover:bg-gray-100"
-                }`}
+                } ${collapsed ? "lg:justify-center lg:px-2" : ""}`}
               >
-                <Icon className="w-5 h-5" />
-                <span className="font-medium">{item.label}</span>
+                <Icon className="w-5 h-5 flex-shrink-0" />
+                <span
+                  className={`font-medium whitespace-nowrap ${
+                    collapsed ? "lg:hidden" : ""
+                  }`}
+                >
+                  {item.label}
+                </span>
               </Link>
             );
           })}
@@ -95,10 +124,19 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
 
         {/* Footer fixe */}
         <div className="flex-shrink-0 p-4 border-t border-gray-200 bg-white">
-          <p className="text-xs text-center text-accent">
+          <p
+            className={`text-xs text-center text-accent transition-opacity ${
+              collapsed ? "lg:opacity-0 lg:hidden" : ""
+            }`}
+          >
             KUILINGA v2.0
             <br />© 2025 TANGA GROUP
           </p>
+          {collapsed && (
+            <p className="hidden lg:block text-xs text-center text-accent font-bold">
+              K
+            </p>
+          )}
         </div>
       </aside>
     </>

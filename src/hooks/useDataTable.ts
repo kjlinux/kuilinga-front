@@ -8,6 +8,7 @@ interface UseDataTableProps<T> {
 const useDataTable = <T>({ fetchData }: UseDataTableProps<T>) => {
   const [data, setData] = useState<T[]>([])
   const [isLoading, setIsLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
   const [pagination, setPagination] = useState<PaginationParams>({
     skip: 0,
     limit: 10,
@@ -17,12 +18,14 @@ const useDataTable = <T>({ fetchData }: UseDataTableProps<T>) => {
 
   const loadData = useCallback(async () => {
     setIsLoading(true)
+    setError(null)
     try {
       const response = await fetchData(pagination)
       setData(response.items)
       setTotal(response.total)
     } catch (error) {
       console.error("Erreur lors de la récupération des données:", error)
+      setError("Impossible de charger les données. Veuillez réessayer.")
     } finally {
       setIsLoading(false)
     }
@@ -47,6 +50,7 @@ const useDataTable = <T>({ fetchData }: UseDataTableProps<T>) => {
   return {
     data,
     isLoading,
+    error,
     pagination: { ...pagination, total },
     handlePageChange,
     handleSearchChange,

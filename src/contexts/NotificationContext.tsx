@@ -1,7 +1,7 @@
 "use client";
 
 import type React from "react";
-import { useState, useEffect, type ReactNode } from "react";
+import { useState, type ReactNode } from "react";
 import type { Notification } from "../types";
 import notificationService from "../services/notification.service";
 import { NotificationContext } from "./definitions/NotificationContext";
@@ -25,15 +25,15 @@ export const NotificationProvider: React.FC<NotificationProviderProps> = ({
   const [notifications, setNotifications] = useState<Notification[]>([]);
 
   const fetchNotifications = async () => {
-    try {
-      const data = await notificationService.getNotifications();
-      // Ensure data is an array
-      setNotifications(Array.isArray(data) ? data : []);
-    } catch (error) {
-      console.error("Error fetching notifications:", error);
-      // Set empty array on error to prevent crashes
-      setNotifications([]);
-    }
+    // try {
+    //   const data = await notificationService.getNotifications();
+    //   // Ensure data is an array
+    //   setNotifications(Array.isArray(data) ? data : []);
+    // } catch (error) {
+    //   console.error("Error fetching notifications:", error);
+    //   // Set empty array on error to prevent crashes
+    //   setNotifications([]);
+    // }
   };
 
   const markAsRead = async (id: string) => {
@@ -67,12 +67,12 @@ export const NotificationProvider: React.FC<NotificationProviderProps> = ({
 
   const unreadCount = notifications.filter((n) => !n.lu).length;
 
-  useEffect(() => {
-    fetchNotifications();
-    // Refresh notifications every 30 seconds
-    const interval = setInterval(fetchNotifications, 30000);
-    return () => clearInterval(interval);
-  }, []);
+  // useEffect(() => {
+  //   fetchNotifications();
+  //   // Refresh notifications every 30 seconds
+  //   const interval = setInterval(fetchNotifications, 30000);
+  //   return () => clearInterval(interval);
+  // }, []);
 
   const value: NotificationContextType = {
     notifications,

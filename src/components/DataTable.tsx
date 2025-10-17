@@ -12,6 +12,7 @@ interface DataTableProps<T> {
     header: string
   }[]
   isLoading: boolean
+  error?: string | null
   pagination: {
     skip: number
     limit: number
@@ -28,6 +29,7 @@ const DataTable = <T extends { id: string }>({
   data,
   columns,
   isLoading,
+  error,
   pagination,
   onPageChange,
   onSearchChange,
@@ -71,6 +73,12 @@ const DataTable = <T extends { id: string }>({
                   </div>
                 </TableCell>
               </TableRow>
+            ) : error ? (
+                <TableRow>
+                    <TableCell colSpan={columns.length + 1} className="text-center py-8 text-red-500">
+                        {error}
+                    </TableCell>
+                </TableRow>
             ) : data.length === 0 ? (
               <TableRow>
                 <TableCell colSpan={columns.length + 1} className="text-center py-8">

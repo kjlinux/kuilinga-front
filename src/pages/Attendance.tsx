@@ -13,6 +13,7 @@ const Attendance = () => {
   const {
     data,
     isLoading,
+    error,
     pagination,
     handlePageChange,
     handleSearchChange,
@@ -91,6 +92,7 @@ const Attendance = () => {
         onSearchChange={handleSearchChange}
         onEdit={() => {}} // No edit action
         onDelete={() => {}} // No delete action
+        error={error}
       />
     </div>
   )

@@ -8,7 +8,7 @@ import type {
   AdvancedAnalytics,
 } from "../types"
 
-const { DASHBOARD_ENDPOINTS } = API_CONFIG
+const { DASHBOARD_ENDPOINTS } = API_CONFIG.ENDPOINTS
 
 const dashboardService = {
   getAdminDashboard: () =>

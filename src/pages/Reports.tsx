@@ -1,8 +1,8 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { motion } from "framer-motion";
-import { FileText } from "lucide-react";
+import { FileText, Loader2 } from "lucide-react";
 import {
   Select,
   SelectContent,
@@ -20,19 +20,26 @@ import reportService from "@/services/report.service";
 import { toast } from "sonner";
 
 const ReportsPage = () => {
-  const { user } = useAuth();
+  const { user, isLoading: isAuthLoading } = useAuth();
   const [selectedReportId, setSelectedReportId] = useState<ReportId | null>(null);
   const [filters, setFilters] = useState<Record<string, unknown>>({});
   const [previewData, setPreviewData] = useState<Record<string, unknown> | null>(null);
   const [isGenerating, setIsGenerating] = useState(false);
   const [isDownloading, setIsDownloading] = useState(false);
 
-  // Filter reports based on user's role
-  const availableReports = REPORTS_CONFIG.filter(report =>
-    report.roles.some(role => user?.roles.map(r => r.name).includes(role))
-  );
+  const availableReports = useMemo(() => {
+    if (!user?.roles) {
+      return [];
+    }
+    const userRoleNames = user.roles.map(r => r.name);
+    return REPORTS_CONFIG.filter(report =>
+      report.roles.some(role => userRoleNames.includes(role))
+    );
+  }, [user]);
 
-  const selectedReport = REPORTS_CONFIG.find(r => r.id === selectedReportId);
+  const selectedReport = useMemo(() => {
+    return REPORTS_CONFIG.find(r => r.id === selectedReportId) ?? null;
+  }, [selectedReportId]);
 
   const handleGeneratePreview = async () => {
     if (!selectedReport) return;
@@ -79,22 +86,32 @@ const ReportsPage = () => {
           <CardTitle>Sélection du Rapport</CardTitle>
         </CardHeader>
         <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <Select onValueChange={(value: ReportId) => {
-            setSelectedReportId(value);
-            setFilters({});
-            setPreviewData(null);
-          }}>
-            <SelectTrigger className="w-full">
-              <SelectValue placeholder="Choisissez un rapport..." />
-            </SelectTrigger>
-            <SelectContent>
-              {availableReports.map(report => (
-                <SelectItem key={report.id} value={report.id}>
-                  {report.title}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
+          {isAuthLoading ? (
+            <div className="flex items-center space-x-2 text-accent">
+              <Loader2 className="h-5 w-5 animate-spin" />
+              <span>Chargement des rapports...</span>
+            </div>
+          ) : (
+            <Select
+              onValueChange={(value: ReportId) => {
+                setSelectedReportId(value);
+                setFilters({});
+                setPreviewData(null);
+              }}
+              disabled={availableReports.length === 0}
+            >
+              <SelectTrigger className="w-full">
+                <SelectValue placeholder={availableReports.length > 0 ? "Choisissez un rapport..." : "Aucun rapport disponible"} />
+              </SelectTrigger>
+              <SelectContent>
+                {availableReports.map(report => (
+                  <SelectItem key={report.id} value={report.id}>
+                    {report.title}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          )}
         </CardContent>
       </Card>
 

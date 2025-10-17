@@ -20,22 +20,14 @@ import reportService from "@/services/report.service";
 import { toast } from "sonner";
 
 const ReportsPage = () => {
-  const { user, isLoading: isAuthLoading } = useAuth();
+  const { isLoading: isAuthLoading } = useAuth();
   const [selectedReportId, setSelectedReportId] = useState<ReportId | null>(null);
   const [filters, setFilters] = useState<Record<string, unknown>>({});
   const [previewData, setPreviewData] = useState<Record<string, unknown> | null>(null);
   const [isGenerating, setIsGenerating] = useState(false);
   const [isDownloading, setIsDownloading] = useState(false);
 
-  const availableReports = useMemo(() => {
-    if (!user?.roles) {
-      return [];
-    }
-    const userRoleNames = user.roles.map(r => r.name);
-    return REPORTS_CONFIG.filter(report =>
-      report.roles.some(role => userRoleNames.includes(role))
-    );
-  }, [user]);
+  const availableReports = REPORTS_CONFIG;
 
   const selectedReport = useMemo(() => {
     return REPORTS_CONFIG.find(r => r.id === selectedReportId) ?? null;

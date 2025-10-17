@@ -1,6 +1,6 @@
 // Configuration de l'API
 export const API_CONFIG = {
-  BASE_URL: import.meta.env.VITE_API_URL || "http://127.0.0.1:8000",
+  BASE_URL: import.meta.env.VITE_API_URL || "",
   TIMEOUT: 30000,
   ENDPOINTS: {
     // Auth
@@ -50,6 +50,15 @@ export const API_CONFIG = {
 
     // Devices
     DEVICES: "/api/v1/devices",
+
+    // Dashboards
+    DASHBOARD_ENDPOINTS: {
+      ADMIN: "/api/v1/dashboard/admin",
+      MANAGER: "/api/v1/dashboard/manager",
+      EMPLOYEE: "/api/v1/dashboard/employee",
+      INTEGRATOR: "/api/v1/dashboard/integrator",
+      ANALYTICS: "/api/v1/dashboard/analytics",
+    },
 
     // Health
     HEALTH: "/health",

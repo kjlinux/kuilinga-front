@@ -1,33 +1,50 @@
 "use client"
 
-import { useAuth } from "../hooks/useAuth"
-import { motion } from "framer-motion"
+import AdminDashboard from "../components/dashboards/AdminDashboard"
+import ManagerDashboard from "../components/dashboards/ManagerDashboard"
+import EmployeeDashboard from "../components/dashboards/EmployeeDashboard"
+import IntegratorDashboard from "../components/dashboards/IntegratorDashboard"
+import { Separator } from "@/components/ui/separator"
 
-const Dashboard = () => {
-  const { user } = useAuth()
-
+const DashboardPage = () => {
+  // For now, we display all dashboards.
+  // Later, this will be controlled by user roles and permissions.
   return (
-    <div className="space-y-6">
-      {/* En-tête */}
+    <div className="space-y-8">
       <div>
-        <h1 className="text-3xl font-bold text-secondary mb-2">Tableau de bord</h1>
-        <p className="text-accent">Vue d'ensemble des présences en temps réel</p>
+        <h1 className="text-3xl font-bold text-primary mb-2">
+          Tableaux de Bord Complets
+        </h1>
+        <p className="text-muted-foreground">
+          Vue d'ensemble de toutes les perspectives et KPIs.
+        </p>
       </div>
 
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        className="card"
-      >
-        <h2 className="text-2xl font-semibold text-secondary mb-4">
-          Bienvenue, {user?.full_name}!
-        </h2>
-        <p className="text-accent">
-          Utilisez le menu de gauche pour naviguer dans l'application.
-        </p>
-      </motion.div>
+      <Separator />
+
+      <section id="admin-dashboard">
+        <AdminDashboard />
+      </section>
+
+      <Separator className="my-8" />
+
+      <section id="manager-dashboard">
+        <ManagerDashboard />
+      </section>
+
+      <Separator className="my-8" />
+
+      <section id="employee-dashboard">
+        <EmployeeDashboard />
+      </section>
+
+      <Separator className="my-8" />
+
+      <section id="integrator-dashboard">
+        <IntegratorDashboard />
+      </section>
     </div>
   )
 }
 
-export default Dashboard
+export default DashboardPage

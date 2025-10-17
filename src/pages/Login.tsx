@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, type FormEvent } from "react"
+import { useState, type FormEvent, useEffect } from "react"
 import { useNavigate } from "react-router-dom"
 import { motion } from "framer-motion"
 import { Mail, Lock, AlertCircle } from "lucide-react"
@@ -9,11 +9,17 @@ import LoadingSpinner from "../components/LoadingSpinner"
 
 const Login = () => {
   const navigate = useNavigate()
-  const { login } = useAuth()
+  const { login, isAuthenticated } = useAuth()
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
   const [error, setError] = useState("")
   const [isLoading, setIsLoading] = useState(false)
+
+  useEffect(() => {
+    if (isAuthenticated) {
+      navigate("/dashboard")
+    }
+  }, [isAuthenticated, navigate])
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault()
@@ -22,7 +28,6 @@ const Login = () => {
 
     try {
       await login(email, password)
-      navigate("/dashboard")
     } catch (err) {
       setError((err as Error).message || "Identifiants incorrects")
     } finally {

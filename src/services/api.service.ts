@@ -75,53 +75,65 @@ class ApiService {
   }
 
   // Méthodes HTTP génériques
-  async get<T>(url: string, config?: AxiosRequestConfig): Promise<T | undefined> {
+  async get<T>(url: string, config?: AxiosRequestConfig): Promise<T> {
     try {
-      const response: AxiosResponse<T> = await this.api.get(url, config);
-      return response.data;
+      const response: AxiosResponse<T> = await this.api.get(url, config)
+      return response.data
     } catch (error) {
-      console.error(`GET ${url} failed:`, error);
-      return undefined;
+      console.error(`GET ${url} failed:`, error)
+      throw error
     }
   }
 
-  async post<T>(url: string, data?: unknown, config?: AxiosRequestConfig): Promise<T | undefined> {
+  async post<T>(
+    url: string,
+    data?: unknown,
+    config?: AxiosRequestConfig,
+  ): Promise<T> {
     try {
-      const response: AxiosResponse<T> = await this.api.post(url, data, config);
-      return response.data;
+      const response: AxiosResponse<T> = await this.api.post(url, data, config)
+      return response.data
     } catch (error) {
-      console.error(`POST ${url} failed:`, error);
-      return undefined;
+      console.error(`POST ${url} failed:`, error)
+      throw error
     }
   }
 
-  async put<T>(url: string, data?: unknown, config?: AxiosRequestConfig): Promise<T | undefined> {
+  async put<T>(
+    url: string,
+    data?: unknown,
+    config?: AxiosRequestConfig,
+  ): Promise<T> {
     try {
-      const response: AxiosResponse<T> = await this.api.put(url, data, config);
-      return response.data;
+      const response: AxiosResponse<T> = await this.api.put(url, data, config)
+      return response.data
     } catch (error) {
-      console.error(`PUT ${url} failed:`, error);
-      return undefined;
+      console.error(`PUT ${url} failed:`, error)
+      throw error
     }
   }
 
-  async delete<T>(url: string, config?: AxiosRequestConfig): Promise<T | undefined> {
+  async delete<T>(url: string, config?: AxiosRequestConfig): Promise<T> {
     try {
-      const response: AxiosResponse<T> = await this.api.delete(url, config);
-      return response.data;
+      const response: AxiosResponse<T> = await this.api.delete(url, config)
+      return response.data
     } catch (error) {
-      console.error(`DELETE ${url} failed:`, error);
-      return undefined;
+      console.error(`DELETE ${url} failed:`, error)
+      throw error
     }
   }
 
-  async patch<T>(url: string, data?: unknown, config?: AxiosRequestConfig): Promise<T | undefined> {
+  async patch<T>(
+    url: string,
+    data?: unknown,
+    config?: AxiosRequestConfig,
+  ): Promise<T> {
     try {
-      const response: AxiosResponse<T> = await this.api.patch(url, data, config);
-      return response.data;
+      const response: AxiosResponse<T> = await this.api.patch(url, data, config)
+      return response.data
     } catch (error) {
-      console.error(`PATCH ${url} failed:`, error);
-      return undefined;
+      console.error(`PATCH ${url} failed:`, error)
+      throw error
     }
   }
 }

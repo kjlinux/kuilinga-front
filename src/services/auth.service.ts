@@ -6,6 +6,7 @@ class AuthService {
   async login(credentials: LoginCredentials): Promise<AuthResponse> {
     try {
       const params = new URLSearchParams()
+      params.append("grant_type", "password")
       params.append("username", credentials.email)
       params.append("password", credentials.password)
 
@@ -24,7 +25,7 @@ class AuthService {
       localStorage.setItem("refresh_token", response.refresh_token)
       
       // Store user info
-      localStorage.setItem("user", JSON.stringify(response.user))
+      // localStorage.setItem("user", JSON.stringify(response.user))
 
       return response
     } catch (error) {
@@ -69,31 +70,16 @@ class AuthService {
     }
   }
 
-  async getCurrentUser(): Promise<User | null> {
+  async getCurrentUser(): Promise<User> {
     try {
-      // First try to get from localStorage
-      const storedUser = localStorage.getItem("user")
-      if (storedUser) {
-        return JSON.parse(storedUser)
-      }
-
-      // If not in localStorage, fetch from API
       const user = await apiService.get<User>(API_CONFIG.ENDPOINTS.ME)
       localStorage.setItem("user", JSON.stringify(user))
       return user
     } catch (error) {
       console.error("Error getting current user:", error)
-      return null
-    }
-  }
-
-  getStoredUser(): User | null {
-    try {
-      const storedUser = localStorage.getItem("user")
-      return storedUser ? JSON.parse(storedUser) : null
-    } catch (error) {
-      console.error("Error parsing stored user:", error)
-      return null
+      // If fetching user fails, assume token is invalid and log out
+      this.logout()
+      throw new Error("Session expired. Please log in again.")
     }
   }
 

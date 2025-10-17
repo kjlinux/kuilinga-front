@@ -24,15 +24,20 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const [isLoading, setIsLoading] = useState(true)
 
   useEffect(() => {
-    // Check if user is already logged in
     const initAuth = async () => {
+      setIsLoading(true)
       try {
-        const currentUser = authService.getStoredUser()
-        if (currentUser) {
+        // Check for token instead of stored user
+        const token = localStorage.getItem("access_token")
+        if (token) {
+          // Validate token by fetching user profile
+          const currentUser = await authService.getCurrentUser()
           setUser(currentUser)
         }
       } catch (error) {
-        console.error("Error initializing auth:", error)
+        // If getCurrentUser fails (e.g., token expired), the service will handle logout
+        console.error("Initialization auth error:", error)
+        setUser(null) // Ensure user state is cleared
       } finally {
         setIsLoading(false)
       }
@@ -43,8 +48,13 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
   const login = async (email: string, password: string) => {
     try {
-      const response = await authService.login({ email, password })
-      setUser(response.user)
+      await authService.login({ email, password })
+      const currentUser = await authService.getCurrentUser()
+      if (currentUser) {
+        setUser(currentUser)
+      } else {
+        throw new Error("Could not fetch user profile after login.")
+      }
     } catch (error) {
       console.error("Login error:", error)
       throw error

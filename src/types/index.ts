@@ -399,6 +399,13 @@ export interface LeaveUpdate {
   notes?: string | null;
 }
 
+export interface LoginCredentials {
+  email: string;
+  password: string;
+}
+
+export type AuthResponse = Token;
+
 export interface RoleCreate {
   name: string;
   description?: string | null;
@@ -489,4 +496,97 @@ export interface PaginatedResponse<T> {
   total: number;
   skip: number;
   limit: number;
+}
+
+// -----------------
+// # Dashboard Types
+// -----------------
+
+export interface UsersPerOrg {
+  name: string;
+  user_count: number;
+}
+
+export interface SitesPerOrg {
+  name: string;
+  site_count: number;
+}
+
+export interface DeviceStatusRatio {
+  status: string;
+  count: number;
+}
+
+export interface PlanDistribution {
+  plan: string;
+  count: number;
+}
+
+export interface Top10Organizations {
+  name: string;
+  employee_count: number;
+}
+
+export interface AdminDashboard {
+  active_organizations: number;
+  users_per_organization: UsersPerOrg[];
+  sites_per_organization: SitesPerOrg[];
+  device_status_ratio: DeviceStatusRatio[];
+  daily_attendance_count: number;
+  plan_distribution: PlanDistribution[];
+  top_10_organizations_by_employees: Top10Organizations[];
+}
+
+export interface PresenceEvolution {
+  date: string; // "date"
+  presence_count: number;
+}
+
+export interface PresenceAbsenceTardinessDistribution {
+  present: number;
+  absent: number;
+  tardy: number;
+}
+
+export interface ManagerDashboard {
+  present_today: number;
+  absent_today: number;
+  tardy_today: number;
+  attendance_rate: number;
+  total_work_hours: number;
+  pending_leaves: number;
+  presence_evolution: PresenceEvolution[];
+  presence_absence_tardiness_distribution: PresenceAbsenceTardinessDistribution;
+  real_time_attendances: Attendance[];
+}
+
+export interface LeaveBalance {
+  total: number;
+  used: number;
+  available: number;
+}
+
+export interface EmployeeDashboard {
+  today_attendances: Attendance[];
+  monthly_attendance_rate: number;
+  leave_balance: LeaveBalance;
+}
+
+export interface AttendancePerDevice {
+  serial_number: string;
+  attendance_count: number;
+}
+
+export interface IntegratorDashboard {
+  device_status_ratio: DeviceStatusRatio[];
+  attendance_per_device: AttendancePerDevice[];
+}
+
+export interface TardinessByDay {
+  day: string;
+  tardy_count: number;
+}
+
+export interface AdvancedAnalytics {
+  tardiness_by_day_of_week: TardinessByDay[];
 }

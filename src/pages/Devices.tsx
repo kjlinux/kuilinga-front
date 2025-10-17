@@ -2,15 +2,19 @@
 
 import { useState } from "react"
 import { Plus } from "lucide-react"
+import { toast } from "sonner"
 import DataTable from "../components/DataTable"
 import useDataTable from "../hooks/useDataTable"
 import deviceService from "../services/device.service"
 import type { Device, DeviceCreate, DeviceUpdate, DeviceStatus } from "../types"
 import DeviceDialog from "../components/DeviceDialog"
+import ConfirmationDialog from "../components/ConfirmationDialog"
 
 const Devices = () => {
   const [isDialogOpen, setIsDialogOpen] = useState(false)
+  const [isConfirmOpen, setIsConfirmOpen] = useState(false)
   const [selectedDevice, setSelectedDevice] = useState<Device | null>(null)
+  const [deviceToDelete, setDeviceToDelete] = useState<Device | null>(null)
 
   const {
     data,
@@ -34,12 +38,19 @@ const Devices = () => {
   }
 
   const handleConfirm = async (formData: DeviceCreate | DeviceUpdate) => {
+    const isEditing = !!selectedDevice
+    const action = isEditing
+      ? deviceService.updateDevice(selectedDevice.id, formData as DeviceUpdate)
+      : deviceService.createDevice(formData as DeviceCreate)
+
+    toast.promise(action, {
+      loading: "Sauvegarde du terminal en cours...",
+      success: `Terminal ${isEditing ? "mis à jour" : "créé"} avec succès !`,
+      error: "Erreur lors de la sauvegarde du terminal.",
+    })
+
     try {
-      if (selectedDevice) {
-        await deviceService.updateDevice(selectedDevice.id, formData as DeviceUpdate)
-      } else {
-        await deviceService.createDevice(formData as DeviceCreate)
-      }
+      await action
       refresh()
       handleCloseDialog()
     } catch (error) {
@@ -47,14 +58,29 @@ const Devices = () => {
     }
   }
 
-  const handleDelete = async (device: Device) => {
-    if (window.confirm("Êtes-vous sûr de vouloir supprimer ce terminal ?")) {
-      try {
-        await deviceService.deleteDevice(device.id)
-        refresh()
-      } catch (error) {
-        console.error("Erreur lors de la suppression:", error)
-      }
+  const handleDeleteRequest = (device: Device) => {
+    setDeviceToDelete(device)
+    setIsConfirmOpen(true)
+  }
+
+  const handleConfirmDelete = async () => {
+    if (!deviceToDelete) return
+
+    const action = deviceService.deleteDevice(deviceToDelete.id)
+
+    toast.promise(action, {
+      loading: "Suppression du terminal en cours...",
+      success: "Terminal supprimé avec succès !",
+      error: "Erreur lors de la suppression du terminal.",
+    })
+
+    try {
+      await action
+      refresh()
+      setIsConfirmOpen(false)
+      setDeviceToDelete(null)
+    } catch (error) {
+      console.error("Erreur lors de la suppression:", error)
     }
   }
 
@@ -85,8 +111,12 @@ const Devices = () => {
     <div className="space-y-6">
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
-          <h1 className="text-3xl font-bold text-secondary mb-2">Gestion des terminaux</h1>
-          <p className="text-accent">Gérez les terminaux (pointeuses) de vos organisations</p>
+          <h1 className="text-3xl font-bold text-secondary mb-2">
+            Gestion des terminaux
+          </h1>
+          <p className="text-accent">
+            Gérez les terminaux (pointeuses) de vos organisations
+          </p>
         </div>
 
         <div className="flex items-center gap-2">
@@ -101,7 +131,7 @@ const Devices = () => {
       </div>
 
       <DataTable
-        data={data.map(d => ({
+        data={data.map((d) => ({
           ...d,
           status: getStatusBadge(d.status),
           organization: d.organization?.name,
@@ -116,7 +146,7 @@ const Devices = () => {
         onPageChange={handlePageChange}
         onSearchChange={handleSearchChange}
         onEdit={handleOpenDialog}
-        onDelete={handleDelete}
+        onDelete={handleDeleteRequest}
       />
 
       <DeviceDialog
@@ -124,6 +154,14 @@ const Devices = () => {
         onClose={handleCloseDialog}
         onConfirm={handleConfirm}
         device={selectedDevice}
+      />
+
+      <ConfirmationDialog
+        isOpen={isConfirmOpen}
+        onClose={() => setIsConfirmOpen(false)}
+        onConfirm={handleConfirmDelete}
+        title="Confirmer la suppression"
+        description={`Êtes-vous sûr de vouloir supprimer le terminal "${deviceToDelete?.serial_number}" ? Cette action est irréversible.`}
       />
     </div>
   )

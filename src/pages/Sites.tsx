@@ -2,15 +2,19 @@
 
 import { useState } from "react"
 import { Plus } from "lucide-react"
+import { toast } from "sonner"
 import DataTable from "../components/DataTable"
 import useDataTable from "../hooks/useDataTable"
 import siteService from "../services/site.service"
 import type { Site, SiteCreate, SiteUpdate } from "../types"
 import SiteDialog from "../components/SiteDialog"
+import ConfirmationDialog from "../components/ConfirmationDialog"
 
 const Sites = () => {
   const [isDialogOpen, setIsDialogOpen] = useState(false)
+  const [isConfirmOpen, setIsConfirmOpen] = useState(false)
   const [selectedSite, setSelectedSite] = useState<Site | null>(null)
+  const [siteToDelete, setSiteToDelete] = useState<Site | null>(null)
 
   const {
     data,
@@ -34,12 +38,19 @@ const Sites = () => {
   }
 
   const handleConfirm = async (formData: SiteCreate | SiteUpdate) => {
+    const isEditing = !!selectedSite
+    const action = isEditing
+      ? siteService.updateSite(selectedSite.id, formData as SiteUpdate)
+      : siteService.createSite(formData as SiteCreate)
+
+    toast.promise(action, {
+      loading: "Sauvegarde du site en cours...",
+      success: `Site ${isEditing ? "mis à jour" : "créé"} avec succès !`,
+      error: "Erreur lors de la sauvegarde du site.",
+    })
+
     try {
-      if (selectedSite) {
-        await siteService.updateSite(selectedSite.id, formData as SiteUpdate)
-      } else {
-        await siteService.createSite(formData as SiteCreate)
-      }
+      await action
       refresh()
       handleCloseDialog()
     } catch (error) {
@@ -47,14 +58,29 @@ const Sites = () => {
     }
   }
 
-  const handleDelete = async (site: Site) => {
-    if (window.confirm("Êtes-vous sûr de vouloir supprimer ce site ?")) {
-      try {
-        await siteService.deleteSite(site.id)
-        refresh()
-      } catch (error) {
-        console.error("Erreur lors de la suppression:", error)
-      }
+  const handleDeleteRequest = (site: Site) => {
+    setSiteToDelete(site)
+    setIsConfirmOpen(true)
+  }
+
+  const handleConfirmDelete = async () => {
+    if (!siteToDelete) return
+
+    const action = siteService.deleteSite(siteToDelete.id)
+
+    toast.promise(action, {
+      loading: "Suppression du site en cours...",
+      success: "Site supprimé avec succès !",
+      error: "Erreur lors de la suppression du site.",
+    })
+
+    try {
+      await action
+      refresh()
+      setIsConfirmOpen(false)
+      setSiteToDelete(null)
+    } catch (error) {
+      console.error("Erreur lors de la suppression:", error)
     }
   }
 
@@ -72,7 +98,9 @@ const Sites = () => {
     <div className="space-y-6">
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
-          <h1 className="text-3xl font-bold text-secondary mb-2">Gestion des sites</h1>
+          <h1 className="text-3xl font-bold text-secondary mb-2">
+            Gestion des sites
+          </h1>
           <p className="text-accent">Gérez les sites de vos organisations</p>
         </div>
 
@@ -88,14 +116,14 @@ const Sites = () => {
       </div>
 
       <DataTable
-        data={data.map(s => ({...s, organization: s.organization?.name}))}
+        data={data.map((s) => ({ ...s, organization: s.organization?.name }))}
         columns={columns}
         isLoading={isLoading}
         pagination={pagination}
         onPageChange={handlePageChange}
         onSearchChange={handleSearchChange}
         onEdit={handleOpenDialog}
-        onDelete={handleDelete}
+        onDelete={handleDeleteRequest}
       />
 
       <SiteDialog
@@ -103,6 +131,14 @@ const Sites = () => {
         onClose={handleCloseDialog}
         onConfirm={handleConfirm}
         site={selectedSite}
+      />
+
+      <ConfirmationDialog
+        isOpen={isConfirmOpen}
+        onClose={() => setIsConfirmOpen(false)}
+        onConfirm={handleConfirmDelete}
+        title="Confirmer la suppression"
+        description={`Êtes-vous sûr de vouloir supprimer le site "${siteToDelete?.name}" ? Cette action est irréversible.`}
       />
     </div>
   )

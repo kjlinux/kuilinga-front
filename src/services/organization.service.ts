@@ -13,23 +13,27 @@ class OrganizationService {
     }).toString();
 
     const url = `${API_CONFIG.ENDPOINTS.ORGANIZATIONS}?${query}`;
-    return apiService.get<PaginatedResponse<Organization>>(url);
+    const response = await apiService.get<PaginatedResponse<Organization>>(url);
+    return response.data;
   }
 
   async getOrganization(id: string): Promise<Organization> {
-    return apiService.get<Organization>(`${API_CONFIG.ENDPOINTS.ORGANIZATIONS}/${id}`);
+    const response = await apiService.get<Organization>(`${API_CONFIG.ENDPOINTS.ORGANIZATIONS}/${id}`);
+    return response.data;
   }
 
   async createOrganization(data: OrganizationCreate): Promise<Organization> {
-    return apiService.post<Organization>(API_CONFIG.ENDPOINTS.ORGANIZATIONS, data);
+    const response = await apiService.post<Organization>(API_CONFIG.ENDPOINTS.ORGANIZATIONS, data);
+    return response.data;
   }
 
   async updateOrganization(id: string, data: OrganizationUpdate): Promise<Organization> {
-    return apiService.put<Organization>(`${API_CONFIG.ENDPOINTS.ORGANIZATIONS}/${id}`, data);
+    const response = await apiService.put<Organization>(`${API_CONFIG.ENDPOINTS.ORGANIZATIONS}/${id}`, data);
+    return response.data;
   }
 
   async deleteOrganization(id: string): Promise<void> {
-    return apiService.delete<void>(`${API_CONFIG.ENDPOINTS.ORGANIZATIONS}/${id}`);
+    await apiService.delete<void>(`${API_CONFIG.ENDPOINTS.ORGANIZATIONS}/${id}`);
   }
 }
 

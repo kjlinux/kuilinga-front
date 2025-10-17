@@ -13,23 +13,27 @@ class DepartmentService {
     }).toString();
 
     const url = `${API_CONFIG.ENDPOINTS.DEPARTMENTS}?${query}`;
-    return apiService.get<PaginatedResponse<Department>>(url);
+    const response = await apiService.get<PaginatedResponse<Department>>(url);
+    return response.data;
   }
 
   async getDepartment(id: string): Promise<Department> {
-    return apiService.get<Department>(`${API_CONFIG.ENDPOINTS.DEPARTMENTS}/${id}`);
+    const response = await apiService.get<Department>(`${API_CONFIG.ENDPOINTS.DEPARTMENTS}/${id}`);
+    return response.data;
   }
 
   async createDepartment(data: DepartmentCreate): Promise<Department> {
-    return apiService.post<Department>(API_CONFIG.ENDPOINTS.DEPARTMENTS, data);
+    const response = await apiService.post<Department>(API_CONFIG.ENDPOINTS.DEPARTMENTS, data);
+    return response.data;
   }
 
   async updateDepartment(id: string, data: DepartmentUpdate): Promise<Department> {
-    return apiService.put<Department>(`${API_CONFIG.ENDPOINTS.DEPARTMENTS}/${id}`, data);
+    const response = await apiService.put<Department>(`${API_CONFIG.ENDPOINTS.DEPARTMENTS}/${id}`, data);
+    return response.data;
   }
 
   async deleteDepartment(id: string): Promise<void> {
-    return apiService.delete<void>(`${API_CONFIG.ENDPOINTS.DEPARTMENTS}/${id}`);
+    await apiService.delete<void>(`${API_CONFIG.ENDPOINTS.DEPARTMENTS}/${id}`);
   }
 }
 

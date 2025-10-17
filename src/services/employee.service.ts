@@ -13,34 +13,39 @@ class EmployeeService {
     }).toString();
 
     const url = `${API_CONFIG.ENDPOINTS.EMPLOYEES}?${query}`;
-    return apiService.get<PaginatedResponse<Employee>>(url);
+    const response = await apiService.get<PaginatedResponse<Employee>>(url);
+    return response.data;
   }
 
   async getEmployee(id: string): Promise<Employee> {
-    return apiService.get<Employee>(`${API_CONFIG.ENDPOINTS.EMPLOYEES}/${id}`);
+    const response = await apiService.get<Employee>(`${API_CONFIG.ENDPOINTS.EMPLOYEES}/${id}`);
+    return response.data;
   }
 
   async createEmployee(data: EmployeeCreate): Promise<Employee> {
-    return apiService.post<Employee>(API_CONFIG.ENDPOINTS.EMPLOYEES, data);
+    const response = await apiService.post<Employee>(API_CONFIG.ENDPOINTS.EMPLOYEES, data);
+    return response.data;
   }
 
   async updateEmployee(id: string, data: EmployeeUpdate): Promise<Employee> {
-    return apiService.put<Employee>(`${API_CONFIG.ENDPOINTS.EMPLOYEES}/${id}`, data);
+    const response = await apiService.put<Employee>(`${API_CONFIG.ENDPOINTS.EMPLOYEES}/${id}`, data);
+    return response.data;
   }
 
   async deleteEmployee(id: string): Promise<void> {
-    return apiService.delete(`${API_CONFIG.ENDPOINTS.EMPLOYEES}/${id}`);
+    await apiService.delete(`${API_CONFIG.ENDPOINTS.EMPLOYEES}/${id}`);
   }
 
   async importEmployees(file: File): Promise<unknown> {
     const formData = new FormData();
     formData.append("file", file);
 
-    return apiService.post(API_CONFIG.ENDPOINTS.EMPLOYEE_IMPORT, formData, {
+    const response = await apiService.post(API_CONFIG.ENDPOINTS.EMPLOYEE_IMPORT, formData, {
       headers: {
         "Content-Type": "multipart/form-data",
       },
     });
+    return response.data;
   }
 }
 

@@ -74,8 +74,9 @@ const Attendance = () => {
         </div>
       </div>
 
+
       <DataTable
-        data={data.map((a) => ({
+        data={(data || []).map((a) => ({
           ...a,
           employee: a.employee
             ? `${a.employee.first_name} ${a.employee.last_name}`

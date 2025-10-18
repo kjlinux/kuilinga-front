@@ -21,11 +21,18 @@ const useDataTable = <T>({ fetchData }: UseDataTableProps<T>) => {
     setError(null)
     try {
       const response = await fetchData(pagination)
-      setData(response.items)
-      setTotal(response.total)
+      
+      if (!response) {
+        throw new Error("Aucune réponse reçue")
+      }
+      
+      setData(response.items || [])
+      setTotal(response.total || 0)
     } catch (error) {
       console.error("Erreur lors de la récupération des données:", error)
       setError("Impossible de charger les données. Veuillez réessayer.")
+      setData([])
+      setTotal(0)
     } finally {
       setIsLoading(false)
     }

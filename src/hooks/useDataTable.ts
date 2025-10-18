@@ -62,6 +62,7 @@ const useDataTable = <T>({ fetchData }: UseDataTableProps<T>) => {
     handlePageChange,
     handleSearchChange,
     refresh,
+    setData,
   }
 }
 

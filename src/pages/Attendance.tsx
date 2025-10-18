@@ -17,6 +17,7 @@ const WEBSOCKET_URL = "ws://localhost:8000/api/v1/ws/attendance/realtime"
 
 const Attendance = () => {
   const [socketUrl, setSocketUrl] = useState<string | null>(null)
+  const [lastProcessedId, setLastProcessedId] = useState<string | null>(null)
 
   const {
     data,
@@ -50,12 +51,20 @@ const Attendance = () => {
       const messageData = JSON.parse(lastMessage.data)
       if (messageData.type === "new_attendance") {
         const newAttendance = messageData.payload
-        setData((prevData) => [newAttendance, ...(prevData || [])])
-        toast.success("Nouveau pointage reçu!")
-        playNotificationSound()
+        if (newAttendance.id !== lastProcessedId) {
+          setData((prevData) => {
+            if (!prevData?.some((att) => att.id === newAttendance.id)) {
+              return [newAttendance, ...(prevData || [])]
+            }
+            return prevData
+          })
+          toast.success("Nouveau pointage reçu!")
+          playNotificationSound()
+          setLastProcessedId(newAttendance.id)
+        }
       }
     }
-  }, [lastMessage, setData, playNotificationSound])
+  }, [lastMessage, setData, playNotificationSound, lastProcessedId])
 
   const columns = [
     {

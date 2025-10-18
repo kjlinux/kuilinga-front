@@ -1,15 +1,21 @@
 "use client"
 
-import { useEffect } from "react"
+import { useState, useEffect, useCallback } from "react"
+import useWebSocket from "react-use-websocket"
 import { Download, RefreshCw } from "lucide-react"
 import { format } from "date-fns"
 import { fr } from "date-fns/locale"
 import DataTable from "../components/DataTable"
 import useDataTable from "../hooks/useDataTable"
 import attendanceService from "../services/attendance.service"
+import authService from "../services/auth.service"
 import type { Attendance as AttendanceType } from "../types"
 
+const WEBSOCKET_URL = "ws://localhost:8000/api/v1/ws/attendance/realtime"
+
 const Attendance = () => {
+  const [socketUrl, setSocketUrl] = useState<string | null>(null)
+
   const {
     data,
     isLoading,
@@ -18,14 +24,32 @@ const Attendance = () => {
     handlePageChange,
     handleSearchChange,
     refresh,
+    setData,
   } = useDataTable<AttendanceType>({
     fetchData: attendanceService.getAttendances,
   })
 
   useEffect(() => {
-    const interval = setInterval(refresh, 30000) // Auto-refresh every 30 seconds
-    return () => clearInterval(interval)
-  }, [refresh])
+    const token = authService.getAccessToken()
+    if (token) {
+      setSocketUrl(`${WEBSOCKET_URL}?token=${token}`)
+    }
+  }, [])
+
+  const { lastMessage } = useWebSocket(socketUrl, {
+    shouldReconnect: () => true,
+    retryOnError: true,
+  })
+
+  useEffect(() => {
+    if (lastMessage !== null) {
+      const messageData = JSON.parse(lastMessage.data)
+      if (messageData.type === "new_attendance") {
+        const newAttendance = messageData.payload
+        setData((prevData) => [newAttendance, ...(prevData || [])])
+      }
+    }
+  }, [lastMessage, setData])
 
   const columns = [
     {
@@ -50,8 +74,7 @@ const Attendance = () => {
             Présences en temps réel
           </h1>
           <p className="text-accent">
-            Dernière mise à jour:{" "}
-            {format(new Date(), "HH:mm:ss", { locale: fr })}
+            Connecté au serveur temps réel
           </p>
         </div>
 
@@ -73,7 +96,6 @@ const Attendance = () => {
           </button>
         </div>
       </div>
-
 
       <DataTable
         data={(data || []).map((a) => ({

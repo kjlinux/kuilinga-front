@@ -1,10 +1,14 @@
-import { useContext } from "react"
-import { NotificationContext } from "../contexts/definitions/NotificationContext"
+import { Howl } from "howler"
 
-export const useNotifications = () => {
-  const context = useContext(NotificationContext)
-  if (context === undefined) {
-    throw new Error("useNotifications must be used within a NotificationProvider")
+const useNotification = () => {
+  const playNotificationSound = () => {
+    const sound = new Howl({
+      src: ["/notification.mp3"],
+    })
+    sound.play()
   }
-  return context
+
+  return { playNotificationSound }
 }
+
+export default useNotification

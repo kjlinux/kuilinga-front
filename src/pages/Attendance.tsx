@@ -1,12 +1,14 @@
 "use client"
 
-import { useState, useEffect, useCallback } from "react"
+import { useState, useEffect } from "react"
 import useWebSocket from "react-use-websocket"
+import { toast } from "sonner"
 import { Download, RefreshCw } from "lucide-react"
 import { format } from "date-fns"
 import { fr } from "date-fns/locale"
 import DataTable from "../components/DataTable"
 import useDataTable from "../hooks/useDataTable"
+import useNotification from "../hooks/useNotification"
 import attendanceService from "../services/attendance.service"
 import authService from "../services/auth.service"
 import type { Attendance as AttendanceType } from "../types"
@@ -36,6 +38,8 @@ const Attendance = () => {
     }
   }, [])
 
+  const { playNotificationSound } = useNotification()
+
   const { lastMessage } = useWebSocket(socketUrl, {
     shouldReconnect: () => true,
     retryOnError: true,
@@ -47,9 +51,11 @@ const Attendance = () => {
       if (messageData.type === "new_attendance") {
         const newAttendance = messageData.payload
         setData((prevData) => [newAttendance, ...(prevData || [])])
+        toast.success("Nouveau pointage reçu!")
+        playNotificationSound()
       }
     }
-  }, [lastMessage, setData])
+  }, [lastMessage, setData, playNotificationSound])
 
   const columns = [
     {

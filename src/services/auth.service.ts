@@ -35,17 +35,10 @@ class AuthService {
   }
 
   async logout(): Promise<void> {
-    try {
-      // Try to call logout endpoint if it exists
-      await apiService.post(API_CONFIG.ENDPOINTS.LOGOUT)
-    } catch (error) {
-      console.warn("Logout endpoint error:", error)
-    } finally {
-      // Always clear local storage
-      localStorage.removeItem("access_token")
-      localStorage.removeItem("refresh_token")
-      localStorage.removeItem("user")
-    }
+    // Always clear local storage
+    localStorage.removeItem("access_token")
+    localStorage.removeItem("refresh_token")
+    localStorage.removeItem("user")
   }
 
   async refreshToken(): Promise<string> {

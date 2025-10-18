@@ -15,11 +15,11 @@ class AttendanceService {
     const url = `${API_CONFIG.ENDPOINTS.ATTENDANCE}?${query}`;
     const response = await apiService.get<PaginatedResponse<Attendance>>(url);
     
-    if (!response) {
+    if (!response || !response.data) {
       throw new Error("Aucune réponse reçue de l'API");
     }
     
-    return response;
+    return response.data;
   }
 
   async createAttendance(data: AttendanceCreate): Promise<Attendance | undefined> {

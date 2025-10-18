@@ -22,18 +22,15 @@ const useDataTable = <T>({ fetchData }: UseDataTableProps<T>) => {
     try {
       const response = await fetchData(pagination)
       
-      if (response && Array.isArray(response.items)) {
-        setData(response.items)
-        setTotal(response.total || 0)
-      } else {
-        throw new Error("Format de données invalide reçu de l'API")
+      if (!response) {
+        throw new Error("Aucune réponse reçue")
       }
+
+      setData(response.items || [])
+      setTotal(response.total || 0)
     } catch (error) {
       console.error("Erreur lors de la récupération des données:", error)
-      setError(
-        (error as Error).message ||
-          "Impossible de charger les données. Veuillez réessayer.",
-      )
+      setError("Impossible de charger les données. Veuillez réessayer.")
       setData([])
       setTotal(0)
     } finally {
@@ -59,7 +56,6 @@ const useDataTable = <T>({ fetchData }: UseDataTableProps<T>) => {
 
   return {
     data,
-    setData,
     isLoading,
     error,
     pagination: { ...pagination, total },

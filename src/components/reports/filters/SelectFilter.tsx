@@ -20,12 +20,12 @@ export const SelectFilter = ({
   placeholder, 
   options, 
   onChange, 
-  value = "" // Valeur par défaut pour toujours avoir un composant contrôlé
+  value
 }: SelectFilterProps) => {
   return (
     <div className="space-y-2">
       <Label>{label}</Label>
-      <Select onValueChange={onChange} value={value || undefined}>
+      <Select onValueChange={onChange} value={value || ""}>
         <SelectTrigger>
           <SelectValue placeholder={placeholder} />
         </SelectTrigger>

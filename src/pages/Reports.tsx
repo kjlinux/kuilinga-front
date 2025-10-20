@@ -121,6 +121,7 @@ const ReportsPage = () => {
             </CardHeader>
             <CardContent className="space-y-4">
               <ReportFilters
+                key={selectedReport.id}
                 filters={selectedReport.filters}
                 onFilterChange={setFilters}
               />

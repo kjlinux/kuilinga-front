@@ -323,7 +323,7 @@ export const ReportFilters = ({
           </div>
         );
       case FilterType.Metric:
-        return <SelectFilter key={filterType} label="Métrique" placeholder="Sélectionnez une métrique" options={[{ value: "presence", label: "Présence" }, { value: "absence", label: "Absence" }, { value: "retard", label: "Retard" }]} onChange={value => updateFilter("metric_type", value)} />;
+        return <SelectFilter key={filterType} label="Métrique" placeholder="Sélectionnez une métrique" options={[{ value: "presence", label: "Présence" }, { value: "leaves", label: "Congés" }]} onChange={value => updateFilter("metric_type", value)} />;
       case FilterType.Grouping:
         return <SelectFilter key={filterType} label="Regroupement" placeholder="Sélectionnez un regroupement" options={[{ value: "site", label: "Site" }, { value: "department", label: "Département" }]} onChange={value => updateFilter("grouping", value)} />;
       default:

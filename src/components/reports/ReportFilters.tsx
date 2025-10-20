@@ -62,7 +62,14 @@ export const ReportFilters = ({
   }, [filters]);
 
   useEffect(() => {
-    onFilterChange(currentFilters);
+    const filtersToSubmit = { ...currentFilters };
+    if (filtersToSubmit.start_date && filtersToSubmit.start_date instanceof Date) {
+      filtersToSubmit.start_date = (filtersToSubmit.start_date as Date).toISOString().split('T')[0];
+    }
+    if (filtersToSubmit.end_date && filtersToSubmit.end_date instanceof Date) {
+      filtersToSubmit.end_date = (filtersToSubmit.end_date as Date).toISOString().split('T')[0];
+    }
+    onFilterChange(filtersToSubmit);
   }, [currentFilters, onFilterChange]);
 
   const fetchAndSetOrganizations = useCallback(async () => {
@@ -315,6 +322,10 @@ export const ReportFilters = ({
             />
           </div>
         );
+      case FilterType.Metric:
+        return <SelectFilter key={filterType} label="Métrique" placeholder="Sélectionnez une métrique" options={[{ value: "presence", label: "Présence" }, { value: "absence", label: "Absence" }, { value: "retard", label: "Retard" }]} onChange={value => updateFilter("metric_type", value)} />;
+      case FilterType.Grouping:
+        return <SelectFilter key={filterType} label="Regroupement" placeholder="Sélectionnez un regroupement" options={[{ value: "site", label: "Site" }, { value: "department", label: "Département" }]} onChange={value => updateFilter("grouping", value)} />;
       default:
         return (
           <div key={filterType} className="space-y-2">

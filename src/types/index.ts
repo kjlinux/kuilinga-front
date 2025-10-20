@@ -476,6 +476,65 @@ export interface MultiOrgConsolidatedResponse {
   data: MultiOrgConsolidatedRow[];
 }
 
+// --- R2: Comparative Analysis ---
+export interface ComparativeAnalysisRequest extends ReportRequestBase {
+  year: number;
+  month?: number | null;
+  quarter?: number | null;
+  organization_ids: string[];
+}
+export interface ComparativeAnalysisRow {
+  organization_name: string;
+  attendance_rate: number;
+  total_hours_worked: number;
+  total_leave_days: number;
+}
+export interface ComparativeAnalysisResponse {
+  period: string;
+  data: ComparativeAnalysisRow[];
+}
+
+// --- R3: Device Usage ---
+export interface DeviceUsageRequest extends ReportRequestBase {
+  start_date: string; // "date"
+  end_date: string; // "date"
+  organization_ids?: string[] | null;
+  site_ids?: string[] | null;
+  status?: string | null;
+}
+export interface DeviceUsageRow {
+  device_name: string;
+  device_serial_number: string;
+  site_name?: string | null;
+  organization_name: string;
+  status: string;
+  last_ping?: string | null;
+}
+export interface DeviceUsageResponse {
+  period: string;
+  data: DeviceUsageRow[];
+}
+
+// --- R4: User and Role Audit ---
+export interface UserAuditRequest extends ReportRequestBase {
+  organization_ids?: string[] | null;
+  role_ids?: string[] | null;
+  is_active?: boolean | null;
+}
+export interface UserAuditRow {
+  full_name: string;
+  email: string;
+  role: string;
+  organization_name: string;
+  is_active: boolean;
+  last_login?: string | null;
+}
+export interface UserAuditResponse {
+  filters: Record<string, unknown>;
+  user_count: number;
+  data: UserAuditRow[];
+}
+
 // --- R5: Organization Presence ---
 export interface OrganizationPresenceRequest extends ReportRequestBase {
   start_date: string; // "date"
@@ -531,6 +590,27 @@ export interface DepartmentLeavesResponse {
     data: DepartmentLeaveReportRow[];
 }
 
+// --- R8: Anomalies Report ---
+export interface AnomaliesReportRequest extends ReportRequestBase {
+  start_date: string; // "date"
+  end_date: string; // "date"
+  site_ids?: string[] | null;
+  department_ids?: string[] | null;
+  tardiness_threshold?: number;
+}
+export interface AnomaliesReportRow {
+  employee_name: string;
+  department_name?: string | null;
+  date: string; // "date"
+  anomaly_type: string;
+  details: string;
+}
+export interface AnomaliesReportResponse {
+  organization_name: string;
+  period: string;
+  data: AnomaliesReportRow[];
+}
+
 // --- R9: Worked Hours per Employee ---
 export interface WorkedHoursRequest extends ReportRequestBase {
   start_date: string; // "date"
@@ -574,6 +654,13 @@ export interface SiteActivityResponse {
   data: SiteActivityRow[];
 }
 
+// --- R11: Payroll Export ---
+export interface PayrollExportRequest extends ReportRequestBase {
+  year: number;
+  month: number;
+  site_ids?: string[] | null;
+}
+
 // --- R12: Department Presence Report ---
 export interface DepartmentPresenceRequest extends ReportRequestBase {
   start_date: string; // "date"
@@ -593,6 +680,25 @@ export interface TeamWeeklyReportRequest extends ReportRequestBase {
   year: number;
   week_number: number;
   detailed?: boolean;
+}
+
+// --- R14: Hours Validation Report ---
+export interface HoursValidationRequest extends ReportRequestBase {
+  year: number;
+  month: number;
+  employee_ids?: string[] | null;
+  validation_status?: string | null;
+}
+export interface HoursValidationRow {
+  employee_name: string;
+  total_hours_worked: number;
+  total_hours_to_validate: number;
+  status: string;
+}
+export interface HoursValidationResponse {
+  department_name: string;
+  period: string;
+  data: HoursValidationRow[];
 }
 
 // --- R15: Department Leave Requests ---

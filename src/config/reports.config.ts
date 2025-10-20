@@ -3,17 +3,23 @@ import { UserRole } from "@/types";
 export enum ReportId {
   // Super Admin / Admin Organisation
   R1_MultiOrgConsolidated = "R1",
+  R2_ComparativeAnalysis = "R2",
+  R3_DeviceUsage = "R3",
+  R4_UserAudit = "R4",
 
   // Admin Organisation / RH Principal
   R5_OrgPresence = "R5",
   R6_MonthlySynthetic = "R6",
   R7_AbsenceAnalysis = "R7",
+  R8_Anomalies = "R8",
   R9_EmployeeWorkedHours = "R9",
   R10_SiteActivity = "R10",
+  R11_PayrollExport = "R11",
 
   // Manager
   R12_DeptPresence = "R12",
   R13_TeamWeekly = "R13",
+  R14_HoursValidation = "R14",
   R15_LeaveRequests = "R15",
   R16_TeamPerformance = "R16",
 
@@ -47,6 +53,10 @@ export enum FilterType {
   ValidationStatus = "validation_status",
   Language = "language",
   IncludeCharts = "include_charts",
+  Quarter = "quarter",
+  Status = "status",
+  Role = "role",
+  IsActive = "is_active",
 }
 
 export interface ReportConfig {
@@ -69,6 +79,33 @@ export const REPORTS_CONFIG: ReportConfig[] = [
     filters: [FilterType.DateRange, FilterType.Organization, FilterType.Metric, FilterType.Grouping],
     previewEndpoint: "/api/v1/reports/superuser/multi-org-consolidated/preview",
     downloadEndpoint: "/api/v1/reports/superuser/multi-org-consolidated/download",
+  },
+  {
+    id: ReportId.R2_ComparativeAnalysis,
+    title: "Analyse Comparative",
+    description: "Compare les indicateurs clés entre organisations.",
+    roles: [UserRole.SuperAdmin],
+    filters: [FilterType.Year, FilterType.Month, FilterType.Quarter, FilterType.Organization],
+    previewEndpoint: "/api/v1/reports/superuser/comparative-analysis/preview",
+    downloadEndpoint: "/api/v1/reports/superuser/comparative-analysis/download",
+  },
+  {
+    id: ReportId.R3_DeviceUsage,
+    title: "Utilisation des Terminaux",
+    description: "Statut et activité des terminaux de pointage.",
+    roles: [UserRole.SuperAdmin, UserRole.AdminOrganization],
+    filters: [FilterType.DateRange, FilterType.Organization, FilterType.Site, FilterType.Status],
+    previewEndpoint: "/api/v1/reports/superuser/device-usage/preview",
+    downloadEndpoint: "/api/v1/reports/superuser/device-usage/download",
+  },
+  {
+    id: ReportId.R4_UserAudit,
+    title: "Audit Utilisateurs et Rôles",
+    description: "Liste des utilisateurs et de leurs accès.",
+    roles: [UserRole.SuperAdmin],
+    filters: [FilterType.Organization, FilterType.Role, FilterType.IsActive],
+    previewEndpoint: "/api/v1/reports/superuser/user-audit/preview",
+    downloadEndpoint: "/api/v1/reports/superuser/user-audit/download",
   },
 
   // == ADMIN ORGANISATION / RH PRINCIPAL ==
@@ -100,6 +137,15 @@ export const REPORTS_CONFIG: ReportConfig[] = [
     downloadEndpoint: "/api/v1/reports/organization/leaves/download",
   },
   {
+    id: ReportId.R8_Anomalies,
+    title: "Rapport d'Anomalies",
+    description: "Retards, absences imprévues, etc.",
+    roles: [UserRole.AdminOrganization, UserRole.RH],
+    filters: [FilterType.DateRange, FilterType.Site, FilterType.Department, FilterType.TardinessThreshold],
+    previewEndpoint: "/api/v1/reports/organization/anomalies/preview",
+    downloadEndpoint: "/api/v1/reports/organization/anomalies/download",
+  },
+  {
     id: ReportId.R9_EmployeeWorkedHours,
     title: "Rapport Heures Travaillées par Employé",
     description: "Décompte horaire détaillé.",
@@ -116,6 +162,15 @@ export const REPORTS_CONFIG: ReportConfig[] = [
     filters: [FilterType.DateRange, FilterType.Site],
     previewEndpoint: "/api/v1/reports/organization/site-activity/preview",
     downloadEndpoint: "/api/v1/reports/organization/site-activity/download",
+  },
+  {
+    id: ReportId.R11_PayrollExport,
+    title: "Export Paie",
+    description: "Génère un fichier pour le système de paie.",
+    roles: [UserRole.AdminOrganization, UserRole.RH],
+    filters: [FilterType.Year, FilterType.Month, FilterType.Site],
+    previewEndpoint: "/api/v1/reports/organization/payroll-export/download",
+    downloadEndpoint: "/api/v1/reports/organization/payroll-export/download",
   },
 
   // == MANAGER ==
@@ -136,6 +191,15 @@ export const REPORTS_CONFIG: ReportConfig[] = [
     filters: [FilterType.Week, FilterType.Year],
     previewEndpoint: "/api/v1/reports/manager/team-weekly/preview",
     downloadEndpoint: "/api/v1/reports/manager/team-weekly/download",
+  },
+  {
+    id: ReportId.R14_HoursValidation,
+    title: "Validation des Heures",
+    description: "Valider les heures de travail de l'équipe.",
+    roles: [UserRole.Manager],
+    filters: [FilterType.Year, FilterType.Month, FilterType.Employee, FilterType.ValidationStatus],
+    previewEndpoint: "/api/v1/reports/manager/hours-validation/preview",
+    downloadEndpoint: "/api/v1/reports/manager/hours-validation/download",
   },
   {
     id: ReportId.R15_LeaveRequests,

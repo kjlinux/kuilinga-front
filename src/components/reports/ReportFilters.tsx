@@ -12,6 +12,8 @@ import {
   Site,
   Department,
   Employee,
+  DeviceStatus,
+  Role,
 } from "@/types";
 import filterService from "@/services/filter.service";
 import { subDays } from "date-fns";
@@ -33,6 +35,7 @@ export const ReportFilters = ({
   const [sites, setSites] = useState<Site[]>([]);
   const [departments, setDepartments] = useState<Department[]>([]);
   const [employees, setEmployees] = useState<Employee[]>([]);
+  const [roles, setRoles] = useState<Role[]>([]);
 
   const { user } = useAuth();
 
@@ -139,10 +142,25 @@ export const ReportFilters = ({
     [filters, updateFilter]
   );
 
+  const fetchAndSetRoles = useCallback(async () => {
+    if (!filters.includes(FilterType.Role)) return;
+
+    try {
+      const rolesData = await filterService.getRoles();
+      setRoles(rolesData);
+      updateFilter("role_id", rolesData[0]?.id ?? null);
+    } catch (error) {
+      console.error("Failed to fetch roles:", error);
+      setRoles([]);
+      updateFilter("role_id", null);
+    }
+  }, [filters, updateFilter]);
+
   // Main data fetching orchestrator
   useEffect(() => {
     fetchAndSetOrganizations();
-  }, [fetchAndSetOrganizations]);
+    fetchAndSetRoles();
+  }, [fetchAndSetOrganizations, fetchAndSetRoles]);
 
   useEffect(() => {
     const orgId = currentFilters.organization_id as string | undefined;
@@ -326,6 +344,64 @@ export const ReportFilters = ({
         return <SelectFilter key={filterType} label="Métrique" placeholder="Sélectionnez une métrique" options={[{ value: "presence", label: "Présence" }, { value: "leaves", label: "Congés" }]} onChange={value => updateFilter("metric_type", value)} value={(currentFilters.metric_type as string) || ""} />;
       case FilterType.Grouping:
         return <SelectFilter key={filterType} label="Regroupement" placeholder="Sélectionnez un regroupement" options={[{ value: "site", label: "Site" }, { value: "department", label: "Département" }]} onChange={value => updateFilter("grouping", value)} value={(currentFilters.grouping as string) || ""} />;
+      case FilterType.Quarter:
+        return (
+          <SelectFilter
+            key={filterType}
+            label="Trimestre"
+            placeholder="Sélectionnez un trimestre"
+            options={[
+              { value: "1", label: "T1" },
+              { value: "2", label: "T2" },
+              { value: "3", label: "T3" },
+              { value: "4", label: "T4" },
+            ]}
+            onChange={(value) => updateFilter("quarter", value)}
+            value={(currentFilters.quarter as string) || ""}
+          />
+        );
+      case FilterType.Status:
+        return (
+          <SelectFilter
+            key={filterType}
+            label="Statut"
+            placeholder="Sélectionnez un statut"
+            options={Object.values(DeviceStatus).map((s) => ({
+              value: s,
+              label: s,
+            }))}
+            onChange={(value) => updateFilter("status", value)}
+            value={(currentFilters.status as string) || ""}
+          />
+        );
+      case FilterType.Role:
+        return (
+          <SelectFilter
+            key={filterType}
+            label="Rôle"
+            placeholder="Sélectionnez un rôle"
+            options={roles.map((r) => ({
+              value: r.id,
+              label: r.name,
+            }))}
+            onChange={(value) => updateFilter("role_id", value)}
+            value={(currentFilters.role_id as string) || ""}
+          />
+        );
+      case FilterType.IsActive:
+        return (
+          <SelectFilter
+            key={filterType}
+            label="Actif"
+            placeholder="Sélectionnez un statut"
+            options={[
+              { value: "true", label: "Actif" },
+              { value: "false", label: "Inactif" },
+            ]}
+            onChange={(value) => updateFilter("is_active", value)}
+            value={(currentFilters.is_active as string) || ""}
+          />
+        );
       default:
         return (
           <div key={filterType} className="space-y-2">

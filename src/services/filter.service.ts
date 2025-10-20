@@ -1,8 +1,13 @@
 import apiService from "./api.service";
 import { API_CONFIG } from "../config/api";
-import { Organization, Site, Department, Employee, PaginatedResponse } from "../types";
+import { Organization, Site, Department, Employee, PaginatedResponse, Role } from "../types";
 
 class FilterService {
+  async getRoles(): Promise<Role[]> {
+    const response = await apiService.get<PaginatedResponse<Role>>(API_CONFIG.ENDPOINTS.ROLES);
+    return response.data.items;
+  }
+
   async getOrganizations(): Promise<Organization[]> {
     const response = await apiService.get<PaginatedResponse<Organization>>(API_CONFIG.ENDPOINTS.ORGANIZATIONS);
     return response.data.items;

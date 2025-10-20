@@ -5,7 +5,14 @@ import { Label } from "@/components/ui/label";
 import { useEffect, useState, useCallback } from "react";
 import { DateRange } from "react-day-picker";
 import { SelectFilter } from "./filters/SelectFilter";
-import { LeaveType, LeaveStatus, Organization, Site, Department, Employee } from "@/types";
+import {
+  LeaveType,
+  LeaveStatus,
+  Organization,
+  Site,
+  Department,
+  Employee,
+} from "@/types";
 import filterService from "@/services/filter.service";
 import { subDays } from "date-fns";
 import { useAuth } from "@/hooks/useAuth";
@@ -15,8 +22,13 @@ interface ReportFiltersProps {
   onFilterChange: (filters: Record<string, unknown>) => void;
 }
 
-export const ReportFilters = ({ filters, onFilterChange }: ReportFiltersProps) => {
-  const [currentFilters, setCurrentFilters] = useState<Record<string, unknown>>({});
+export const ReportFilters = ({
+  filters,
+  onFilterChange,
+}: ReportFiltersProps) => {
+  const [currentFilters, setCurrentFilters] = useState<Record<string, unknown>>(
+    {}
+  );
   const [organizations, setOrganizations] = useState<Organization[]>([]);
   const [sites, setSites] = useState<Site[]>([]);
   const [departments, setDepartments] = useState<Department[]>([]);
@@ -25,14 +37,14 @@ export const ReportFilters = ({ filters, onFilterChange }: ReportFiltersProps) =
   const { user } = useAuth();
 
   const updateFilter = useCallback((key: string, value: unknown) => {
-    setCurrentFilters(prev => ({ ...prev, [key]: value }));
+    setCurrentFilters((prev) => ({ ...prev, [key]: value }));
   }, []);
 
   useEffect(() => {
     const initialFilters: Record<string, unknown> = {};
     const today = new Date();
 
-    filters.forEach(filter => {
+    filters.forEach((filter) => {
       switch (filter) {
         case FilterType.DateRange:
           initialFilters["start_date"] = subDays(today, 30);
@@ -69,47 +81,56 @@ export const ReportFilters = ({ filters, onFilterChange }: ReportFiltersProps) =
     }
   }, [filters, user?.organization_id, updateFilter]);
 
-  const fetchAndSetSites = useCallback(async (organizationId: string) => {
-    if (!filters.includes(FilterType.Site)) return;
+  const fetchAndSetSites = useCallback(
+    async (organizationId: string) => {
+      if (!filters.includes(FilterType.Site)) return;
 
-    try {
-      const sitesData = await filterService.getSites(organizationId);
-      setSites(sitesData);
-      updateFilter("site_id", sitesData[0]?.id ?? null);
-    } catch (error) {
-      console.error("Failed to fetch sites:", error);
-      setSites([]);
-      updateFilter("site_id", null);
-    }
-  }, [filters, updateFilter]);
+      try {
+        const sitesData = await filterService.getSites(organizationId);
+        setSites(sitesData);
+        updateFilter("site_id", sitesData[0]?.id ?? null);
+      } catch (error) {
+        console.error("Failed to fetch sites:", error);
+        setSites([]);
+        updateFilter("site_id", null);
+      }
+    },
+    [filters, updateFilter]
+  );
 
-  const fetchAndSetDepartments = useCallback(async (siteId: string) => {
-    if (!filters.includes(FilterType.Department)) return;
+  const fetchAndSetDepartments = useCallback(
+    async (siteId: string) => {
+      if (!filters.includes(FilterType.Department)) return;
 
-    try {
-      const depts = await filterService.getDepartments(siteId);
-      setDepartments(depts);
-      updateFilter("department_id", depts[0]?.id ?? null);
-    } catch (error) {
-      console.error("Failed to fetch departments:", error);
-      setDepartments([]);
-      updateFilter("department_id", null);
-    }
-  }, [filters, updateFilter]);
+      try {
+        const depts = await filterService.getDepartments(siteId);
+        setDepartments(depts);
+        updateFilter("department_id", depts[0]?.id ?? null);
+      } catch (error) {
+        console.error("Failed to fetch departments:", error);
+        setDepartments([]);
+        updateFilter("department_id", null);
+      }
+    },
+    [filters, updateFilter]
+  );
 
-  const fetchAndSetEmployees = useCallback(async (departmentId: string) => {
-    if (!filters.includes(FilterType.Employee)) return;
+  const fetchAndSetEmployees = useCallback(
+    async (departmentId: string) => {
+      if (!filters.includes(FilterType.Employee)) return;
 
-    try {
-      const emps = await filterService.getEmployees(departmentId);
-      setEmployees(emps);
-      updateFilter("employee_id", emps[0]?.id ?? null);
-    } catch (error) {
-      console.error("Failed to fetch employees:", error);
-      setEmployees([]);
-      updateFilter("employee_id", null);
-    }
-  }, [filters, updateFilter]);
+      try {
+        const emps = await filterService.getEmployees(departmentId);
+        setEmployees(emps);
+        updateFilter("employee_id", emps[0]?.id ?? null);
+      } catch (error) {
+        console.error("Failed to fetch employees:", error);
+        setEmployees([]);
+        updateFilter("employee_id", null);
+      }
+    },
+    [filters, updateFilter]
+  );
 
   // Main data fetching orchestrator
   useEffect(() => {
@@ -146,7 +167,10 @@ export const ReportFilters = ({ filters, onFilterChange }: ReportFiltersProps) =
     }
   }, [currentFilters.department_id, fetchAndSetEmployees]);
 
-  const handleFilterChange = (filterKey: string, value: string | string[] | null) => {
+  const handleFilterChange = (
+    filterKey: string,
+    value: string | string[] | null
+  ) => {
     updateFilter(filterKey, value);
 
     // Reset dependent filters
@@ -179,38 +203,125 @@ export const ReportFilters = ({ filters, onFilterChange }: ReportFiltersProps) =
           </div>
         );
       case FilterType.Organization:
-        return <SelectFilter key={filterType} label="Organisation" placeholder="Sélectionnez une organisation" options={organizations.map(o => ({ value: o.id, label: o.name }))} onChange={value => handleFilterChange("organization_id", value)} value={currentFilters.organization_id as string ?? ""} />;
+        return (
+          <SelectFilter
+            key={filterType}
+            label="Organisation"
+            placeholder="Sélectionnez une organisation"
+            options={organizations.map((o) => ({ value: o.id, label: o.name }))}
+            onChange={(value) => handleFilterChange("organization_id", value)}
+            value={(currentFilters.organization_id as string) || ""}
+          />
+        );
+
+      // Pour Site
       case FilterType.Site:
-        return <SelectFilter key={filterType} label="Site" placeholder="Sélectionnez un site" options={sites.map(s => ({ value: s.id, label: s.name }))} onChange={value => handleFilterChange("site_id", value)} value={currentFilters.site_id as string ?? ""} />;
+        return (
+          <SelectFilter
+            key={filterType}
+            label="Site"
+            placeholder="Sélectionnez un site"
+            options={sites.map((s) => ({ value: s.id, label: s.name }))}
+            onChange={(value) => handleFilterChange("site_id", value)}
+            value={(currentFilters.site_id as string) || ""}
+          />
+        );
+
+      // Pour Department
       case FilterType.Department:
-        return <SelectFilter key={filterType} label="Département" placeholder="Sélectionnez un département" options={departments.map(d => ({ value: d.id, label: d.name }))} onChange={value => handleFilterChange("department_id", value)} value={currentFilters.department_id as string ?? ""} />;
+        return (
+          <SelectFilter
+            key={filterType}
+            label="Département"
+            placeholder="Sélectionnez un département"
+            options={departments.map((d) => ({ value: d.id, label: d.name }))}
+            onChange={(value) => handleFilterChange("department_id", value)}
+            value={(currentFilters.department_id as string) || ""}
+          />
+        );
+
+      // Pour Employee
       case FilterType.Employee:
-        return <SelectFilter key={filterType} label="Employé" placeholder="Sélectionnez un employé" options={employees.map(e => ({ value: e.id, label: `${e.first_name} ${e.last_name}` }))} onChange={value => updateFilter("employee_id", value)} value={ currentFilters.employee_id as string ?? ""} />;
+        return (
+          <SelectFilter
+            key={filterType}
+            label="Employé"
+            placeholder="Sélectionnez un employé"
+            options={employees.map((e) => ({
+              value: e.id,
+              label: `${e.first_name} ${e.last_name}`,
+            }))}
+            onChange={(value) => updateFilter("employee_id", value)}
+            value={(currentFilters.employee_id as string) || ""}
+          />
+        );
+
+      // Pour LeaveType
       case FilterType.LeaveType:
-        return <SelectFilter key={filterType} label="Type de congé" placeholder="Sélectionnez un type" options={Object.values(LeaveType).map(lt => ({ value: lt, label: lt }))} onChange={value => updateFilter("leave_type", value)} />;
+        return (
+          <SelectFilter
+            key={filterType}
+            label="Type de congé"
+            placeholder="Sélectionnez un type"
+            options={Object.values(LeaveType).map((lt) => ({
+              value: lt,
+              label: lt,
+            }))}
+            onChange={(value) => updateFilter("leave_type", value)}
+            value={(currentFilters.leave_type as string) || ""}
+          />
+        );
+
+      // Pour LeaveStatus
       case FilterType.LeaveStatus:
-        return <SelectFilter key={filterType} label="Statut du congé" placeholder="Sélectionnez un statut" options={Object.values(LeaveStatus).map(ls => ({ value: ls, label: ls }))} onChange={value => updateFilter("status", value)} />;
+        return (
+          <SelectFilter
+            key={filterType}
+            label="Statut du congé"
+            placeholder="Sélectionnez un statut"
+            options={Object.values(LeaveStatus).map((ls) => ({
+              value: ls,
+              label: ls,
+            }))}
+            onChange={(value) => updateFilter("status", value)}
+            value={(currentFilters.status as string) || ""}
+          />
+        );
       case FilterType.Year:
         return (
-            <div key={filterType} className="space-y-2">
-                <Label>Année</Label>
-                <Input type="number" placeholder="Entrez une année" onChange={e => updateFilter("year", parseInt(e.target.value))} value={currentFilters.year as number ?? new Date().getFullYear()} />
-            </div>
+          <div key={filterType} className="space-y-2">
+            <Label>Année</Label>
+            <Input
+              type="number"
+              placeholder="Entrez une année"
+              onChange={(e) => updateFilter("year", parseInt(e.target.value))}
+              value={
+                (currentFilters.year as number) ?? new Date().getFullYear()
+              }
+            />
+          </div>
         );
       case FilterType.Month:
         return (
-            <div key={filterType} className="space-y-2">
-                <Label>Mois</Label>
-                <Input type="number" placeholder="Entrez un mois" onChange={e => updateFilter("month", parseInt(e.target.value))} value={currentFilters.month as number ?? new Date().getMonth() + 1} />
-            </div>
+          <div key={filterType} className="space-y-2">
+            <Label>Mois</Label>
+            <Input
+              type="number"
+              placeholder="Entrez un mois"
+              onChange={(e) => updateFilter("month", parseInt(e.target.value))}
+              value={
+                (currentFilters.month as number) ?? new Date().getMonth() + 1
+              }
+            />
+          </div>
         );
       default:
         return (
           <div key={filterType} className="space-y-2">
-            <Label>{filterType.replace(/_/g, ' ')}</Label>
+            <Label>{filterType.replace(/_/g, " ")}</Label>
             <Input
               placeholder={`Entrez ${filterType.toLowerCase()}`}
-              onChange={e => updateFilter(filterType, e.target.value)}
+              onChange={(e) => updateFilter(filterType, e.target.value)}
             />
           </div>
         );

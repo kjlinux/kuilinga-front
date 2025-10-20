@@ -12,13 +12,20 @@ interface SelectFilterProps {
   placeholder: string;
   options: { value: string; label: string }[];
   onChange: (value: string) => void;
+  value?: string;
 }
 
-export const SelectFilter = ({ label, placeholder, options, onChange }: SelectFilterProps) => {
+export const SelectFilter = ({ 
+  label, 
+  placeholder, 
+  options, 
+  onChange, 
+  value = "" // Valeur par défaut pour toujours avoir un composant contrôlé
+}: SelectFilterProps) => {
   return (
     <div className="space-y-2">
       <Label>{label}</Label>
-      <Select onValueChange={onChange}>
+      <Select onValueChange={onChange} value={value || undefined}>
         <SelectTrigger>
           <SelectValue placeholder={placeholder} />
         </SelectTrigger>

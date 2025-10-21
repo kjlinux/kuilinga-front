@@ -1,4 +1,4 @@
-import apiService from "./api.service";
+import { apiService } from "./api.service";
 import { API_CONFIG } from "../config/api";
 import { Organization, Site, Department, Employee, PaginatedResponse, Role } from "../types";
 

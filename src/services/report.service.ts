@@ -1,4 +1,4 @@
-import apiService from "./api.service";
+import { apiService } from "./api.service";
 
 class ReportService {
   async generateReportPreview(endpoint: string, filters: Record<string, unknown>): Promise<Record<string, unknown>> {

@@ -142,4 +142,4 @@ class ApiService {
   }
 }
 
-export default new ApiService()
+export const apiService = new ApiService()

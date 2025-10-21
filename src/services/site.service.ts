@@ -1,4 +1,4 @@
-import apiService from "./api.service";
+import { apiService } from "./api.service";
 import { API_CONFIG } from "../config/api";
 import type { Site, PaginatedResponse, PaginationParams, SiteCreate, SiteUpdate } from "../types";
 

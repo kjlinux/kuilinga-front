@@ -345,6 +345,19 @@ export interface EmployeeCreate {
   user_id?: string | null;
 }
 
+export interface EmployeeUpdate {
+  first_name?: string | null;
+  last_name?: string | null;
+  email?: string | null;
+  phone?: string | null;
+  employee_number?: string | null;
+  position?: string | null;
+  badge_id?: string | null;
+  department_id?: string | null;
+  site_id?: string | null;
+  user_id?: string | null;
+}
+
 export interface DepartmentCreate {
   name: string;
   site_id: string;
@@ -791,6 +804,18 @@ export interface EmployeeLeavesReportResponse {
 export interface PresenceCertificateRequest {
   start_date: string; // "date"
   end_date: string; // "date"
+}
+
+// -----------------
+// # Notification
+// -----------------
+
+export interface Notification {
+  id: string;
+  title: string;
+  message: string;
+  read: boolean;
+  created_at: string;
 }
 
 // -----------------

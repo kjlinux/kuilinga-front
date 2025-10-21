@@ -76,7 +76,7 @@ const Attendance = () => {
       header: "Date/Heure",
     },
     { key: "type", header: "Type" },
-    { key: "duration", header: "Durée" },
+    // { key: "duration", header: "Durée" },
     { key: "device", header: "Dispositif" },
     { key: "geo", header: "Géolocalisation" },
   ]
@@ -119,7 +119,7 @@ const Attendance = () => {
             ? `${a.employee.first_name} ${a.employee.last_name}`
             : "N/A",
           timestamp: format(new Date(a.timestamp), "Pp", { locale: fr }),
-          duration: a.duration ?? "N/A",
+          // duration: a.duration ?? "N/A",
           device: a.device?.serial_number ?? "N/A",
           geo: a.geo ?? "N/A",
         }))}

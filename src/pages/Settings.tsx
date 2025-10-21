@@ -4,10 +4,69 @@ import { useState } from "react"
 import { motion } from "framer-motion"
 import { Save, User, Bell, Lock, Globe } from "lucide-react"
 import { useAuth } from "../hooks/useAuth"
+import { useMutation, useQueryClient } from "react-query"
+import userService from "@/services/user.service"
+import { UserUpdate } from "@/types"
+import { useForm } from "react-hook-form"
+import { zodResolver } from "@hookform/resolvers/zod"
+import * as z from "zod"
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form"
+import { Input } from "@/components/ui/input"
+import { Button } from "@/components/ui/button"
+
+const profileSchema = z.object({
+  full_name: z.string().min(2, "Full name must be at least 2 characters."),
+  email: z.string().email("Invalid email address."),
+})
+
+const passwordSchema = z.object({
+  current_password: z.string().min(1, "Current password is required."),
+  new_password: z.string().min(8, "New password must be at least 8 characters."),
+  confirm_password: z.string().min(8, "Confirm password must be at least 8 characters."),
+}).refine((data) => data.new_password === data.confirm_password, {
+  message: "Passwords don't match",
+  path: ["confirm_password"],
+});
+
 
 const Settings = () => {
   const { user } = useAuth()
   const [activeTab, setActiveTab] = useState("profile")
+  const queryClient = useQueryClient()
+
+  const profileForm = useForm<z.infer<typeof profileSchema>>({
+    resolver: zodResolver(profileSchema),
+    defaultValues: {
+      full_name: user?.full_name || '',
+      email: user?.email || '',
+    },
+  });
+
+  const passwordForm = useForm<z.infer<typeof passwordSchema>>({
+    resolver: zodResolver(passwordSchema),
+    defaultValues: {
+      current_password: '',
+      new_password: '',
+      confirm_password: '',
+    },
+  });
+
+  const updateUserMutation = useMutation(
+    (data: UserUpdate) => userService.updateUser(user!.id, data),
+    {
+      onSuccess: () => {
+        queryClient.invalidateQueries('me');
+      },
+    }
+  );
+
+  const onProfileSubmit = (values: z.infer<typeof profileSchema>) => {
+    updateUserMutation.mutate(values);
+  };
+
+  const onPasswordSubmit = (values: z.infer<typeof passwordSchema>) => {
+    updateUserMutation.mutate({ password: values.new_password });
+  };
 
   const tabs = [
     { id: "profile", label: "Profil", icon: User },
@@ -65,30 +124,43 @@ const Settings = () => {
                       <User className="w-10 h-10 text-white" />
                     </div>
                   )}
-                  <button className="btn-outline">Changer la photo</button>
+                  <Button variant="outline" onClick={() => document.getElementById('fileInput')?.click()}>Changer la photo</Button>
+                  <input type="file" id="fileInput" style={{ display: 'none' }} />
                 </div>
-
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div>
-                    <label className="block text-sm font-medium text-secondary mb-2">Prénom</label>
-                    <input type="text" defaultValue={user?.prenom} className="input" />
-                  </div>
-
-                  <div>
-                    <label className="block text-sm font-medium text-secondary mb-2">Nom</label>
-                    <input type="text" defaultValue={user?.nom} className="input" />
-                  </div>
-
-                  <div className="md:col-span-2">
-                    <label className="block text-sm font-medium text-secondary mb-2">Email</label>
-                    <input type="email" defaultValue={user?.email} className="input" />
-                  </div>
-                </div>
-
-                <button className="btn-primary flex items-center gap-2">
-                  <Save className="w-4 h-4" />
-                  Enregistrer les modifications
-                </button>
+                <Form {...profileForm}>
+                  <form onSubmit={profileForm.handleSubmit(onProfileSubmit)} className="space-y-4">
+                    <FormField
+                      control={profileForm.control}
+                      name="full_name"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Full Name</FormLabel>
+                          <FormControl>
+                            <Input placeholder="John Doe" {...field} />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    <FormField
+                      control={profileForm.control}
+                      name="email"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Email</FormLabel>
+                          <FormControl>
+                            <Input placeholder="john.doe@example.com" {...field} />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    <Button type="submit" className="btn-primary flex items-center gap-2">
+                      <Save className="w-4 h-4" />
+                      Enregistrer les modifications
+                    </Button>
+                  </form>
+                </Form>
               </div>
             )}
 
@@ -127,27 +199,53 @@ const Settings = () => {
               <div className="space-y-6">
                 <h2 className="text-xl font-semibold text-secondary">Sécurité du compte</h2>
 
-                <div className="space-y-4">
-                  <div>
-                    <label className="block text-sm font-medium text-secondary mb-2">Mot de passe actuel</label>
-                    <input type="password" className="input" placeholder="••••••••" />
-                  </div>
-
-                  <div>
-                    <label className="block text-sm font-medium text-secondary mb-2">Nouveau mot de passe</label>
-                    <input type="password" className="input" placeholder="••••••••" />
-                  </div>
-
-                  <div>
-                    <label className="block text-sm font-medium text-secondary mb-2">Confirmer le mot de passe</label>
-                    <input type="password" className="input" placeholder="••••••••" />
-                  </div>
-                </div>
-
-                <button className="btn-primary flex items-center gap-2">
-                  <Save className="w-4 h-4" />
-                  Changer le mot de passe
-                </button>
+                <Form {...passwordForm}>
+                  <form onSubmit={passwordForm.handleSubmit(onPasswordSubmit)} className="space-y-4">
+                    <FormField
+                      control={passwordForm.control}
+                      name="current_password"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Current Password</FormLabel>
+                          <FormControl>
+                            <Input type="password" {...field} />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    <FormField
+                      control={passwordForm.control}
+                      name="new_password"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>New Password</FormLabel>
+                          <FormControl>
+                            <Input type="password" {...field} />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    <FormField
+                      control={passwordForm.control}
+                      name="confirm_password"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Confirm Password</FormLabel>
+                          <FormControl>
+                            <Input type="password" {...field} />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    <Button type="submit" className="btn-primary flex items-center gap-2">
+                      <Save className="w-4 h-4" />
+                      Changer le mot de passe
+                    </Button>
+                  </form>
+                </Form>
               </div>
             )}
 

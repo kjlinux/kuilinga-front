@@ -16,6 +16,9 @@ import Sites from "./pages/Sites"
 import Departments from "./pages/Departments"
 import Devices from "./pages/Devices"
 import Leaves from "./pages/Leaves"
+import Users from "./pages/Users"
+import Roles from "./pages/Roles"
+import Permissions from "./pages/Permissions"
 
 function App() {
   return (
@@ -39,6 +42,9 @@ function App() {
                 <Route path="/departments" element={<Departments />} />
                 <Route path="/devices" element={<Devices />} />
                 <Route path="/leaves" element={<Leaves />} />
+                <Route path="/users" element={<Users />} />
+                <Route path="/roles" element={<Roles />} />
+                <Route path="/permissions" element={<Permissions />} />
               </Route>
             </Route>
 

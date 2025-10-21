@@ -18,6 +18,8 @@ import {
   Calendar,
   ChevronLeft,
   ChevronRight,
+  Shield,
+  Key,
 } from "lucide-react";
 
 interface SidebarProps {
@@ -37,7 +39,15 @@ const menuItems = [
   { path: "/departments", icon: Briefcase, label: "Départements" },
   { path: "/devices", icon: HardDrive, label: "Terminaux" },
   { path: "/leaves", icon: Calendar, label: "Congés" },
-  { path: "/settings", icon: Settings, label: "Paramètres" },
+  {
+    label: "Paramètres",
+    icon: Settings,
+    subItems: [
+      { path: "/users", icon: Users, label: "Utilisateurs" },
+      { path: "/roles", icon: Shield, label: "Rôles" },
+      { path: "/permissions", icon: Key, label: "Permissions" },
+    ],
+  },
 ];
 
 const Sidebar: React.FC<SidebarProps> = ({
@@ -95,8 +105,51 @@ const Sidebar: React.FC<SidebarProps> = ({
         <nav className="flex-1 overflow-y-auto p-4 space-y-2 mt-4 lg:mt-0 pb-20">
           {menuItems.map((item) => {
             const Icon = item.icon;
-            const isActive = location.pathname === item.path;
+            if (item.subItems) {
+              return (
+                <div key={item.label}>
+                  <h3
+                    className={`text-xs font-semibold text-gray-400 uppercase tracking-wider px-4 py-2 ${
+                      collapsed ? "lg:hidden" : ""
+                    }`}
+                  >
+                    {item.label}
+                  </h3>
+                  <div className="space-y-2">
+                    {item.subItems.map((subItem) => {
+                      const SubIcon = subItem.icon;
+                      const isActive = location.pathname === subItem.path;
+                      return (
+                        <Link
+                          key={subItem.path}
+                          to={subItem.path}
+                          onClick={onClose}
+                          title={collapsed ? subItem.label : ""}
+                          className={`flex items-center gap-3 px-4 py-3 rounded-lg transition-all duration-200 ${
+                            isActive
+                              ? "bg-primary text-white shadow-md"
+                              : "text-secondary hover:bg-gray-100"
+                          } ${
+                            collapsed ? "lg:justify-center lg:px-2" : ""
+                          }`}
+                        >
+                          <SubIcon className="w-5 h-5 flex-shrink-0" />
+                          <span
+                            className={`font-medium whitespace-nowrap ${
+                              collapsed ? "lg:hidden" : ""
+                            }`}
+                          >
+                            {subItem.label}
+                          </span>
+                        </Link>
+                      );
+                    })}
+                  </div>
+                </div>
+              );
+            }
 
+            const isActive = location.pathname === item.path;
             return (
               <Link
                 key={item.path}

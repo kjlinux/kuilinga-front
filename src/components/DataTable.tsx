@@ -4,28 +4,28 @@ import { motion } from "framer-motion"
 import { Search, Edit, Trash2, ChevronLeft, ChevronRight } from "lucide-react"
 import LoadingSpinner from "./LoadingSpinner"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
+import { ColumnDef } from "@tanstack/react-table"
+import { ReactNode } from "react"
 
-interface DataTableProps<T> {
+export interface DataTableProps<T> {
   data: T[]
-  columns: {
-    key: keyof T
-    header: string
-  }[]
+  columns: ColumnDef<T>[]
   isLoading: boolean
   error?: string | null
-  pagination: {
-    skip: number
-    limit: number
-    total: number
-    search: string
+  pagination?: {
+    pageIndex: number
+    pageSize: number
+    pageCount: number
   }
-  onPageChange: (newSkip: number) => void
-  onSearchChange: (newSearch: string) => void
-  onEdit: (item: T) => void
-  onDelete: (item: T) => void
+  onPageChange?: (newSkip: number) => void
+  onSearchChange?: (newSearch: string) => void
+  onEdit?: (item: T) => void
+  onDelete?: (item: T) => void
+  onRetry: () => void
+  children?: ReactNode
 }
 
-const DataTable = <T extends { id: string }>({
+export const DataTable = <T extends { id: string }>({
   data,
   columns,
   isLoading,

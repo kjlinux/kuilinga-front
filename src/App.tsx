@@ -1,4 +1,5 @@
 import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom"
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query"
 import { Toaster } from "sonner"
 import { AuthProvider } from "./contexts/AuthContext"
 import { NotificationProvider } from "./contexts/NotificationContext"
@@ -20,14 +21,17 @@ import Users from "./pages/Users"
 import Roles from "./pages/Roles"
 import Permissions from "./pages/Permissions"
 
+const queryClient = new QueryClient()
+
 function App() {
   return (
     <Router future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
-      <AuthProvider>
-        <NotificationProvider>
-          <Toaster />
-          <Routes>
-            <Route path="/login" element={<Login />} />
+      <QueryClientProvider client={queryClient}>
+        <AuthProvider>
+          <NotificationProvider>
+            <Toaster />
+            <Routes>
+              <Route path="/login" element={<Login />} />
 
             <Route element={<PrivateRoute />}>
               <Route element={<Layout />}>
@@ -52,6 +56,7 @@ function App() {
           </Routes>
         </NotificationProvider>
       </AuthProvider>
+    </QueryClientProvider>
     </Router>
   )
 }

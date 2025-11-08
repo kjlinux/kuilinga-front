@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { useQuery } from 'react-query';
+import { useQuery } from '@tanstack/react-query';
 import roleService from '../services/role.service';
 import { Role } from '../types';
 import { DataTable } from '@/components/DataTable';
@@ -12,7 +12,10 @@ const Roles = () => {
   const [dialogOpen, setDialogOpen] = useState(false);
   const [selectedRole, setSelectedRole] = useState<Role | null>(null);
 
-  const { data: roles, isLoading } = useQuery(['roles'], () => roleService.getRoles());
+  const { data: roles, isLoading } = useQuery({
+    queryKey: ['roles'],
+    queryFn: () => roleService.getRoles(),
+  });
 
   const columns: ColumnDef<Role>[] = [
     {

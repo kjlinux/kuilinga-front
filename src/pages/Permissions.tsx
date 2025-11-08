@@ -1,11 +1,14 @@
-import { useQuery } from 'react-query';
+import { useQuery } from '@tanstack/react-query';
 import permissionService from '../services/permission.service';
 import { Permission } from '../types';
 import { DataTable } from '@/components/DataTable';
 import { ColumnDef } from '@tanstack/react-table';
 
 const Permissions = () => {
-  const { data: permissions, isLoading } = useQuery(['permissions'], () => permissionService.getPermissions());
+  const { data: permissions, isLoading } = useQuery({
+    queryKey: ['permissions'],
+    queryFn: () => permissionService.getPermissions(),
+  });
 
   const columns: ColumnDef<Permission>[] = [
     {

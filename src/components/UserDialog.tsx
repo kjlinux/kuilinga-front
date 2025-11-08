@@ -19,7 +19,7 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
 import { User, UserCreate, UserUpdate, Role } from '@/types';
-import { useMutation, useQuery, useQueryClient } from 'react-query';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import userService from '@/services/user.service';
 import roleService from '@/services/role.service';
 import { Switch } from '@/components/ui/switch';
@@ -58,32 +58,31 @@ const UserDialog = ({ open, onClose, user }: UserDialogProps) => {
     },
   });
 
-  const { data: roles } = useQuery('roles', () => roleService.getRoles());
+  const { data: roles } = useQuery({
+    queryKey: ['roles'],
+    queryFn: () => roleService.getRoles(),
+  });
 
-  const createUserMutation = useMutation(
-    (data: UserCreate) => userService.createUser(data),
-    {
-      onSuccess: () => {
-        queryClient.invalidateQueries('users');
-        onClose();
-      },
-    }
-  );
+  const createUserMutation = useMutation({
+    mutationFn: (data: UserCreate) => userService.createUser(data),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['users'] });
+      onClose();
+    },
+  });
 
-  const updateUserMutation = useMutation(
-    (data: UserUpdate) => userService.updateUser(user!.id, data),
-    {
-      onSuccess: () => {
-        queryClient.invalidateQueries('users');
-        onClose();
-      },
-    }
-  );
+  const updateUserMutation = useMutation({
+    mutationFn: (data: UserUpdate) => userService.updateUser(user!.id, data),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['users'] });
+      onClose();
+    },
+  });
 
-  const assignRoleMutation = useMutation(
-    ({ userId, roleId }: { userId: string; roleId: string }) =>
-      userService.assignRoleToUser(userId, roleId)
-  );
+  const assignRoleMutation = useMutation({
+    mutationFn: ({ userId, roleId }: { userId: string; roleId: string }) =>
+      userService.assignRoleToUser(userId, roleId),
+  });
 
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
     if (user) {

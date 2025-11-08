@@ -19,7 +19,7 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
 import { Role, RoleCreate, RoleUpdate, Permission } from '@/types';
-import { useMutation, useQuery, useQueryClient } from 'react-query';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import roleService from '@/services/role.service';
 import permissionService from '@/services/permission.service';
 import { Checkbox } from "@/components/ui/checkbox"
@@ -48,34 +48,31 @@ const RoleDialog = ({ open, onClose, role }: RoleDialogProps) => {
     },
   });
 
-  const { data: permissions } = useQuery('permissions', () =>
-    permissionService.getPermissions()
-  );
+  const { data: permissions } = useQuery({
+    queryKey: ['permissions'],
+    queryFn: () => permissionService.getPermissions(),
+  });
 
-  const createRoleMutation = useMutation(
-    (data: RoleCreate) => roleService.createRole(data),
-    {
-      onSuccess: () => {
-        queryClient.invalidateQueries('roles');
-        onClose();
-      },
-    }
-  );
+  const createRoleMutation = useMutation({
+    mutationFn: (data: RoleCreate) => roleService.createRole(data),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['roles'] });
+      onClose();
+    },
+  });
 
-  const updateRoleMutation = useMutation(
-    (data: RoleUpdate) => roleService.updateRole(role!.id, data),
-    {
-      onSuccess: () => {
-        queryClient.invalidateQueries('roles');
-        onClose();
-      },
-    }
-  );
+  const updateRoleMutation = useMutation({
+    mutationFn: (data: RoleUpdate) => roleService.updateRole(role!.id, data),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['roles'] });
+      onClose();
+    },
+  });
 
-  const assignPermissionMutation = useMutation(
-    ({ roleId, permissionId }: { roleId: string; permissionId: string }) =>
-      roleService.assignPermissionToRole(roleId, permissionId)
-  );
+  const assignPermissionMutation = useMutation({
+    mutationFn: ({ roleId, permissionId }: { roleId: string; permissionId: string }) =>
+      roleService.assignPermissionToRole(roleId, permissionId),
+  });
 
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
     const { permission_ids, ...roleData } = values;

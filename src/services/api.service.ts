@@ -67,7 +67,13 @@ class ApiService {
 
             const access_token = await this.refreshPromise
 
-            originalRequest.headers.Authorization = `Bearer ${access_token}`
+            // Créer un nouvel objet headers avec le nouveau token
+            originalRequest.headers = {
+              ...originalRequest.headers,
+              Authorization: `Bearer ${access_token}`
+            }
+
+            // Relancer la requête avec le nouveau token
             return this.api(originalRequest)
           } catch (refreshError) {
             // Si le refresh échoue, déconnecter l'utilisateur

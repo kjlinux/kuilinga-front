@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { useQuery } from 'react-query';
+import { useQuery } from '@tanstack/react-query';
 import userService from '../services/user.service';
 import { User } from '../types';
 import { DataTable } from '@/components/DataTable';
@@ -12,7 +12,10 @@ const Users = () => {
   const [dialogOpen, setDialogOpen] = useState(false);
   const [selectedUser, setSelectedUser] = useState<User | null>(null);
 
-  const { data: users, isLoading } = useQuery(['users'], () => userService.getUsers());
+  const { data: users, isLoading } = useQuery({
+    queryKey: ['users'],
+    queryFn: () => userService.getUsers(),
+  });
 
   const columns: ColumnDef<User>[] = [
     {

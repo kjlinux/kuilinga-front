@@ -2,8 +2,11 @@
 
 import type React from "react"
 import { useState, useEffect, type ReactNode } from "react"
+import { useNavigate } from "react-router-dom"
 import type { User } from "../types"
 import authService from "../services/auth.service"
+import { apiService } from "../services/api.service"
+import { useToast } from "../hooks/useToast"
 import { AuthContext } from "./definitions/AuthContext"
 
 export interface AuthContextType {
@@ -22,6 +25,54 @@ interface AuthProviderProps {
 export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const [user, setUser] = useState<User | null>(null)
   const [isLoading, setIsLoading] = useState(true)
+  const navigate = useNavigate()
+  const { toast } = useToast()
+
+  // Configure API service to use React Router for navigation
+  useEffect(() => {
+    const handleUnauthorized = () => {
+      setUser(null)
+      toast({
+        title: "Session expirée",
+        description: "Votre session a expiré. Veuillez vous reconnecter.",
+        type: "warning",
+        duration: 4000,
+      })
+      navigate("/login", { replace: true })
+    }
+
+    const handleTokenRefreshed = () => {
+      toast({
+        title: "Session actualisée",
+        description: "Votre session a été automatiquement renouvelée.",
+        type: "info",
+        duration: 2000,
+      })
+    }
+
+    apiService.setUnauthorizedCallback(handleUnauthorized)
+    apiService.setTokenRefreshedCallback(handleTokenRefreshed)
+  }, [navigate, toast])
+
+  // Listen to localStorage changes for multi-tab synchronization
+  useEffect(() => {
+    const handleStorageChange = (e: StorageEvent) => {
+      if (e.key === "access_token" && e.newValue === null) {
+        // Token was removed in another tab - sync logout
+        setUser(null)
+        toast({
+          title: "Déconnexion détectée",
+          description: "Vous avez été déconnecté dans un autre onglet.",
+          type: "info",
+          duration: 3000,
+        })
+        navigate("/login", { replace: true })
+      }
+    }
+
+    window.addEventListener("storage", handleStorageChange)
+    return () => window.removeEventListener("storage", handleStorageChange)
+  }, [navigate, toast])
 
   useEffect(() => {
     const initAuth = async () => {
@@ -52,11 +103,23 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       const currentUser = await authService.getCurrentUser()
       if (currentUser) {
         setUser(currentUser)
+        toast({
+          title: "Connexion réussie",
+          description: `Bienvenue ${currentUser.full_name || currentUser.email} !`,
+          type: "success",
+          duration: 3000,
+        })
       } else {
         throw new Error("Could not fetch user profile after login.")
       }
     } catch (error) {
       console.error("Login error:", error)
+      toast({
+        title: "Erreur de connexion",
+        description: "Email ou mot de passe incorrect.",
+        type: "error",
+        duration: 4000,
+      })
       throw error
     }
   }
@@ -65,6 +128,12 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     try {
       await authService.logout()
       setUser(null)
+      toast({
+        title: "Déconnexion réussie",
+        description: "À bientôt !",
+        type: "info",
+        duration: 2000,
+      })
     } catch (error) {
       console.error("Logout error:", error)
       // Still clear user even if logout call fails

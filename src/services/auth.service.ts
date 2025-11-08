@@ -35,10 +35,23 @@ class AuthService {
   }
 
   async logout(): Promise<void> {
-    // Always clear local storage
-    localStorage.removeItem("access_token")
-    localStorage.removeItem("refresh_token")
-    localStorage.removeItem("user")
+    try {
+      // Try to call backend logout to invalidate tokens
+      const refreshToken = localStorage.getItem("refresh_token")
+      if (refreshToken) {
+        await apiService.post(API_CONFIG.ENDPOINTS.LOGOUT, {
+          refresh_token: refreshToken,
+        })
+      }
+    } catch (error) {
+      // Ignore backend errors during logout, we still want to clear local storage
+      console.error("Backend logout error:", error)
+    } finally {
+      // Always clear local storage even if backend call fails
+      localStorage.removeItem("access_token")
+      localStorage.removeItem("refresh_token")
+      localStorage.removeItem("user")
+    }
   }
 
   async refreshToken(): Promise<string> {

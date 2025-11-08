@@ -3,6 +3,9 @@ import { API_CONFIG } from "../config/api"
 
 class ApiService {
   private api: AxiosInstance
+  private refreshPromise: Promise<string> | null = null
+  private onUnauthorized: (() => void) | null = null
+  private onTokenRefreshed: (() => void) | null = null
 
   constructor() {
     this.api = axios.create({
@@ -41,9 +44,7 @@ class ApiService {
           error.response?.status === 403 &&
           error.response?.data?.detail === "Could not validate credentials"
         ) {
-          localStorage.removeItem("access_token")
-          localStorage.removeItem("refresh_token")
-          window.location.href = "/login"
+          this.handleAuthFailure()
           return Promise.reject(error)
         }
 
@@ -53,22 +54,24 @@ class ApiService {
 
           try {
             const refreshToken = localStorage.getItem("refresh_token")
-            if (refreshToken) {
-              const response = await this.api.post(API_CONFIG.ENDPOINTS.REFRESH, {
-                refresh_token: refreshToken,
-              })
-
-              const { access_token } = response.data
-              localStorage.setItem("access_token", access_token)
-
-              originalRequest.headers.Authorization = `Bearer ${access_token}`
-              return this.api(originalRequest)
+            if (!refreshToken) {
+              throw new Error("No refresh token available")
             }
+
+            // Utiliser une promise partagée pour éviter les appels concurrents
+            if (!this.refreshPromise) {
+              this.refreshPromise = this.performTokenRefresh(refreshToken).finally(() => {
+                this.refreshPromise = null
+              })
+            }
+
+            const access_token = await this.refreshPromise
+
+            originalRequest.headers.Authorization = `Bearer ${access_token}`
+            return this.api(originalRequest)
           } catch (refreshError) {
             // Si le refresh échoue, déconnecter l'utilisateur
-            localStorage.removeItem("access_token")
-            localStorage.removeItem("refresh_token")
-            window.location.href = "/login"
+            this.handleAuthFailure()
             return Promise.reject(refreshError)
           }
         }
@@ -76,6 +79,56 @@ class ApiService {
         return Promise.reject(error)
       },
     )
+  }
+
+  // Méthode pour effectuer le refresh du token
+  private async performTokenRefresh(refreshToken: string): Promise<string> {
+    // Utiliser axios directement pour éviter l'intercepteur
+    const response = await axios.post(
+      `${API_CONFIG.BASE_URL}${API_CONFIG.ENDPOINTS.REFRESH}`,
+      {
+        refresh_token: refreshToken,
+      },
+      {
+        headers: {
+          "Content-Type": "application/json",
+        },
+      },
+    )
+
+    const { access_token } = response.data
+    localStorage.setItem("access_token", access_token)
+
+    // Notify that token was refreshed
+    if (this.onTokenRefreshed) {
+      this.onTokenRefreshed()
+    }
+
+    return access_token
+  }
+
+  // Méthode pour gérer l'échec d'authentification
+  private handleAuthFailure(): void {
+    localStorage.removeItem("access_token")
+    localStorage.removeItem("refresh_token")
+    localStorage.removeItem("user")
+
+    // Utiliser le callback si disponible, sinon redirection directe
+    if (this.onUnauthorized) {
+      this.onUnauthorized()
+    } else {
+      window.location.href = "/login"
+    }
+  }
+
+  // Méthode pour définir le callback de déconnexion
+  setUnauthorizedCallback(callback: () => void): void {
+    this.onUnauthorized = callback
+  }
+
+  // Méthode pour définir le callback de rafraîchissement du token
+  setTokenRefreshedCallback(callback: () => void): void {
+    this.onTokenRefreshed = callback
   }
 
   // Méthodes HTTP génériques

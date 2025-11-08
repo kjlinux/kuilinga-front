@@ -27,8 +27,12 @@ const roleService = {
     return apiService.post<Role>(`${API_CONFIG.ENDPOINTS.ROLES}/${roleId}/permissions/${permissionId}`);
   },
 
-  getRolePermissions: (roleId: string) => {
-    return apiService.get<Permission[]>(`${API_CONFIG.ENDPOINTS.ROLES}/${roleId}/permissions`);
+  // NOTE: The API does NOT provide a GET endpoint for /api/v1/roles/{role_id}/permissions
+  // To get permissions for a role, use getRoleById() which includes permissions in the response
+  getRolePermissions: async (roleId: string): Promise<Permission[]> => {
+    // Workaround: Get the full role object which includes permissions
+    const response = await apiService.get<Role>(`${API_CONFIG.ENDPOINTS.ROLES}/${roleId}`);
+    return response.data.permissions || [];
   }
 };
 

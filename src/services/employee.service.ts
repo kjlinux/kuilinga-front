@@ -4,12 +4,12 @@ import type { Employee, PaginatedResponse, PaginationParams, EmployeeCreate, Emp
 
 class EmployeeService {
   async getEmployees(params: PaginationParams = {}): Promise<PaginatedResponse<Employee>> {
+    // NOTE: API only supports 'skip', 'limit', and 'organization_id' parameters.
+    // 'search', 'sort_by', 'sort_order' are NOT supported by the backend API.
     const query = new URLSearchParams({
         skip: (params.skip ?? 0).toString(),
         limit: (params.limit ?? 20).toString(),
-        ...(params.search && { search: params.search }),
-        ...(params.sort_by && { sort_by: params.sort_by }),
-        ...(params.sort_order && { sort_order: params.sort_order }),
+        // organization_id can be added when filtering by organization
     }).toString();
 
     const url = `${API_CONFIG.ENDPOINTS.EMPLOYEES}?${query}`;
@@ -17,8 +17,14 @@ class EmployeeService {
     return response.data;
   }
 
+  // NOTE: The following methods are NOT supported by the API as of the current API specification.
+  // The API only provides GET /api/v1/employees/ (list) and POST /api/v1/employees/ (create).
+  // Individual employee operations (GET/PUT/DELETE by ID) are not implemented in the backend.
+  // These methods will fail with 404 errors until the backend implements these endpoints.
+
   async getEmployee(id: string): Promise<Employee> {
-    const response = await apiService.get<Employee>(`${API_CONFIG.ENDPOINTS.EMPLOYEES}/${id}`);
+    // TODO: Backend must implement GET /api/v1/employees/{employee_id}
+    const response = await apiService.get<Employee>(`${API_CONFIG.ENDPOINTS.EMPLOYEES}${id}`);
     return response.data;
   }
 
@@ -28,12 +34,14 @@ class EmployeeService {
   }
 
   async updateEmployee(id: string, data: EmployeeUpdate): Promise<Employee> {
-    const response = await apiService.put<Employee>(`${API_CONFIG.ENDPOINTS.EMPLOYEES}/${id}`, data);
+    // TODO: Backend must implement PUT /api/v1/employees/{employee_id}
+    const response = await apiService.put<Employee>(`${API_CONFIG.ENDPOINTS.EMPLOYEES}${id}`, data);
     return response.data;
   }
 
   async deleteEmployee(id: string): Promise<void> {
-    await apiService.delete(`${API_CONFIG.ENDPOINTS.EMPLOYEES}/${id}`);
+    // TODO: Backend must implement DELETE /api/v1/employees/{employee_id}
+    await apiService.delete(`${API_CONFIG.ENDPOINTS.EMPLOYEES}${id}`);
   }
 
   async importEmployees(file: File): Promise<unknown> {

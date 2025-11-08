@@ -4,12 +4,11 @@ import type { Leave, PaginatedResponse, PaginationParams, LeaveCreate, LeaveUpda
 
 class LeaveService {
   async getLeaves(params: PaginationParams = {}): Promise<PaginatedResponse<Leave>> {
+    // NOTE: API only supports 'skip' and 'limit' parameters.
+    // 'search', 'sort_by', 'sort_order' are NOT supported by the backend API.
     const query = new URLSearchParams({
         skip: (params.skip ?? 0).toString(),
         limit: (params.limit ?? 10).toString(),
-        ...(params.search && { search: params.search }),
-        ...(params.sort_by && { sort_by: params.sort_by }),
-        ...(params.sort_order && { sort_order: params.sort_order }),
     }).toString();
 
     const url = `${API_CONFIG.ENDPOINTS.LEAVES}?${query}`;

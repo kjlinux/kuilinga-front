@@ -2,6 +2,10 @@ import { apiService } from "./api.service"
 import { API_CONFIG } from "../config/api"
 import type { Notification } from "../types"
 
+// NOTE: Notification endpoints are NOT implemented in the current API specification.
+// All methods in this service gracefully handle missing endpoints by returning empty results
+// or logging warnings. This allows the UI to function without breaking when notifications are unavailable.
+
 class NotificationService {
   async getNotifications(): Promise<Notification[]> {
     try {

@@ -17,25 +17,20 @@ export const API_CONFIG = {
 
     // Attendance
     ATTENDANCE: "/api/v1/attendance/",
-    ATTENDANCE_REALTIME: "/api/v1/attendance/realtime/",
-    ATTENDANCE_HISTORY: "/api/v1/attendance/history/",
-    ATTENDANCE_MANUAL: "/api/v1/attendance/manual/",
-    ATTENDANCE_STATS: "/api/v1/attendance/stats/",
+    // NOTE: The following attendance endpoints are NOT defined in the API spec and are unused:
+    // ATTENDANCE_REALTIME, ATTENDANCE_HISTORY, ATTENDANCE_MANUAL, ATTENDANCE_STATS
 
     // Reports
     REPORTS: "/api/v1/reports/",
-    REPORTS_PRESENCE: "/api/v1/reports/presence/",
-    REPORTS_ATTENDANCE: "/api/v1/reports/attendance/",
-    REPORTS_DELAYS: "/api/v1/reports/delays/",
-    REPORTS_OVERTIME: "/api/v1/reports/overtime/",
-    REPORTS_EXPORT: "/api/v1/reports/export/",
-    REPORTS_STATS: "/api/v1/reports/stats/",
+    // NOTE: The following report endpoints are NOT defined in the API spec and are unused:
+    // REPORTS_PRESENCE, REPORTS_ATTENDANCE, REPORTS_DELAYS, REPORTS_OVERTIME, REPORTS_EXPORT, REPORTS_STATS
+    // Instead, use the dynamic report endpoints from reports.config.ts (R1-R20)
 
     // Organizations
     ORGANIZATIONS: "/api/v1/organizations/",
     SITES: "/api/v1/sites/",
     DEPARTMENTS: "/api/v1/departments/",
-    CLASSES: "/api/v1/classes/",
+    // NOTE: CLASSES endpoint is NOT defined in the API spec and is unused
 
     // Leaves
     LEAVES: "/api/v1/leaves/",
@@ -53,11 +48,11 @@ export const API_CONFIG = {
 
     // Dashboards
     DASHBOARD_ENDPOINTS: {
-      ADMIN: "/api/v1/dashboard/admin/",
-      MANAGER: "/api/v1/dashboard/manager/",
-      EMPLOYEE: "/api/v1/dashboard/employee/",
-      INTEGRATOR: "/api/v1/dashboard/integrator/",
-      ANALYTICS: "/api/v1/dashboard/analytics/",
+      ADMIN: "/api/v1/dashboard/admin",
+      MANAGER: "/api/v1/dashboard/manager",
+      EMPLOYEE: "/api/v1/dashboard/employee",
+      INTEGRATOR: "/api/v1/dashboard/integrator",
+      ANALYTICS: "/api/v1/dashboard/analytics",
     },
 
     // Health

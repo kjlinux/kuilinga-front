@@ -1,5 +1,6 @@
 import axios, { type AxiosInstance, type AxiosRequestConfig, type AxiosResponse } from "axios"
 import { API_CONFIG } from "../config/api"
+import { setupMockInterceptor } from "../mocks"
 
 class ApiService {
   private api: AxiosInstance
@@ -15,6 +16,11 @@ class ApiService {
         "Content-Type": "application/json",
       },
     })
+
+    // Initialize mock interceptor if enabled (MUST be before other interceptors)
+    if (import.meta.env.VITE_USE_MOCK_API === 'true') {
+      setupMockInterceptor(this.api)
+    }
 
     // Intercepteur pour ajouter le token à chaque requête
     this.api.interceptors.request.use(

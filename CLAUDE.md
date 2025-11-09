@@ -31,7 +31,26 @@ npm run lint
 
 Copy `.env.example` to `.env` and configure:
 - `VITE_API_URL`: Backend API URL (default: http://localhost:8000)
+- `VITE_USE_MOCK_API`: Set to `true` to use mock data instead of real backend (default: false)
 - API requests to `/api/*` are proxied to the backend in development (see [vite.config.ts](vite.config.ts#L14-L19))
+
+### Mock API System
+
+The project includes a comprehensive mock data system for development, demos, and testing without a backend:
+
+- **Enable**: Set `VITE_USE_MOCK_API=true` in `.env`
+- **Demo Credentials**: Use `admin@kuilinga.com` / `demo123` (or any demo account from MOCK_SYSTEM.md)
+- **Documentation**: See [MOCK_SYSTEM.md](MOCK_SYSTEM.md) for complete details
+- **Location**: [src/mocks/](src/mocks/) directory contains all mock infrastructure
+- **Coverage**: All API endpoints have mock handlers with realistic data
+- **Features**: CRUD operations, pagination, search, auth flow, ~1000+ records
+
+Mock data includes:
+- 5 organizations, 15 sites, 33 departments
+- 30 employees, 10 users, 15 devices
+- 1000+ attendance records, 5 leave requests
+- Dashboard data for all 4 role types
+- Realistic French names and addresses
 
 ## Architecture
 

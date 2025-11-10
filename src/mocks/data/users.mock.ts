@@ -4,9 +4,9 @@
  * Handles user-related mock endpoints
  */
 
-import { User, Role, Permission, PaginatedResponse } from '../../types';
+import { User, Role, PaginatedResponse } from '../../types';
 import { createMockError } from '../interceptor';
-import { paginate, filterBySearch } from '../utils/pagination';
+import { paginate, filterBySearch, pageToSkipLimit } from '../utils/pagination';
 import { randomUUID } from '../utils/generators';
 import { mockRoles } from './roles.mock';
 
@@ -151,7 +151,7 @@ export const getUsersHandler = (request: any): PaginatedResponse<User> => {
   }
 
   // Paginate
-  return paginate(filteredUsers, { page: parseInt(page) || 1, page_size: parseInt(page_size) || 10 });
+  return paginate(filteredUsers, pageToSkipLimit(page, page_size));
 };
 
 /**

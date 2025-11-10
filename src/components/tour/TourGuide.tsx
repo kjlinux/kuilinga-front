@@ -1,6 +1,6 @@
-import React, { useEffect } from 'react';
+import React from 'react';
 import Joyride, { CallBackProps, STATUS, ACTIONS, EVENTS } from 'react-joyride';
-import { useTour, TourType } from '@/contexts/TourContext';
+import { useTour } from '@/contexts/TourContext';
 import { tourSteps, defaultTourOptions } from '@/config/tour-steps';
 import { motion, AnimatePresence } from 'framer-motion';
 
@@ -10,7 +10,6 @@ const CustomTooltip: React.FC<any> = ({
   index,
   step,
   backProps,
-  closeProps,
   primaryProps,
   skipProps,
   tooltipProps,
@@ -107,7 +106,7 @@ const CustomTooltip: React.FC<any> = ({
 };
 
 export const TourGuide: React.FC = () => {
-  const { activeTour, isRunning, stepIndex, setStepIndex, completeTour, skipTour, stopTour } =
+  const { activeTour, isRunning, stepIndex, setStepIndex, completeTour, skipTour } =
     useTour();
 
   const handleJoyrideCallback = (data: CallBackProps) => {

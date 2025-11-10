@@ -161,7 +161,7 @@ const Employees = () => {
         onClose={() => setIsConfirmOpen(false)}
         onConfirm={handleConfirmDelete}
         title="Confirmer la suppression"
-        description={`Êtes-vous sûr de vouloir supprimer l'employé "${employeeToDelete?.full_name}" ? Cette action est irréversible.`}
+        description={`Êtes-vous sûr de vouloir supprimer l'employé "${employeeToDelete?.first_name} ${employeeToDelete?.last_name}" ? Cette action est irréversible.`}
       />
     </div>
   )

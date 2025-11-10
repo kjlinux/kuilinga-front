@@ -4,164 +4,158 @@
 
 import { Employee, PaginatedResponse } from '../../types';
 import { createMockError } from '../interceptor';
-import { paginate, filterBySearch } from '../utils/pagination';
-import { randomUUID, randomFrenchName, randomEmail, randomPhone, randomElement, randomDate } from '../utils/generators';
-import { mockDepartments } from './departments.mock';
-import { mockSites } from './sites.mock';
-import { mockOrganizations } from './organizations.mock';
+import { paginate, filterBySearch, pageToSkipLimit } from '../utils/pagination';
+import { randomUUID } from '../utils/generators';
 
 /**
- * Generate employee registration number
+ * Generate employee number
  */
-const generateRegistrationNumber = (index: number): string => {
+const generateEmployeeNumber = (index: number): string => {
   const year = 2023;
   const paddedIndex = String(index).padStart(4, '0');
   return `EMP${year}${paddedIndex}`;
 };
 
 /**
- * Initial mock employees data
+ * Internal employee structure (flat for easier management)
  */
-export const mockEmployees: Employee[] = [
+interface EmployeeInternal {
+  id: string;
+  first_name: string;
+  last_name: string;
+  email: string;
+  phone?: string | null;
+  employee_number?: string | null;
+  position?: string | null;
+  badge_id?: string | null;
+  department_id?: string | null;
+  hire_date?: string;
+  status: string;
+}
+
+/**
+ * Initial mock employees data (internal structure)
+ */
+const mockEmployeesInternal: EmployeeInternal[] = [
   {
     id: 'emp-1',
     first_name: 'Abdoulaye',
     last_name: 'Ouédraogo',
     email: 'abdoulaye.ouedraogo@burkinatech.bf',
-    phone_number: '+226 70 12 34 56',
-    registration_number: 'EMP20230001',
+    phone: '+226 70 12 34 56',
+    employee_number: 'EMP20230001',
     department_id: 'dept-1',
-    job_title: 'Développeur Senior',
+    position: 'Développeur Senior',
     hire_date: '2023-01-20',
-    is_active: true,
-    created_at: '2023-01-20T10:00:00Z',
-    updated_at: '2024-11-01T14:30:00Z',
+    status: 'active',
   },
   {
     id: 'emp-2',
     first_name: 'Fatoumata',
     last_name: 'Sawadogo',
     email: 'fatoumata.sawadogo@burkinatech.bf',
-    phone_number: '+226 70 23 45 67',
-    registration_number: 'EMP20230002',
+    phone: '+226 70 23 45 67',
+    employee_number: 'EMP20230002',
     department_id: 'dept-2',
-    job_title: 'Responsable RH',
+    position: 'Responsable RH',
     hire_date: '2023-01-20',
-    is_active: true,
-    created_at: '2023-01-20T10:00:00Z',
-    updated_at: '2024-11-01T14:30:00Z',
+    status: 'active',
   },
   {
     id: 'emp-3',
     first_name: 'Ousmane',
     last_name: 'Compaoré',
     email: 'ousmane.compaore@burkinatech.bf',
-    phone_number: '+226 70 34 56 78',
-    registration_number: 'EMP20230003',
+    phone: '+226 70 34 56 78',
+    employee_number: 'EMP20230003',
     department_id: 'dept-3',
-    job_title: 'Commercial Senior',
+    position: 'Commercial Senior',
     hire_date: '2023-02-01',
-    is_active: true,
-    created_at: '2023-02-01T10:00:00Z',
-    updated_at: '2024-11-01T14:30:00Z',
+    status: 'active',
   },
   {
     id: 'emp-4',
     first_name: 'Aminata',
     last_name: 'Traoré',
     email: 'aminata.traore@burkinatech.bf',
-    phone_number: '+226 70 45 67 89',
-    registration_number: 'EMP20230004',
+    phone: '+226 70 45 67 89',
+    employee_number: 'EMP20230004',
     department_id: 'dept-4',
-    job_title: 'Chef de Projet Marketing',
+    position: 'Chef de Projet Marketing',
     hire_date: '2023-02-15',
-    is_active: true,
-    created_at: '2023-02-15T10:00:00Z',
-    updated_at: '2024-11-01T14:30:00Z',
+    status: 'active',
   },
   {
     id: 'emp-5',
     first_name: 'Boureima',
     last_name: 'Kaboré',
     email: 'boureima.kabore@burkinatech.bf',
-    phone_number: '+226 70 56 78 90',
-    registration_number: 'EMP20230005',
+    phone: '+226 70 56 78 90',
+    employee_number: 'EMP20230005',
     department_id: 'dept-5',
-    job_title: 'Comptable',
+    position: 'Comptable',
     hire_date: '2023-03-01',
-    is_active: true,
-    created_at: '2023-03-01T10:00:00Z',
-    updated_at: '2024-11-01T14:30:00Z',
+    status: 'active',
   },
   {
     id: 'emp-6',
     first_name: 'Mariam',
     last_name: 'Koné',
     email: 'mariam.kone@burkinatech.bf',
-    phone_number: '+226 70 67 89 01',
-    registration_number: 'EMP20230006',
+    phone: '+226 70 67 89 01',
+    employee_number: 'EMP20230006',
     department_id: 'dept-1',
-    job_title: 'Développeur Frontend',
+    position: 'Développeur Frontend',
     hire_date: '2023-03-15',
-    is_active: true,
-    created_at: '2023-03-15T10:00:00Z',
-    updated_at: '2024-11-01T14:30:00Z',
+    status: 'active',
   },
   {
     id: 'emp-7',
     first_name: 'Seydou',
     last_name: 'Zoungrana',
     email: 'seydou.zoungrana@burkinatech.bf',
-    phone_number: '+226 70 78 90 12',
-    registration_number: 'EMP20230007',
+    phone: '+226 70 78 90 12',
+    employee_number: 'EMP20230007',
     department_id: 'dept-1',
-    job_title: 'Développeur Backend',
+    position: 'Développeur Backend',
     hire_date: '2023-04-01',
-    is_active: true,
-    created_at: '2023-04-01T10:00:00Z',
-    updated_at: '2024-11-01T14:30:00Z',
+    status: 'active',
   },
   {
     id: 'emp-8',
     first_name: 'Awa',
     last_name: 'Ouattara',
     email: 'awa.ouattara@burkinatech.bf',
-    phone_number: '+226 70 89 01 23',
-    registration_number: 'EMP20230008',
+    phone: '+226 70 89 01 23',
+    employee_number: 'EMP20230008',
     department_id: 'dept-2',
-    job_title: 'Assistant RH',
+    position: 'Assistant RH',
     hire_date: '2023-04-15',
-    is_active: true,
-    created_at: '2023-04-15T10:00:00Z',
-    updated_at: '2024-11-01T14:30:00Z',
+    status: 'active',
   },
   {
     id: 'emp-9',
     first_name: 'Moussa',
     last_name: 'Sankara',
     email: 'moussa.sankara@burkinatech.bf',
-    phone_number: '+226 70 90 12 34',
-    registration_number: 'EMP20230009',
+    phone: '+226 70 90 12 34',
+    employee_number: 'EMP20230009',
     department_id: 'dept-3',
-    job_title: 'Commercial Junior',
+    position: 'Commercial Junior',
     hire_date: '2023-05-01',
-    is_active: true,
-    created_at: '2023-05-01T10:00:00Z',
-    updated_at: '2024-11-01T14:30:00Z',
+    status: 'active',
   },
   {
     id: 'emp-10',
     first_name: 'Sarata',
     last_name: 'Zongo',
     email: 'sarata.zongo@burkinatech.bf',
-    phone_number: '+226 71 01 23 45',
-    registration_number: 'EMP20230010',
+    phone: '+226 71 01 23 45',
+    employee_number: 'EMP20230010',
     department_id: 'dept-4',
-    job_title: 'Designer UX/UI',
+    position: 'Designer UX/UI',
     hire_date: '2023-05-15',
-    is_active: true,
-    created_at: '2023-05-15T10:00:00Z',
-    updated_at: '2024-11-01T14:30:00Z',
+    status: 'active',
   },
   // Additional employees for other departments and sites
   {
@@ -169,140 +163,120 @@ export const mockEmployees: Employee[] = [
     first_name: 'Ibrahim',
     last_name: 'Diallo',
     email: 'ibrahim.diallo@burkinatech.bf',
-    phone_number: '+226 71 12 34 56',
-    registration_number: 'EMP20230011',
+    phone: '+226 71 12 34 56',
+    employee_number: 'EMP20230011',
     department_id: 'dept-6',
-    job_title: 'Chef de Projet IT',
+    position: 'Chef de Projet IT',
     hire_date: '2023-06-01',
-    is_active: true,
-    created_at: '2023-06-01T10:00:00Z',
-    updated_at: '2024-10-20T09:15:00Z',
+    status: 'active',
   },
   {
     id: 'emp-12',
     first_name: 'Aïssatou',
     last_name: 'Barry',
     email: 'aissatou.barry@burkinatech.bf',
-    phone_number: '+226 71 23 45 67',
-    registration_number: 'EMP20230012',
+    phone: '+226 71 23 45 67',
+    employee_number: 'EMP20230012',
     department_id: 'dept-7',
-    job_title: 'Support Technique',
+    position: 'Support Technique',
     hire_date: '2023-06-15',
-    is_active: true,
-    created_at: '2023-06-15T10:00:00Z',
-    updated_at: '2024-10-20T09:15:00Z',
+    status: 'active',
   },
   {
     id: 'emp-13',
     first_name: 'Issouf',
     last_name: 'Barro',
     email: 'issouf.barro@burkinatech.bf',
-    phone_number: '+226 71 34 56 78',
-    registration_number: 'EMP20230013',
+    phone: '+226 71 34 56 78',
+    employee_number: 'EMP20230013',
     department_id: 'dept-8',
-    job_title: 'Responsable Logistique',
+    position: 'Responsable Logistique',
     hire_date: '2023-07-01',
-    is_active: true,
-    created_at: '2023-07-01T10:00:00Z',
-    updated_at: '2024-10-20T09:15:00Z',
+    status: 'active',
   },
   {
     id: 'emp-14',
     first_name: 'Rasmata',
     last_name: 'Kinda',
     email: 'rasmata.kinda@burkinatech.bf',
-    phone_number: '+226 71 45 67 89',
-    registration_number: 'EMP20230014',
+    phone: '+226 71 45 67 89',
+    employee_number: 'EMP20230014',
     department_id: 'dept-9',
-    job_title: 'Chercheur R&D',
+    position: 'Chercheur R&D',
     hire_date: '2023-07-15',
-    is_active: true,
-    created_at: '2023-07-15T10:00:00Z',
-    updated_at: '2024-10-25T16:00:00Z',
+    status: 'active',
   },
   {
     id: 'emp-15',
     first_name: 'Hamidou',
     last_name: 'Tapsoba',
     email: 'hamidou.tapsoba@burkinatech.bf',
-    phone_number: '+226 71 56 78 90',
-    registration_number: 'EMP20230015',
+    phone: '+226 71 56 78 90',
+    employee_number: 'EMP20230015',
     department_id: 'dept-10',
-    job_title: 'Ingénieur Production',
+    position: 'Ingénieur Production',
     hire_date: '2023-08-01',
-    is_active: true,
-    created_at: '2023-08-01T10:00:00Z',
-    updated_at: '2024-10-25T16:00:00Z',
+    status: 'active',
   },
   {
     id: 'emp-16',
     first_name: 'Rakieta',
     last_name: 'Nacoulma',
     email: 'rakieta.nacoulma@burkinatech.bf',
-    phone_number: '+226 71 67 89 01',
-    registration_number: 'EMP20230016',
+    phone: '+226 71 67 89 01',
+    employee_number: 'EMP20230016',
     department_id: 'dept-11',
-    job_title: 'Responsable Qualité',
+    position: 'Responsable Qualité',
     hire_date: '2023-08-15',
-    is_active: true,
-    created_at: '2023-08-15T10:00:00Z',
-    updated_at: '2024-10-25T16:00:00Z',
+    status: 'active',
   },
   {
     id: 'emp-17',
     first_name: 'Souleymane',
     last_name: 'Ilboudo',
     email: 'souleymane.ilboudo@burkinatech.bf',
-    phone_number: '+226 71 78 90 12',
-    registration_number: 'EMP20230017',
+    phone: '+226 71 78 90 12',
+    employee_number: 'EMP20230017',
     department_id: 'dept-12',
-    job_title: 'Directeur Commercial',
+    position: 'Directeur Commercial',
     hire_date: '2023-09-01',
-    is_active: true,
-    created_at: '2023-09-01T10:00:00Z',
-    updated_at: '2024-11-03T11:20:00Z',
+    status: 'active',
   },
   {
     id: 'emp-18',
     first_name: 'Hawa',
     last_name: 'Kéré',
     email: 'hawa.kere@burkinatech.bf',
-    phone_number: '+226 71 89 01 23',
-    registration_number: 'EMP20230018',
+    phone: '+226 71 89 01 23',
+    employee_number: 'EMP20230018',
     department_id: 'dept-13',
-    job_title: 'Chef de Produit',
+    position: 'Chef de Produit',
     hire_date: '2023-09-15',
-    is_active: true,
-    created_at: '2023-09-15T10:00:00Z',
-    updated_at: '2024-11-03T11:20:00Z',
+    status: 'active',
   },
   {
     id: 'emp-19',
     first_name: 'Karim',
     last_name: 'Sana',
     email: 'karim.sana@burkinatech.bf',
-    phone_number: '+226 71 90 12 34',
-    registration_number: 'EMP20230019',
+    phone: '+226 71 90 12 34',
+    employee_number: 'EMP20230019',
     department_id: 'dept-14',
-    job_title: 'Administrateur Système',
+    position: 'Administrateur Système',
     hire_date: '2023-10-01',
-    is_active: true,
-    created_at: '2023-10-01T10:00:00Z',
-    updated_at: '2024-10-30T13:45:00Z',
+    status: 'active',
   },
   {
     id: 'emp-20',
     first_name: 'Zenabo',
     last_name: 'Tao',
     email: 'zenabo.tao@burkinatech.bf',
-    phone_number: '+226 72 01 23 45',
-    registration_number: 'EMP20230020',
+    phone: '+226 72 01 23 45',
+    employee_number: 'EMP20230020',
     department_id: 'dept-15',
-    job_title: 'Assistante Administrative',
+    position: 'Assistante Administrative',
     hire_date: '2023-10-15',
-    is_active: true,
-    created_at: '2023-10-15T10:00:00Z',
-    updated_at: '2024-10-30T13:45:00Z',
+    status: 'active',
   },
   // Faso Innovation employees
   {
@@ -310,70 +284,60 @@ export const mockEmployees: Employee[] = [
     first_name: 'Amadou',
     last_name: 'Sorgho',
     email: 'amadou.sorgho@fasoinnovation.bf',
-    phone_number: '+226 72 12 34 56',
-    registration_number: 'EMP20230021',
+    phone: '+226 72 12 34 56',
+    employee_number: 'EMP20230021',
     department_id: 'dept-16',
-    job_title: 'Directeur R&D',
+    position: 'Directeur R&D',
     hire_date: '2023-03-25',
-    is_active: true,
-    created_at: '2023-03-25T10:00:00Z',
-    updated_at: '2024-10-15T16:45:00Z',
+    status: 'active',
   },
   {
     id: 'emp-22',
     first_name: 'Safiatou',
     last_name: 'Nikiema',
     email: 'safiatou.nikiema@fasoinnovation.bf',
-    phone_number: '+226 72 23 45 67',
-    registration_number: 'EMP20230022',
+    phone: '+226 72 23 45 67',
+    employee_number: 'EMP20230022',
     department_id: 'dept-17',
-    job_title: 'Innovation Manager',
+    position: 'Innovation Manager',
     hire_date: '2023-04-10',
-    is_active: true,
-    created_at: '2023-04-10T10:00:00Z',
-    updated_at: '2024-10-15T16:45:00Z',
+    status: 'active',
   },
   {
     id: 'emp-23',
     first_name: 'Rasmané',
     last_name: 'Yé',
     email: 'rasmane.ye@fasoinnovation.bf',
-    phone_number: '+226 72 34 56 78',
-    registration_number: 'EMP20230023',
+    phone: '+226 72 34 56 78',
+    employee_number: 'EMP20230023',
     department_id: 'dept-18',
-    job_title: 'Chef de Projet',
+    position: 'Chef de Projet',
     hire_date: '2023-05-05',
-    is_active: true,
-    created_at: '2023-05-05T10:00:00Z',
-    updated_at: '2024-10-15T16:45:00Z',
+    status: 'active',
   },
   {
     id: 'emp-24',
     first_name: 'Maïmouna',
     last_name: 'Kaboré',
     email: 'maimouna.kabore@fasoinnovation.bf',
-    phone_number: '+226 72 45 67 89',
-    registration_number: 'EMP20230024',
+    phone: '+226 72 45 67 89',
+    employee_number: 'EMP20230024',
     department_id: 'dept-19',
-    job_title: 'Chercheur Senior',
+    position: 'Chercheur Senior',
     hire_date: '2023-05-20',
-    is_active: true,
-    created_at: '2023-05-20T10:00:00Z',
-    updated_at: '2024-10-22T14:00:00Z',
+    status: 'active',
   },
   {
     id: 'emp-25',
     first_name: 'Yacouba',
     last_name: 'Traoré',
     email: 'yacouba.traore@fasoinnovation.bf',
-    phone_number: '+226 72 56 78 90',
-    registration_number: 'EMP20230025',
+    phone: '+226 72 56 78 90',
+    employee_number: 'EMP20230025',
     department_id: 'dept-20',
-    job_title: 'Développeur Full Stack',
+    position: 'Développeur Full Stack',
     hire_date: '2023-06-05',
-    is_active: true,
-    created_at: '2023-06-05T10:00:00Z',
-    updated_at: '2024-10-22T14:00:00Z',
+    status: 'active',
   },
   // Sahel Services employees
   {
@@ -381,104 +345,117 @@ export const mockEmployees: Employee[] = [
     first_name: 'Salamata',
     last_name: 'Ouattara',
     email: 'salamata.ouattara@sahelservices.bf',
-    phone_number: '+226 72 67 89 01',
-    registration_number: 'EMP20220026',
+    phone: '+226 72 67 89 01',
+    employee_number: 'EMP20220026',
     department_id: 'dept-23',
-    job_title: 'Consultant Senior',
+    position: 'Consultant Senior',
     hire_date: '2022-11-15',
-    is_active: true,
-    created_at: '2022-11-15T10:00:00Z',
-    updated_at: '2024-11-05T10:20:00Z',
+    status: 'active',
   },
   {
     id: 'emp-27',
     first_name: 'Zakaria',
     last_name: 'Compaoré',
     email: 'zakaria.compaore@sahelservices.bf',
-    phone_number: '+226 72 78 90 12',
-    registration_number: 'EMP20220027',
+    phone: '+226 72 78 90 12',
+    employee_number: 'EMP20220027',
     department_id: 'dept-24',
-    job_title: 'Auditeur',
+    position: 'Auditeur',
     hire_date: '2022-12-01',
-    is_active: true,
-    created_at: '2022-12-01T10:00:00Z',
-    updated_at: '2024-11-05T10:20:00Z',
+    status: 'active',
   },
   {
     id: 'emp-28',
     first_name: 'Asseta',
     last_name: 'Sawadogo',
     email: 'asseta.sawadogo@sahelservices.bf',
-    phone_number: '+226 72 89 01 23',
-    registration_number: 'EMP20230028',
+    phone: '+226 72 89 01 23',
+    employee_number: 'EMP20230028',
     department_id: 'dept-25',
-    job_title: 'Directrice Générale',
+    position: 'Directrice Générale',
     hire_date: '2023-01-15',
-    is_active: true,
-    created_at: '2023-01-15T10:00:00Z',
-    updated_at: '2024-11-05T10:20:00Z',
+    status: 'active',
   },
   {
     id: 'emp-29',
     first_name: 'Boubacar',
     last_name: 'Diallo',
     email: 'boubacar.diallo@sahelservices.bf',
-    phone_number: '+226 72 90 12 34',
-    registration_number: 'EMP20230029',
+    phone: '+226 72 90 12 34',
+    employee_number: 'EMP20230029',
     department_id: 'dept-26',
-    job_title: 'Responsable Service Client',
+    position: 'Responsable Service Client',
     hire_date: '2023-02-01',
-    is_active: true,
-    created_at: '2023-02-01T10:00:00Z',
-    updated_at: '2024-10-18T15:30:00Z',
+    status: 'active',
   },
   {
     id: 'emp-30',
     first_name: 'Bibata',
     last_name: 'Zoungrana',
     email: 'bibata.zoungrana@sahelservices.bf',
-    phone_number: '+226 73 01 23 45',
-    registration_number: 'EMP20230030',
+    phone: '+226 73 01 23 45',
+    employee_number: 'EMP20230030',
     department_id: 'dept-27',
-    job_title: 'Support Technique',
+    position: 'Support Technique',
     hire_date: '2023-02-15',
-    is_active: true,
-    created_at: '2023-02-15T10:00:00Z',
-    updated_at: '2024-10-18T15:30:00Z',
+    status: 'active',
   },
 ];
 
 /**
+ * Export internal employees for other mocks to import
+ */
+export const mockEmployees = mockEmployeesInternal;
+
+/**
  * In-memory store
  */
-let employeesStore = [...mockEmployees];
+let employeesStore = [...mockEmployeesInternal];
 
 /**
  * Enrich employee with related entities
  */
-const enrichEmployee = (emp: Employee): any => {
-  const department = emp.department_id ? mockDepartments.find(d => d.id === emp.department_id) : null;
-  const site = department ? mockSites.find(s => s.id === department.site_id) : null;
-  const organization = site ? mockOrganizations.find(o => o.id === site.organization_id) : null;
+const enrichEmployee = (emp: EmployeeInternal): Employee => {
+  // Lazy imports to avoid circular dependencies
+  const { mockDepartments } = require('./departments.mock');
+  const { mockSites } = require('./sites.mock');
+  const { mockOrganizations } = require('./organizations.mock');
+
+  const department = emp.department_id ? mockDepartments.find((d: any) => d.id === emp.department_id) : null;
+  const site = department ? mockSites.find((s: any) => s.id === department.site_id) : null;
+  const organization = site ? mockOrganizations.find((o: any) => o.id === site.organization_id) : null;
 
   return {
-    ...emp,
-    full_name: `${emp.first_name} ${emp.last_name}`,
+    id: emp.id,
+    first_name: emp.first_name,
+    last_name: emp.last_name,
+    email: emp.email,
+    phone: emp.phone || null,
+    employee_number: emp.employee_number || null,
+    position: emp.position || null,
+    badge_id: emp.badge_id || null,
+    status: emp.status,
     department: department ? {
       id: department.id,
       name: department.name,
-      site_id: department.site_id,
     } : null,
     site: site ? {
       id: site.id,
       name: site.name,
-      organization_id: site.organization_id,
+      address: site.address || null,
+      timezone: site.timezone,
     } : null,
     organization: organization ? {
       id: organization.id,
       name: organization.name,
+      description: organization.description || null,
+      email: organization.email || null,
+      phone: organization.phone || null,
+      timezone: organization.timezone,
+      plan: organization.plan || null,
+      is_active: organization.is_active,
     } : null,
-    badge_id: emp.registration_number,
+    user: null,
   };
 };
 
@@ -486,7 +463,7 @@ const enrichEmployee = (emp: Employee): any => {
  * GET /api/v1/employees
  */
 export const getEmployeesHandler = (request: any): PaginatedResponse<Employee> => {
-  const { page, page_size, search, department_id, is_active } = request.query;
+  const { page, page_size, search, department_id, status } = request.query;
 
   let filteredEmployees = [...employeesStore];
 
@@ -495,8 +472,8 @@ export const getEmployeesHandler = (request: any): PaginatedResponse<Employee> =
       'first_name',
       'last_name',
       'email',
-      'registration_number',
-      'job_title',
+      'employee_number',
+      'position',
     ]);
   }
 
@@ -504,13 +481,13 @@ export const getEmployeesHandler = (request: any): PaginatedResponse<Employee> =
     filteredEmployees = filteredEmployees.filter(e => e.department_id === department_id);
   }
 
-  if (is_active !== undefined) {
-    filteredEmployees = filteredEmployees.filter(e => e.is_active === (is_active === 'true'));
+  if (status !== undefined) {
+    filteredEmployees = filteredEmployees.filter(e => e.status === status);
   }
 
   const enrichedEmployees = filteredEmployees.map(enrichEmployee);
 
-  return paginate(enrichedEmployees, { page: parseInt(page) || 1, page_size: parseInt(page_size) || 10 });
+  return paginate(enrichedEmployees, pageToSkipLimit(page, page_size));
 };
 
 /**
@@ -543,24 +520,22 @@ export const createEmployeeHandler = (request: any): Employee => {
     throw createMockError(400, { detail: 'Email already exists' });
   }
 
-  const now = new Date().toISOString();
-  const newEmployee: Employee = {
+  const newEmployee: EmployeeInternal = {
     id: randomUUID(),
     first_name: data.first_name,
     last_name: data.last_name,
     email: data.email,
-    phone_number: data.phone_number || null,
-    registration_number: data.registration_number || generateRegistrationNumber(employeesStore.length + 1),
+    phone: data.phone || null,
+    employee_number: data.employee_number || generateEmployeeNumber(employeesStore.length + 1),
     department_id: data.department_id || null,
-    job_title: data.job_title || null,
+    position: data.position || null,
+    badge_id: data.badge_id || null,
     hire_date: data.hire_date || new Date().toISOString().split('T')[0],
-    is_active: data.is_active !== undefined ? data.is_active : true,
-    created_at: now,
-    updated_at: now,
+    status: data.status || 'active',
   };
 
   employeesStore.push(newEmployee);
-  return newEmployee;
+  return enrichEmployee(newEmployee);
 };
 
 /**
@@ -581,15 +556,23 @@ export const updateEmployeeHandler = (request: any): Employee => {
     }
   }
 
-  const updatedEmployee: Employee = {
+  const updatedEmployee: EmployeeInternal = {
     ...employeesStore[index],
-    ...data,
+    first_name: data.first_name !== undefined ? data.first_name : employeesStore[index].first_name,
+    last_name: data.last_name !== undefined ? data.last_name : employeesStore[index].last_name,
+    email: data.email !== undefined ? data.email : employeesStore[index].email,
+    phone: data.phone !== undefined ? data.phone : employeesStore[index].phone,
+    employee_number: data.employee_number !== undefined ? data.employee_number : employeesStore[index].employee_number,
+    position: data.position !== undefined ? data.position : employeesStore[index].position,
+    badge_id: data.badge_id !== undefined ? data.badge_id : employeesStore[index].badge_id,
+    department_id: data.department_id !== undefined ? data.department_id : employeesStore[index].department_id,
+    hire_date: data.hire_date !== undefined ? data.hire_date : employeesStore[index].hire_date,
+    status: data.status !== undefined ? data.status : employeesStore[index].status,
     id,
-    updated_at: new Date().toISOString(),
   };
 
   employeesStore[index] = updatedEmployee;
-  return updatedEmployee;
+  return enrichEmployee(updatedEmployee);
 };
 
 /**
@@ -624,7 +607,7 @@ export const importEmployeesHandler = (request: any): { imported: number; failed
  * Reset employees store
  */
 export const resetEmployeesStore = () => {
-  employeesStore = [...mockEmployees];
+  employeesStore = [...mockEmployeesInternal];
 };
 
 /**

@@ -44,7 +44,7 @@ export const R7AbsenceAnalysis = ({ data }: R7AbsenceAnalysisProps) => {
               nameKey="name"
               label={({ name, percent }) => `${name} (${(percent * 100).toFixed(0)}%)`}
             >
-              {chartData.map((entry, index) => (
+              {chartData.map((_entry, index) => (
                 <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
               ))}
             </Pie>

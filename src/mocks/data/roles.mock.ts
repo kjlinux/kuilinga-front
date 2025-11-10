@@ -4,7 +4,7 @@
 
 import { Role, Permission, PaginatedResponse } from '../../types';
 import { createMockError } from '../interceptor';
-import { paginate, filterBySearch } from '../utils/pagination';
+import { paginate, filterBySearch, pageToSkipLimit } from '../utils/pagination';
 import { randomUUID } from '../utils/generators';
 import { mockPermissions } from './permissions.mock';
 
@@ -123,7 +123,7 @@ export const getRolesHandler = (request: any): PaginatedResponse<Role> => {
     filteredRoles = filterBySearch(filteredRoles, search, ['name', 'description']);
   }
 
-  return paginate(filteredRoles, { page: parseInt(page) || 1, page_size: parseInt(page_size) || 10 });
+  return paginate(filteredRoles, pageToSkipLimit(page, page_size));
 };
 
 /**
@@ -241,8 +241,6 @@ export const assignPermissionToRoleHandler = (request: any): Role => {
       id: permission_id,
       name: `permission-${permission_id}`,
       description: null,
-      resource: 'resource',
-      action: 'read',
     });
   }
 

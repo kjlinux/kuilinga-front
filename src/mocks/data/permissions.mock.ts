@@ -4,7 +4,7 @@
 
 import { Permission, PaginatedResponse } from '../../types';
 import { createMockError } from '../interceptor';
-import { paginate, filterBySearch } from '../utils/pagination';
+import { paginate, filterBySearch, pageToSkipLimit } from '../utils/pagination';
 import { randomUUID } from '../utils/generators';
 
 /**
@@ -12,50 +12,50 @@ import { randomUUID } from '../utils/generators';
  */
 export const mockPermissions: Permission[] = [
   // User permissions
-  { id: 'perm-1', name: 'users:read', description: 'Read users', resource: 'users', action: 'read' },
-  { id: 'perm-2', name: 'users:create', description: 'Create users', resource: 'users', action: 'create' },
-  { id: 'perm-3', name: 'users:update', description: 'Update users', resource: 'users', action: 'update' },
-  { id: 'perm-4', name: 'users:delete', description: 'Delete users', resource: 'users', action: 'delete' },
+  { id: 'perm-1', name: 'users:read', description: 'Read users' },
+  { id: 'perm-2', name: 'users:create', description: 'Create users' },
+  { id: 'perm-3', name: 'users:update', description: 'Update users' },
+  { id: 'perm-4', name: 'users:delete', description: 'Delete users' },
 
   // Employee permissions
-  { id: 'perm-5', name: 'employees:read', description: 'Read employees', resource: 'employees', action: 'read' },
-  { id: 'perm-6', name: 'employees:create', description: 'Create employees', resource: 'employees', action: 'create' },
-  { id: 'perm-7', name: 'employees:update', description: 'Update employees', resource: 'employees', action: 'update' },
-  { id: 'perm-8', name: 'employees:delete', description: 'Delete employees', resource: 'employees', action: 'delete' },
+  { id: 'perm-5', name: 'employees:read', description: 'Read employees' },
+  { id: 'perm-6', name: 'employees:create', description: 'Create employees' },
+  { id: 'perm-7', name: 'employees:update', description: 'Update employees' },
+  { id: 'perm-8', name: 'employees:delete', description: 'Delete employees' },
 
   // Organization permissions
-  { id: 'perm-9', name: 'organizations:read', description: 'Read organizations', resource: 'organizations', action: 'read' },
-  { id: 'perm-10', name: 'organizations:create', description: 'Create organizations', resource: 'organizations', action: 'create' },
-  { id: 'perm-11', name: 'organizations:update', description: 'Update organizations', resource: 'organizations', action: 'update' },
-  { id: 'perm-12', name: 'organizations:delete', description: 'Delete organizations', resource: 'organizations', action: 'delete' },
+  { id: 'perm-9', name: 'organizations:read', description: 'Read organizations' },
+  { id: 'perm-10', name: 'organizations:create', description: 'Create organizations' },
+  { id: 'perm-11', name: 'organizations:update', description: 'Update organizations' },
+  { id: 'perm-12', name: 'organizations:delete', description: 'Delete organizations' },
 
   // Attendance permissions
-  { id: 'perm-13', name: 'attendance:read', description: 'Read attendance', resource: 'attendance', action: 'read' },
-  { id: 'perm-14', name: 'attendance:create', description: 'Create attendance', resource: 'attendance', action: 'create' },
-  { id: 'perm-15', name: 'attendance:update', description: 'Update attendance', resource: 'attendance', action: 'update' },
-  { id: 'perm-16', name: 'attendance:delete', description: 'Delete attendance', resource: 'attendance', action: 'delete' },
+  { id: 'perm-13', name: 'attendance:read', description: 'Read attendance' },
+  { id: 'perm-14', name: 'attendance:create', description: 'Create attendance' },
+  { id: 'perm-15', name: 'attendance:update', description: 'Update attendance' },
+  { id: 'perm-16', name: 'attendance:delete', description: 'Delete attendance' },
 
   // Device permissions
-  { id: 'perm-17', name: 'devices:read', description: 'Read devices', resource: 'devices', action: 'read' },
-  { id: 'perm-18', name: 'devices:create', description: 'Create devices', resource: 'devices', action: 'create' },
-  { id: 'perm-19', name: 'devices:update', description: 'Update devices', resource: 'devices', action: 'update' },
-  { id: 'perm-20', name: 'devices:delete', description: 'Delete devices', resource: 'devices', action: 'delete' },
+  { id: 'perm-17', name: 'devices:read', description: 'Read devices' },
+  { id: 'perm-18', name: 'devices:create', description: 'Create devices' },
+  { id: 'perm-19', name: 'devices:update', description: 'Update devices' },
+  { id: 'perm-20', name: 'devices:delete', description: 'Delete devices' },
 
   // Leave permissions
-  { id: 'perm-21', name: 'leaves:read', description: 'Read leaves', resource: 'leaves', action: 'read' },
-  { id: 'perm-22', name: 'leaves:create', description: 'Create leaves', resource: 'leaves', action: 'create' },
-  { id: 'perm-23', name: 'leaves:approve', description: 'Approve leaves', resource: 'leaves', action: 'approve' },
-  { id: 'perm-24', name: 'leaves:reject', description: 'Reject leaves', resource: 'leaves', action: 'reject' },
+  { id: 'perm-21', name: 'leaves:read', description: 'Read leaves' },
+  { id: 'perm-22', name: 'leaves:create', description: 'Create leaves' },
+  { id: 'perm-23', name: 'leaves:approve', description: 'Approve leaves' },
+  { id: 'perm-24', name: 'leaves:reject', description: 'Reject leaves' },
 
   // Report permissions
-  { id: 'perm-25', name: 'reports:read', description: 'Read reports', resource: 'reports', action: 'read' },
-  { id: 'perm-26', name: 'reports:generate', description: 'Generate reports', resource: 'reports', action: 'generate' },
-  { id: 'perm-27', name: 'reports:download', description: 'Download reports', resource: 'reports', action: 'download' },
+  { id: 'perm-25', name: 'reports:read', description: 'Read reports' },
+  { id: 'perm-26', name: 'reports:generate', description: 'Generate reports' },
+  { id: 'perm-27', name: 'reports:download', description: 'Download reports' },
 
   // Role permissions
-  { id: 'perm-28', name: 'roles:read', description: 'Read roles', resource: 'roles', action: 'read' },
-  { id: 'perm-29', name: 'roles:create', description: 'Create roles', resource: 'roles', action: 'create' },
-  { id: 'perm-30', name: 'roles:update', description: 'Update roles', resource: 'roles', action: 'update' },
+  { id: 'perm-28', name: 'roles:read', description: 'Read roles' },
+  { id: 'perm-29', name: 'roles:create', description: 'Create roles' },
+  { id: 'perm-30', name: 'roles:update', description: 'Update roles' },
 ];
 
 /**
@@ -72,10 +72,10 @@ export const getPermissionsHandler = (request: any): PaginatedResponse<Permissio
   let filteredPermissions = [...permissionsStore];
 
   if (search) {
-    filteredPermissions = filterBySearch(filteredPermissions, search, ['name', 'description', 'resource', 'action']);
+    filteredPermissions = filterBySearch(filteredPermissions, search, ['name', 'description']);
   }
 
-  return paginate(filteredPermissions, { page: parseInt(page) || 1, page_size: parseInt(page_size) || 10 });
+  return paginate(filteredPermissions, pageToSkipLimit(page, page_size));
 };
 
 /**
@@ -98,9 +98,9 @@ export const getPermissionByIdHandler = (request: any): Permission => {
 export const createPermissionHandler = (request: any): Permission => {
   const data = request.body;
 
-  if (!data.name || !data.resource || !data.action) {
+  if (!data.name) {
     throw createMockError(422, {
-      detail: [{ loc: ['body'], msg: 'name, resource, and action are required', type: 'value_error.missing' }],
+      detail: [{ loc: ['body'], msg: 'name is required', type: 'value_error.missing' }],
     });
   }
 
@@ -112,8 +112,6 @@ export const createPermissionHandler = (request: any): Permission => {
     id: randomUUID(),
     name: data.name,
     description: data.description || null,
-    resource: data.resource,
-    action: data.action,
   };
 
   permissionsStore.push(newPermission);

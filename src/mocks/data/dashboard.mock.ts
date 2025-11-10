@@ -2,12 +2,11 @@
  * Dashboard Mock Data and Handlers
  */
 
-import { AdminDashboard, ManagerDashboard, EmployeeDashboard, IntegratorDashboard } from '../../types';
-import { DeviceStatus } from '../../types';
+import { AdminDashboard, ManagerDashboard, EmployeeDashboard, IntegratorDashboard, AttendanceType } from '../../types';
 import { mockEmployees } from './employees.mock';
 import { mockDevices } from './devices.mock';
 
-export const getAdminDashboardHandler = (request: any): AdminDashboard => {
+export const getAdminDashboardHandler = (): AdminDashboard => {
   return {
     active_organizations: 5,
     daily_attendance_count: 368,
@@ -45,7 +44,7 @@ export const getAdminDashboardHandler = (request: any): AdminDashboard => {
   };
 };
 
-export const getManagerDashboardHandler = (request: any): ManagerDashboard => {
+export const getManagerDashboardHandler = (): ManagerDashboard => {
   // Generate some real-time attendances for today
   const today = new Date();
   const realTimeAttendances = mockEmployees.slice(0, 5).map((emp: any, idx: number) => {
@@ -57,17 +56,18 @@ export const getManagerDashboardHandler = (request: any): ManagerDashboard => {
       employee_id: emp.id,
       device_id: mockDevices[idx % mockDevices.length]?.id || 'device-1',
       timestamp: clockIn.toISOString(),
-      type: 'in',
+      type: AttendanceType.In,
       created_at: clockIn.toISOString(),
       employee: {
         id: emp.id,
         first_name: emp.first_name,
         last_name: emp.last_name,
-        employee_number: emp.registration_number,
+        employee_number: emp.employee_number,
       },
       device: mockDevices[idx % mockDevices.length] ? {
         id: mockDevices[idx % mockDevices.length].id,
         serial_number: mockDevices[idx % mockDevices.length].serial_number,
+        type: mockDevices[idx % mockDevices.length].type,
       } : undefined,
     };
   });
@@ -95,7 +95,7 @@ export const getManagerDashboardHandler = (request: any): ManagerDashboard => {
   };
 };
 
-export const getEmployeeDashboardHandler = (request: any): EmployeeDashboard => {
+export const getEmployeeDashboardHandler = (): EmployeeDashboard => {
   const today = new Date();
   const todayAttendances = [
     {
@@ -103,17 +103,18 @@ export const getEmployeeDashboardHandler = (request: any): EmployeeDashboard => 
       employee_id: 'emp-5',
       device_id: mockDevices[0]?.id || 'device-1',
       timestamp: new Date(today.setHours(8, 42, 15)).toISOString(),
-      type: 'in',
+      type: AttendanceType.In,
       created_at: new Date(today.setHours(8, 42, 15)).toISOString(),
       employee: mockEmployees[4] ? {
         id: mockEmployees[4].id,
         first_name: mockEmployees[4].first_name,
         last_name: mockEmployees[4].last_name,
-        employee_number: mockEmployees[4].registration_number,
+        employee_number: mockEmployees[4].employee_number,
       } : undefined,
       device: mockDevices[0] ? {
         id: mockDevices[0].id,
         serial_number: mockDevices[0].serial_number,
+        type: mockDevices[0].type,
       } : undefined,
     },
   ];
@@ -129,14 +130,14 @@ export const getEmployeeDashboardHandler = (request: any): EmployeeDashboard => 
   };
 };
 
-export const getIntegratorDashboardHandler = (request: any): IntegratorDashboard => {
+export const getIntegratorDashboardHandler = (): IntegratorDashboard => {
   return {
     device_status_ratio: [
       { status: 'online', count: 20 },
       { status: 'offline', count: 3 },
       { status: 'maintenance', count: 2 },
     ],
-    attendance_per_device: mockDevices.slice(0, 8).map((device: any, idx: number) => ({
+    attendance_per_device: mockDevices.slice(0, 8).map((device: any) => ({
       serial_number: device.serial_number,
       attendance_count: 120 + Math.floor(Math.random() * 80),
     })),

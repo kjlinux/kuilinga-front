@@ -27,7 +27,7 @@ const UserDialog = ({
   onConfirm,
   user,
 }: UserDialogProps) => {
-  const [formData, setFormData] = useState<Partial<UserCreate | UserUpdate>>({})
+  const [formData, setFormData] = useState<Partial<UserCreate & UserUpdate>>({})
   const [roles, setRoles] = useState<Role[]>([])
   const [selectedRoleId, setSelectedRoleId] = useState<string>('')
   const [errors, setErrors] = useState<Record<string, string>>({})

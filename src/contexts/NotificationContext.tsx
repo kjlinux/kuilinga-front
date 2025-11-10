@@ -65,7 +65,7 @@ export const NotificationProvider: React.FC<NotificationProviderProps> = ({
     }
   };
 
-  const unreadCount = notifications.filter((n) => !n.lu).length;
+  const unreadCount = notifications.filter((n) => !n.read).length;
 
   // useEffect(() => {
   //   fetchNotifications();

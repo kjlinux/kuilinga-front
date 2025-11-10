@@ -152,9 +152,9 @@ const Leaves = () => {
           start_date: new Date(l.start_date).toLocaleDateString(),
           end_date: new Date(l.end_date).toLocaleDateString(),
           duration: `${l.duration} jours`,
-          status: getStatusBadge(l.status),
+          status: getStatusBadge(l.status) as LeaveStatus,
           approver: l.approver?.full_name,
-        }))}
+        } as any))}
         columns={columns}
         isLoading={isLoading}
         pagination={pagination}

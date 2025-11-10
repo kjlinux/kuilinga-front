@@ -6,7 +6,7 @@ import { toast } from "sonner"
 import DataTable from "../components/DataTable"
 import useDataTable from "../hooks/useDataTable"
 import deviceService from "../services/device.service"
-import type { Device, DeviceCreate, DeviceUpdate, DeviceStatus } from "../types"
+import type { Device, DeviceCreate, DeviceUpdate } from "../types"
 import DeviceDialog from "../components/DeviceDialog"
 import ConfirmationDialog from "../components/ConfirmationDialog"
 
@@ -88,18 +88,18 @@ const Devices = () => {
     }
   }
 
-  const getStatusBadge = (status: DeviceStatus) => {
-    switch (status) {
-      case "online":
-        return "En ligne"
-      case "offline":
-        return "Hors ligne"
-      case "maintenance":
-        return "Maintenance"
-      default:
-        return status
-    }
-  }
+  // const getStatusBadge = (status: DeviceStatus) => {
+  //   switch (status) {
+  //     case "online":
+  //       return "En ligne"
+  //     case "offline":
+  //       return "Hors ligne"
+  //     case "maintenance":
+  //       return "Maintenance"
+  //     default:
+  //       return status
+  //   }
+  // }
 
   const columns = [
     { accessorKey: "serial_number", header: "N° Série" },

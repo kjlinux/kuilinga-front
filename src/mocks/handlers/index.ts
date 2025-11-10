@@ -25,7 +25,7 @@ import { notificationHandlers } from '../data/notifications.mock';
  */
 export interface MockHandler {
   method: string;
-  pattern: string;
+  pattern: string | RegExp;
   handler: (request: any) => any;
 }
 

@@ -10,6 +10,18 @@ import { R16TeamPerformance } from "./previews/R16_TeamPerformance";
 import { R17MyPresence } from "./previews/R17_MyPresence";
 import { R18MyMonthlySummary } from "./previews/R18_MyMonthlySummary";
 import { R19MyLeaves } from "./previews/R19_MyLeaves";
+import {
+  MultiOrgConsolidatedResponse,
+  OrganizationPresenceResponse,
+  DepartmentLeavesResponse,
+  WorkedHoursResponse,
+  SiteActivityResponse,
+  DepartmentPresenceResponse,
+  TeamPerformanceResponse,
+  EmployeePresenceReportResponse,
+  EmployeeMonthlySummaryResponse,
+  EmployeeLeavesReportResponse,
+} from "@/types";
 
 interface ReportPreviewProps {
   reportId: ReportId;
@@ -23,31 +35,31 @@ export const ReportPreview = ({ reportId, data }: ReportPreviewProps) => {
 
   switch (reportId) {
     case ReportId.R1_MultiOrgConsolidated:
-      return <R1_MultiOrgConsolidated data={data} />;
+      return <R1_MultiOrgConsolidated data={data as unknown as MultiOrgConsolidatedResponse} />;
     case ReportId.R5_OrgPresence:
-      return <R5OrgPresence data={data} />;
+      return <R5OrgPresence data={data as unknown as OrganizationPresenceResponse} />;
     case ReportId.R7_AbsenceAnalysis:
-      return <R7AbsenceAnalysis data={data} />;
+      return <R7AbsenceAnalysis data={data as unknown as DepartmentLeavesResponse} />;
     case ReportId.R9_EmployeeWorkedHours:
-      return <R9EmployeeWorkedHours data={data} />;
+      return <R9EmployeeWorkedHours data={data as unknown as WorkedHoursResponse} />;
     case ReportId.R10_SiteActivity:
-      return <R10SiteActivity data={data} />;
+      return <R10SiteActivity data={data as unknown as SiteActivityResponse} />;
     case ReportId.R12_DeptPresence:
-      return <R12DeptPresence data={data} />;
+      return <R12DeptPresence data={data as unknown as DepartmentPresenceResponse} />;
     case ReportId.R15_LeaveRequests:
-      return <R15LeaveRequests data={data} />;
+      return <R15LeaveRequests data={data as unknown as DepartmentLeavesResponse} />;
     case ReportId.R16_TeamPerformance:
-      return <R16TeamPerformance data={data} />;
+      return <R16TeamPerformance data={data as unknown as TeamPerformanceResponse} />;
     case ReportId.R17_MyPresence:
-      return <R17MyPresence data={data} />;
+      return <R17MyPresence data={data as unknown as EmployeePresenceReportResponse} />;
     case ReportId.R18_MyMonthlySummary:
-      return <R18MyMonthlySummary data={data} />;
+      return <R18MyMonthlySummary data={data as unknown as EmployeeMonthlySummaryResponse} />;
     case ReportId.R19_MyLeaves:
-      return <R19MyLeaves data={data} />;
+      return <R19MyLeaves data={data as unknown as EmployeeLeavesReportResponse} />;
     case ReportId.R6_MonthlySynthetic:
-      return <R5OrgPresence data={data as OrganizationPresenceResponse} />;
+      return <R5OrgPresence data={data as unknown as OrganizationPresenceResponse} />;
     case ReportId.R13_TeamWeekly:
-      return <R12DeptPresence data={data as DepartmentPresenceResponse} />;
+      return <R12DeptPresence data={data as unknown as DepartmentPresenceResponse} />;
 
     // Add other report previews here as they are created
 

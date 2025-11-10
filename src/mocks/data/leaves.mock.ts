@@ -2,16 +2,32 @@
  * Leaves Mock Data and Handlers
  */
 
-import { Leave, LeaveType, LeaveStatus, PaginatedResponse, LeaveEmployee, LeaveApprover } from '../../types';
+import { Leave, LeaveType, LeaveStatus, PaginatedResponse } from '../../types';
 import { createMockError } from '../interceptor';
-import { paginate, filterBySearch } from '../utils/pagination';
-import { randomUUID, randomElement } from '../utils/generators';
-import { mockEmployees } from './employees.mock';
+import { paginate, filterBySearch, pageToSkipLimit } from '../utils/pagination';
+import { randomUUID } from '../utils/generators';
 
 /**
- * Initial mock leaves data
+ * Internal leave structure (flat for easier management)
  */
-export const mockLeaves: Leave[] = [
+interface LeaveInternal {
+  id: string;
+  employee_id: string;
+  leave_type: LeaveType;
+  start_date: string;
+  end_date: string;
+  reason: string;
+  notes?: string | null;
+  status: LeaveStatus;
+  approved_by?: string | null;
+  approved_at?: string | null;
+  comments?: string | null;
+}
+
+/**
+ * Initial mock leaves data (internal structure)
+ */
+const mockLeavesInternal: LeaveInternal[] = [
   {
     id: 'leave-1',
     employee_id: 'emp-1',
@@ -22,8 +38,6 @@ export const mockLeaves: Leave[] = [
     status: LeaveStatus.Approved,
     approved_by: 'emp-2',
     approved_at: '2024-11-01T10:00:00Z',
-    created_at: '2024-10-25T14:30:00Z',
-    updated_at: '2024-11-01T10:00:00Z',
   },
   {
     id: 'leave-2',
@@ -35,8 +49,6 @@ export const mockLeaves: Leave[] = [
     status: LeaveStatus.Approved,
     approved_by: 'emp-2',
     approved_at: '2024-11-05T09:00:00Z',
-    created_at: '2024-11-05T08:30:00Z',
-    updated_at: '2024-11-05T09:00:00Z',
   },
   {
     id: 'leave-3',
@@ -48,8 +60,6 @@ export const mockLeaves: Leave[] = [
     status: LeaveStatus.Pending,
     approved_by: null,
     approved_at: null,
-    created_at: '2024-11-08T16:00:00Z',
-    updated_at: '2024-11-08T16:00:00Z',
   },
   {
     id: 'leave-4',
@@ -61,8 +71,6 @@ export const mockLeaves: Leave[] = [
     status: LeaveStatus.Pending,
     approved_by: null,
     approved_at: null,
-    created_at: '2024-11-07T10:15:00Z',
-    updated_at: '2024-11-07T10:15:00Z',
   },
   {
     id: 'leave-5',
@@ -74,45 +82,61 @@ export const mockLeaves: Leave[] = [
     status: LeaveStatus.Rejected,
     approved_by: 'emp-2',
     approved_at: '2024-10-27T15:00:00Z',
-    created_at: '2024-10-25T11:00:00Z',
-    updated_at: '2024-10-27T15:00:00Z',
     comments: 'Demande rejetée car effectif minimal requis ce jour-là',
   },
 ];
 
 /**
+ * Export internal leaves for other mocks to import
+ */
+export const mockLeaves = mockLeavesInternal;
+
+/**
  * In-memory store
  */
-let leavesStore = [...mockLeaves];
+let leavesStore = [...mockLeavesInternal];
 
 /**
  * Helper function to enrich a leave with employee and approver details
  */
-const enrichLeave = (leave: any): Leave => {
-  const employee = mockEmployees.find(emp => emp.id === leave.employee_id);
-  const approver = leave.approved_by ? mockEmployees.find(emp => emp.id === leave.approved_by) : null;
+const enrichLeave = (leave: LeaveInternal): Leave => {
+  // Lazy imports to avoid circular dependencies
+  const { mockEmployees } = require('./employees.mock');
+  const { mockDepartments } = require('./departments.mock');
+
+  const employee = mockEmployees.find((emp: any) => emp.id === leave.employee_id);
+  const approver = leave.approved_by ? mockEmployees.find((emp: any) => emp.id === leave.approved_by) : null;
+  const department = employee?.department_id ? mockDepartments.find((d: any) => d.id === employee.department_id) : null;
 
   // Calculate duration in days
   const startDate = new Date(leave.start_date);
   const endDate = new Date(leave.end_date);
   const duration = Math.ceil((endDate.getTime() - startDate.getTime()) / (1000 * 60 * 60 * 24)) + 1;
 
-  const enrichedLeave: Leave = {
-    ...leave,
+  return {
+    id: leave.id,
+    leave_type: leave.leave_type,
+    start_date: leave.start_date,
+    end_date: leave.end_date,
+    reason: leave.reason,
+    notes: leave.notes || null,
+    status: leave.status,
     duration,
     employee: employee ? {
       id: employee.id,
       first_name: employee.first_name,
       last_name: employee.last_name,
       full_name: `${employee.first_name} ${employee.last_name}`,
-    } : undefined,
+      department: department ? {
+        id: department.id,
+        name: department.name,
+      } : null,
+    } : null,
     approver: approver ? {
       id: approver.id,
       full_name: `${approver.first_name} ${approver.last_name}`,
-    } : undefined,
+    } : null,
   };
-
-  return enrichedLeave;
 };
 
 /**
@@ -139,13 +163,9 @@ export const getLeavesHandler = (request: any): PaginatedResponse<Leave> => {
     filteredLeaves = filterBySearch(filteredLeaves, search, ['reason']);
   }
 
-  const paginatedResult = paginate(filteredLeaves, { page: parseInt(page) || 1, page_size: parseInt(page_size) || 10 });
+  const enrichedLeaves = filteredLeaves.map(enrichLeave);
 
-  // Enrich leaves with employee and approver details
-  return {
-    ...paginatedResult,
-    items: paginatedResult.items.map(enrichLeave),
-  };
+  return paginate(enrichedLeaves, pageToSkipLimit(page, page_size));
 };
 
 /**
@@ -174,19 +194,18 @@ export const createLeaveHandler = (request: any): Leave => {
     });
   }
 
-  const now = new Date().toISOString();
-  const newLeave = {
+  const newLeave: LeaveInternal = {
     id: randomUUID(),
     employee_id: data.employee_id,
     leave_type: data.leave_type,
     start_date: data.start_date,
     end_date: data.end_date,
-    reason: data.reason || null,
+    reason: data.reason || '',
+    notes: data.notes || null,
     status: LeaveStatus.Pending,
     approved_by: null,
     approved_at: null,
-    created_at: now,
-    updated_at: now,
+    comments: null,
   };
 
   leavesStore.push(newLeave);
@@ -205,11 +224,18 @@ export const updateLeaveHandler = (request: any): Leave => {
     throw createMockError(404, { detail: 'Leave not found' });
   }
 
-  const updatedLeave = {
+  const updatedLeave: LeaveInternal = {
     ...leavesStore[index],
-    ...data,
+    leave_type: data.leave_type !== undefined ? data.leave_type : leavesStore[index].leave_type,
+    start_date: data.start_date !== undefined ? data.start_date : leavesStore[index].start_date,
+    end_date: data.end_date !== undefined ? data.end_date : leavesStore[index].end_date,
+    reason: data.reason !== undefined ? data.reason : leavesStore[index].reason,
+    notes: data.notes !== undefined ? data.notes : leavesStore[index].notes,
+    status: data.status !== undefined ? data.status : leavesStore[index].status,
+    approved_by: data.approved_by !== undefined ? data.approved_by : leavesStore[index].approved_by,
+    approved_at: data.approved_at !== undefined ? data.approved_at : leavesStore[index].approved_at,
+    comments: data.comments !== undefined ? data.comments : leavesStore[index].comments,
     id,
-    updated_at: new Date().toISOString(),
   };
 
   leavesStore[index] = updatedLeave;
@@ -234,7 +260,7 @@ export const deleteLeaveHandler = (request: any): void => {
  * Reset leaves store
  */
 export const resetLeavesStore = () => {
-  leavesStore = [...mockLeaves];
+  leavesStore = [...mockLeavesInternal];
 };
 
 /**

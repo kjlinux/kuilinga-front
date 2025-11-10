@@ -4,10 +4,21 @@
 
 import { Attendance, AttendanceType, PaginatedResponse } from '../../types';
 import { createMockError } from '../interceptor';
-import { paginate } from '../utils/pagination';
-import { randomUUID, randomISODate, randomElement } from '../utils/generators';
-import { mockEmployees } from './employees.mock';
-import { mockDevices } from './devices.mock';
+import { paginate, pageToSkipLimit } from '../utils/pagination';
+import { randomUUID, randomElement } from '../utils/generators';
+
+/**
+ * Internal attendance structure (flat for easier management)
+ */
+interface AttendanceInternal {
+  id: string;
+  employee_id: string;
+  device_id: string;
+  timestamp: string;
+  type: AttendanceType;
+  geo?: string | null;
+  extra_data?: Record<string, unknown> | null;
+}
 
 // Generate random GPS coordinates around Paris region
 const generateGeoLocation = (): string => {
@@ -25,13 +36,16 @@ const generateGeoLocation = (): string => {
 };
 
 // Generate attendance records for the last 30 days
-const generateAttendanceRecords = (): Attendance[] => {
-  const records: Attendance[] = [];
+const generateAttendanceRecords = (): AttendanceInternal[] => {
+  // Lazy import to avoid circular dependency
+  const { mockEmployees } = require('./employees.mock');
+
+  const records: AttendanceInternal[] = [];
   const now = new Date();
   const thirtyDaysAgo = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
 
   let id = 1;
-  mockEmployees.slice(0, 20).forEach(employee => {
+  mockEmployees.slice(0, 20).forEach((employee: any) => {
     // Generate 20-25 attendance records per employee
     for (let day = 0; day < 25; day++) {
       const date = new Date(thirtyDaysAgo.getTime() + day * 24 * 60 * 60 * 1000 + Math.random() * 24 * 60 * 60 * 1000);
@@ -51,7 +65,7 @@ const generateAttendanceRecords = (): Attendance[] => {
         timestamp: clockIn.toISOString(),
         type: AttendanceType.In,
         geo: generateGeoLocation(),
-        created_at: clockIn.toISOString(),
+        extra_data: null,
       });
 
       records.push({
@@ -61,7 +75,7 @@ const generateAttendanceRecords = (): Attendance[] => {
         timestamp: clockOut.toISOString(),
         type: AttendanceType.Out,
         geo: generateGeoLocation(),
-        created_at: clockOut.toISOString(),
+        extra_data: null,
       });
     }
   });
@@ -102,26 +116,41 @@ export const getAttendancesHandler = (request: any): PaginatedResponse<Attendanc
   }
 
   // Enrich attendances with employee and device data
-  const enrichedAttendances = filteredAttendances.map(att => {
-    const employee = mockEmployees.find(e => e.id === att.employee_id);
-    const device = mockDevices.find(d => d.id === att.device_id);
+  const enrichedAttendances = filteredAttendances.map(enrichAttendance);
 
-    return {
-      ...att,
-      employee: employee ? {
-        id: employee.id,
-        first_name: employee.first_name,
-        last_name: employee.last_name,
-        employee_number: employee.registration_number,
-      } : undefined,
-      device: device ? {
-        id: device.id,
-        serial_number: device.serial_number,
-      } : undefined,
-    };
-  });
+  return paginate(enrichedAttendances, pageToSkipLimit(page, page_size));
+};
 
-  return paginate(enrichedAttendances, { page: parseInt(page) || 1, page_size: parseInt(page_size) || 10 });
+/**
+ * Enrich attendance with employee and device details
+ */
+const enrichAttendance = (att: AttendanceInternal): Attendance => {
+  // Lazy imports to avoid circular dependencies
+  const { mockEmployees } = require('./employees.mock');
+  const { mockDevices } = require('./devices.mock');
+
+  const employee = mockEmployees.find((e: any) => e.id === att.employee_id);
+  const device = mockDevices.find((d: any) => d.id === att.device_id);
+
+  return {
+    id: att.id,
+    timestamp: att.timestamp,
+    type: att.type,
+    geo: att.geo || null,
+    extra_data: att.extra_data || null,
+    duration: null,
+    employee: employee ? {
+      id: employee.id,
+      first_name: employee.first_name,
+      last_name: employee.last_name,
+      employee_number: employee.employee_number || null,
+    } : null,
+    device: device ? {
+      id: device.id,
+      serial_number: device.serial_number,
+      type: device.type,
+    } : null,
+  };
 };
 
 /**
@@ -137,18 +166,18 @@ export const createAttendanceHandler = (request: any): Attendance => {
   }
 
   const now = new Date().toISOString();
-  const newAttendance: Attendance = {
+  const newAttendance: AttendanceInternal = {
     id: randomUUID(),
     employee_id: data.employee_id,
     device_id: data.device_id,
     timestamp: data.timestamp || now,
     type: data.type,
     geo: data.geo || generateGeoLocation(),
-    created_at: now,
+    extra_data: data.extra_data || null,
   };
 
   attendancesStore.unshift(newAttendance);
-  return newAttendance;
+  return enrichAttendance(newAttendance);
 };
 
 /**

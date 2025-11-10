@@ -4,22 +4,37 @@
 
 import { Organization, PaginatedResponse } from '../../types';
 import { createMockError } from '../interceptor';
-import { paginate, filterBySearch } from '../utils/pagination';
+import { paginate, filterBySearch, pageToSkipLimit } from '../utils/pagination';
 import { randomUUID } from '../utils/generators';
-import { mockSites } from './sites.mock';
-import { mockEmployees } from './employees.mock';
-import { mockDepartments } from './departments.mock';
 
 /**
- * Initial mock organizations data
+ * Internal organization structure (flat for easier management)
  */
-export const mockOrganizations: Organization[] = [
+interface OrganizationInternal {
+  id: string;
+  name: string;
+  description?: string | null;
+  address?: string | null;
+  phone?: string | null;
+  email?: string | null;
+  website?: string | null;
+  timezone: string;
+  plan?: string | null;
+  is_active: boolean;
+  created_at: string;
+  updated_at: string;
+}
+
+/**
+ * Initial mock organizations data (internal structure)
+ */
+const mockOrganizationsInternal: OrganizationInternal[] = [
   {
     id: 'org-1',
     name: 'Burkina Tech',
     description: 'Entreprise leader en développement de solutions logicielles',
     address: 'Avenue Kwamé N\'Krumah, Secteur 4, Ouagadougou',
-    phone_number: '+226 25 31 45 67',
+    phone: '+226 25 31 45 67',
     email: 'contact@burkinatech.bf',
     website: 'https://www.burkinatech.bf',
     timezone: 'Africa/Ouagadougou',
@@ -32,7 +47,7 @@ export const mockOrganizations: Organization[] = [
     name: 'Faso Innovation',
     description: 'Laboratoire d\'innovation et de recherche pour des solutions de pointe',
     address: 'Avenue de la Nation, Secteur 15, Bobo-Dioulasso',
-    phone_number: '+226 20 97 45 32',
+    phone: '+226 20 97 45 32',
     email: 'info@fasoinnovation.bf',
     website: 'https://www.fasoinnovation.bf',
     timezone: 'Africa/Ouagadougou',
@@ -45,7 +60,7 @@ export const mockOrganizations: Organization[] = [
     name: 'Sahel Services',
     description: 'Prestataire de services de conseil international',
     address: 'Boulevard Charles De Gaulle, Secteur 12, Ouagadougou',
-    phone_number: '+226 25 36 78 90',
+    phone: '+226 25 36 78 90',
     email: 'contact@sahelservices.bf',
     website: 'https://www.sahelservices.bf',
     timezone: 'Africa/Ouagadougou',
@@ -58,7 +73,7 @@ export const mockOrganizations: Organization[] = [
     name: 'DataFaso Solutions',
     description: 'Entreprise d\'analyse de données et d\'intelligence d\'affaires',
     address: 'Rue de la Révolution, Secteur 7, Koudougou',
-    phone_number: '+226 25 44 67 89',
+    phone: '+226 25 44 67 89',
     email: 'hello@datafaso.bf',
     website: 'https://www.datafaso.bf',
     timezone: 'Africa/Ouagadougou',
@@ -71,7 +86,7 @@ export const mockOrganizations: Organization[] = [
     name: 'Moaga Digital',
     description: 'Solutions d\'infrastructure cloud et de réseautage',
     address: 'Avenue de l\'Indépendance, Secteur 8, Ouahigouya',
-    phone_number: '+226 24 55 67 89',
+    phone: '+226 24 55 67 89',
     email: 'support@moagadigital.bf',
     website: 'https://www.moagadigital.bf',
     timezone: 'Africa/Ouagadougou',
@@ -84,25 +99,44 @@ export const mockOrganizations: Organization[] = [
 /**
  * In-memory store
  */
-let organizationsStore = [...mockOrganizations];
+let organizationsStore = [...mockOrganizationsInternal];
 
 /**
- * Enrich organization with related entities
+ * Enrich organization with counts (to match Organization type)
  */
-const enrichOrganization = (org: Organization): any => {
-  const sites = mockSites.filter(s => s.organization_id === org.id);
-  const siteIds = sites.map(s => s.id);
-  const departments = mockDepartments.filter(d => siteIds.includes(d.site_id));
-  const departmentIds = departments.map(d => d.id);
-  const employees = mockEmployees.filter(e => e.department_id && departmentIds.includes(e.department_id));
-
-  // Import users inline to avoid circular dependency
+const enrichOrganization = (org: OrganizationInternal): Organization => {
+  // Lazy import to avoid circular dependencies
+  let sites_count = 0;
+  let employees_count = 0;
   let users_count = 0;
+
   try {
-    const { mockUsers } = require('./users.mock');
-    users_count = mockUsers.filter((u: any) => u.organization_id === org.id).length;
+    const { mockSites } = require('./sites.mock');
+    const sites = mockSites.filter((s: any) => s.organization_id === org.id);
+    sites_count = sites.length;
+
+    // Count employees through departments and sites
+    try {
+      const { mockDepartments } = require('./departments.mock');
+      const siteIds = sites.map((s: any) => s.id);
+      const departments = mockDepartments.filter((d: any) => siteIds.includes(d.site_id));
+      const departmentIds = departments.map((d: any) => d.id);
+
+      const { mockEmployees } = require('./employees.mock');
+      employees_count = mockEmployees.filter((e: any) => e.department_id && departmentIds.includes(e.department_id)).length;
+    } catch (e) {
+      employees_count = 0;
+    }
+
+    // Count users
+    try {
+      const { mockUsers } = require('./users.mock');
+      users_count = mockUsers.filter((u: any) => u.organization_id === org.id).length;
+    } catch (e) {
+      users_count = 0;
+    }
   } catch (e) {
-    users_count = 0;
+    sites_count = 0;
   }
 
   // Determine plan based on organization
@@ -114,11 +148,16 @@ const enrichOrganization = (org: Organization): any => {
   }
 
   return {
-    ...org,
-    phone: org.phone_number,
+    id: org.id,
+    name: org.name,
+    description: org.description || null,
+    email: org.email || null,
+    phone: org.phone || null,
+    timezone: org.timezone,
     plan,
-    sites_count: sites.length,
-    employees_count: employees.length,
+    is_active: org.is_active,
+    sites_count,
+    employees_count,
     users_count,
   };
 };
@@ -132,7 +171,7 @@ export const getOrganizationsHandler = (request: any): PaginatedResponse<Organiz
   let filteredOrgs = [...organizationsStore];
 
   if (search) {
-    filteredOrgs = filterBySearch(filteredOrgs, search, ['name', 'description', 'email', 'phone_number']);
+    filteredOrgs = filterBySearch(filteredOrgs, search, ['name', 'description', 'email', 'phone']);
   }
 
   if (is_active !== undefined) {
@@ -141,7 +180,7 @@ export const getOrganizationsHandler = (request: any): PaginatedResponse<Organiz
 
   const enrichedOrgs = filteredOrgs.map(enrichOrganization);
 
-  return paginate(enrichedOrgs, { page: parseInt(page) || 1, page_size: parseInt(page_size) || 10 });
+  return paginate(enrichedOrgs, pageToSkipLimit(page, page_size));
 };
 
 /**
@@ -175,12 +214,12 @@ export const createOrganizationHandler = (request: any): Organization => {
   }
 
   const now = new Date().toISOString();
-  const newOrg: Organization = {
+  const newOrg: OrganizationInternal = {
     id: randomUUID(),
     name: data.name,
     description: data.description || null,
     address: data.address || null,
-    phone_number: data.phone_number || null,
+    phone: data.phone || null,
     email: data.email || null,
     website: data.website || null,
     timezone: data.timezone || 'Europe/Paris',
@@ -190,7 +229,7 @@ export const createOrganizationHandler = (request: any): Organization => {
   };
 
   organizationsStore.push(newOrg);
-  return newOrg;
+  return enrichOrganization(newOrg);
 };
 
 /**
@@ -211,7 +250,7 @@ export const updateOrganizationHandler = (request: any): Organization => {
     }
   }
 
-  const updatedOrg: Organization = {
+  const updatedOrg: OrganizationInternal = {
     ...organizationsStore[index],
     ...data,
     id,
@@ -219,7 +258,7 @@ export const updateOrganizationHandler = (request: any): Organization => {
   };
 
   organizationsStore[index] = updatedOrg;
-  return updatedOrg;
+  return enrichOrganization(updatedOrg);
 };
 
 /**
@@ -240,8 +279,13 @@ export const deleteOrganizationHandler = (request: any): void => {
  * Reset organizations store
  */
 export const resetOrganizationsStore = () => {
-  organizationsStore = [...mockOrganizations];
+  organizationsStore = [...mockOrganizationsInternal];
 };
+
+/**
+ * Export enriched organizations for use in other mocks
+ */
+export const mockOrganizations = mockOrganizationsInternal;
 
 /**
  * Export organization handlers

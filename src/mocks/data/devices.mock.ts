@@ -4,22 +4,34 @@
 
 import { Device, DeviceStatus, PaginatedResponse } from '../../types';
 import { createMockError } from '../interceptor';
-import { paginate, filterBySearch } from '../utils/pagination';
-import { randomUUID, randomElement } from '../utils/generators';
+import { paginate, filterBySearch, pageToSkipLimit } from '../utils/pagination';
+import { randomUUID } from '../utils/generators';
 import { mockSites } from './sites.mock';
 import { mockOrganizations } from './organizations.mock';
 
 /**
- * Initial mock devices data
+ * Internal device structure (flat for easier management)
  */
-export const mockDevices: Device[] = [
+interface DeviceInternal {
+  id: string;
+  serial_number: string;
+  type: string;
+  site_id: string;
+  status: DeviceStatus;
+  last_sync?: string;
+  created_at: string;
+  updated_at: string;
+}
+
+/**
+ * Initial mock devices data (internal structure)
+ */
+const mockDevicesInternal: DeviceInternal[] = [
   {
     id: 'device-1',
-    name: 'Lecteur Biométrique Paris HQ - Entrée',
     serial_number: 'BIO-2023-001',
-    model: 'BioPro X500',
+    type: 'BioPro X500',
     site_id: 'site-1',
-    location: 'Entrée principale',
     status: DeviceStatus.Online,
     last_sync: '2024-11-09T08:30:00Z',
     created_at: '2023-01-15T10:00:00Z',
@@ -27,11 +39,9 @@ export const mockDevices: Device[] = [
   },
   {
     id: 'device-2',
-    name: 'Lecteur Biométrique Paris HQ - Sortie',
     serial_number: 'BIO-2023-002',
-    model: 'BioPro X500',
+    type: 'BioPro X500',
     site_id: 'site-1',
-    location: 'Sortie principale',
     status: DeviceStatus.Online,
     last_sync: '2024-11-09T08:32:00Z',
     created_at: '2023-01-15T10:00:00Z',
@@ -39,11 +49,9 @@ export const mockDevices: Device[] = [
   },
   {
     id: 'device-3',
-    name: 'Badge Reader Paris - R&D',
     serial_number: 'BADGE-2023-001',
-    model: 'AccessCard Pro',
+    type: 'AccessCard Pro',
     site_id: 'site-1',
-    location: 'Département R&D',
     status: DeviceStatus.Online,
     last_sync: '2024-11-09T08:25:00Z',
     created_at: '2023-02-01T10:00:00Z',
@@ -51,11 +59,9 @@ export const mockDevices: Device[] = [
   },
   {
     id: 'device-4',
-    name: 'Lecteur Biométrique Marseille - Entrée',
     serial_number: 'BIO-2023-003',
-    model: 'BioPro X500',
+    type: 'BioPro X500',
     site_id: 'site-2',
-    location: 'Entrée principale',
     status: DeviceStatus.Online,
     last_sync: '2024-11-09T08:20:00Z',
     created_at: '2023-02-10T11:00:00Z',
@@ -63,11 +69,9 @@ export const mockDevices: Device[] = [
   },
   {
     id: 'device-5',
-    name: 'Lecteur Biométrique Marseille - Sortie',
     serial_number: 'BIO-2023-004',
-    model: 'BioPro X500',
+    type: 'BioPro X500',
     site_id: 'site-2',
-    location: 'Sortie principale',
     status: DeviceStatus.Offline,
     last_sync: '2024-11-08T17:45:00Z',
     created_at: '2023-02-10T11:00:00Z',
@@ -75,11 +79,9 @@ export const mockDevices: Device[] = [
   },
   {
     id: 'device-6',
-    name: 'Lecteur Biométrique Lyon - Entrée',
     serial_number: 'BIO-2023-005',
-    model: 'BioPro X600',
+    type: 'BioPro X600',
     site_id: 'site-3',
-    location: 'Entrée principale',
     status: DeviceStatus.Online,
     last_sync: '2024-11-09T08:28:00Z',
     created_at: '2023-04-05T09:30:00Z',
@@ -87,11 +89,9 @@ export const mockDevices: Device[] = [
   },
   {
     id: 'device-7',
-    name: 'Lecteur Biométrique Bordeaux - Entrée',
     serial_number: 'BIO-2023-006',
-    model: 'BioPro X600',
+    type: 'BioPro X600',
     site_id: 'site-4',
-    location: 'Entrée principale',
     status: DeviceStatus.Maintenance,
     last_sync: '2024-11-07T14:00:00Z',
     created_at: '2023-06-15T08:00:00Z',
@@ -99,11 +99,9 @@ export const mockDevices: Device[] = [
   },
   {
     id: 'device-8',
-    name: 'Lecteur Biométrique Lille - Entrée',
     serial_number: 'BIO-2023-007',
-    model: 'BioPro X600',
+    type: 'BioPro X600',
     site_id: 'site-5',
-    location: 'Entrée principale',
     status: DeviceStatus.Online,
     last_sync: '2024-11-09T08:15:00Z',
     created_at: '2023-08-20T10:30:00Z',
@@ -111,11 +109,9 @@ export const mockDevices: Device[] = [
   },
   {
     id: 'device-9',
-    name: 'Badge Reader InnovateLab Lyon',
     serial_number: 'BADGE-2023-002',
-    model: 'AccessCard Elite',
+    type: 'AccessCard Elite',
     site_id: 'site-6',
-    location: 'Laboratoire principal',
     status: DeviceStatus.Online,
     last_sync: '2024-11-09T08:35:00Z',
     created_at: '2023-03-20T09:00:00Z',
@@ -123,11 +119,9 @@ export const mockDevices: Device[] = [
   },
   {
     id: 'device-10',
-    name: 'Lecteur Biométrique Grenoble',
     serial_number: 'BIO-2023-008',
-    model: 'BioPro X700',
+    type: 'BioPro X700',
     site_id: 'site-7',
-    location: 'Entrée principale',
     status: DeviceStatus.Online,
     last_sync: '2024-11-09T08:18:00Z',
     created_at: '2023-05-10T10:00:00Z',
@@ -135,11 +129,9 @@ export const mockDevices: Device[] = [
   },
   {
     id: 'device-11',
-    name: 'Lecteur Biométrique Toulouse InnovateLab',
     serial_number: 'BIO-2023-009',
-    model: 'BioPro X700',
+    type: 'BioPro X700',
     site_id: 'site-8',
-    location: 'Entrée principale',
     status: DeviceStatus.Online,
     last_sync: '2024-11-09T08:22:00Z',
     created_at: '2023-07-12T11:30:00Z',
@@ -147,11 +139,9 @@ export const mockDevices: Device[] = [
   },
   {
     id: 'device-12',
-    name: 'Badge Reader GlobalServices Paris',
     serial_number: 'BADGE-2023-003',
-    model: 'AccessCard Pro',
+    type: 'AccessCard Pro',
     site_id: 'site-9',
-    location: 'Réception',
     status: DeviceStatus.Online,
     last_sync: '2024-11-09T08:26:00Z',
     created_at: '2022-11-10T11:00:00Z',
@@ -159,11 +149,9 @@ export const mockDevices: Device[] = [
   },
   {
     id: 'device-13',
-    name: 'Lecteur Biométrique La Défense',
     serial_number: 'BIO-2023-010',
-    model: 'BioPro X800',
+    type: 'BioPro X800',
     site_id: 'site-10',
-    location: 'Entrée Tour',
     status: DeviceStatus.Online,
     last_sync: '2024-11-09T08:31:00Z',
     created_at: '2023-01-20T09:00:00Z',
@@ -171,11 +159,9 @@ export const mockDevices: Device[] = [
   },
   {
     id: 'device-14',
-    name: 'Lecteur Biométrique Nantes',
     serial_number: 'BIO-2023-011',
-    model: 'BioPro X600',
+    type: 'BioPro X600',
     site_id: 'site-11',
-    location: 'Entrée principale',
     status: DeviceStatus.Online,
     last_sync: '2024-11-09T08:19:00Z',
     created_at: '2023-03-15T10:30:00Z',
@@ -183,11 +169,9 @@ export const mockDevices: Device[] = [
   },
   {
     id: 'device-15',
-    name: 'Lecteur Biométrique Strasbourg',
     serial_number: 'BIO-2023-012',
-    model: 'BioPro X600',
+    type: 'BioPro X600',
     site_id: 'site-12',
-    location: 'Entrée principale',
     status: DeviceStatus.Offline,
     last_sync: '2024-11-08T16:30:00Z',
     created_at: '2023-05-25T08:45:00Z',
@@ -198,28 +182,37 @@ export const mockDevices: Device[] = [
 /**
  * In-memory store
  */
-let devicesStore = [...mockDevices];
+let devicesStore = [...mockDevicesInternal];
 
 /**
- * Enrich device with related entities
+ * Enrich device with related entities to match Device type
  */
-const enrichDevice = (device: Device): any => {
+const enrichDevice = (device: DeviceInternal): Device => {
   const site = mockSites.find(s => s.id === device.site_id);
   const organization = site ? mockOrganizations.find(o => o.id === site.organization_id) : null;
 
   return {
-    ...device,
-    type: device.model || 'Biometric Reader',
+    id: device.id,
+    serial_number: device.serial_number,
+    type: device.type,
+    status: device.status,
     site: site ? {
       id: site.id,
       name: site.name,
-      organization_id: site.organization_id,
+      address: site.address || null,
+      timezone: site.timezone,
     } : null,
     organization: organization ? {
       id: organization.id,
       name: organization.name,
+      description: organization.description || null,
+      email: organization.email || null,
+      phone: organization.phone || null,
+      timezone: organization.timezone,
+      plan: organization.plan || null,
+      is_active: organization.is_active,
     } : null,
-    last_attendance_timestamp: device.last_sync,
+    last_attendance_timestamp: device.last_sync || null,
     daily_attendance_count: device.status === DeviceStatus.Online ? Math.floor(Math.random() * 50) + 10 : 0,
   };
 };
@@ -233,7 +226,7 @@ export const getDevicesHandler = (request: any): PaginatedResponse<Device> => {
   let filteredDevices = [...devicesStore];
 
   if (search) {
-    filteredDevices = filterBySearch(filteredDevices, search, ['name', 'serial_number', 'model', 'location']);
+    filteredDevices = filterBySearch(filteredDevices, search, ['serial_number', 'type']);
   }
 
   if (site_id) {
@@ -246,7 +239,7 @@ export const getDevicesHandler = (request: any): PaginatedResponse<Device> => {
 
   const enrichedDevices = filteredDevices.map(enrichDevice);
 
-  return paginate(enrichedDevices, { page: parseInt(page) || 1, page_size: parseInt(page_size) || 10 });
+  return paginate(enrichedDevices, pageToSkipLimit(page, page_size));
 };
 
 /**
@@ -269,9 +262,9 @@ export const getDeviceByIdHandler = (request: any): Device => {
 export const createDeviceHandler = (request: any): Device => {
   const data = request.body;
 
-  if (!data.name || !data.serial_number || !data.site_id) {
+  if (!data.serial_number || !data.type || !data.site_id) {
     throw createMockError(422, {
-      detail: [{ loc: ['body'], msg: 'name, serial_number, and site_id are required', type: 'value_error.missing' }],
+      detail: [{ loc: ['body'], msg: 'serial_number, type, and site_id are required', type: 'value_error.missing' }],
     });
   }
 
@@ -280,13 +273,11 @@ export const createDeviceHandler = (request: any): Device => {
   }
 
   const now = new Date().toISOString();
-  const newDevice: Device = {
+  const newDevice: DeviceInternal = {
     id: randomUUID(),
-    name: data.name,
     serial_number: data.serial_number,
-    model: data.model || null,
+    type: data.type,
     site_id: data.site_id,
-    location: data.location || null,
     status: data.status || DeviceStatus.Online,
     last_sync: now,
     created_at: now,
@@ -294,7 +285,7 @@ export const createDeviceHandler = (request: any): Device => {
   };
 
   devicesStore.push(newDevice);
-  return newDevice;
+  return enrichDevice(newDevice);
 };
 
 /**
@@ -315,7 +306,7 @@ export const updateDeviceHandler = (request: any): Device => {
     }
   }
 
-  const updatedDevice: Device = {
+  const updatedDevice: DeviceInternal = {
     ...devicesStore[index],
     ...data,
     id,
@@ -323,7 +314,7 @@ export const updateDeviceHandler = (request: any): Device => {
   };
 
   devicesStore[index] = updatedDevice;
-  return updatedDevice;
+  return enrichDevice(updatedDevice);
 };
 
 /**
@@ -344,8 +335,13 @@ export const deleteDeviceHandler = (request: any): void => {
  * Reset devices store
  */
 export const resetDevicesStore = () => {
-  devicesStore = [...mockDevices];
+  devicesStore = [...mockDevicesInternal];
 };
+
+/**
+ * Export enriched devices for use in other mocks
+ */
+export const mockDevices = mockDevicesInternal.map(enrichDevice);
 
 /**
  * Export device handlers

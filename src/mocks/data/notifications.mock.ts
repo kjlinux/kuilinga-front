@@ -4,35 +4,28 @@
 
 import { Notification, PaginatedResponse } from '../../types';
 import { createMockError } from '../interceptor';
-import { paginate } from '../utils/pagination';
-import { randomUUID } from '../utils/generators';
+import { paginate, pageToSkipLimit } from '../utils/pagination';
 
 export const mockNotifications: Notification[] = [
   {
     id: 'notif-1',
-    user_id: '2',
     title: 'Nouvelle demande de congé',
     message: 'Lucas Petit a soumis une demande de congé pour le 15-18 novembre',
-    type: 'leave_request',
-    is_read: false,
+    read: false,
     created_at: '2024-11-08T16:05:00Z',
   },
   {
     id: 'notif-2',
-    user_id: '2',
     title: 'Appareil hors ligne',
     message: 'Le lecteur biométrique Marseille - Sortie est hors ligne depuis 2 heures',
-    type: 'device_offline',
-    is_read: false,
+    read: false,
     created_at: '2024-11-09T06:00:00Z',
   },
   {
     id: 'notif-3',
-    user_id: '2',
     title: 'Congé approuvé',
     message: 'Votre demande de congé pour le 20-31 décembre a été approuvée',
-    type: 'leave_approved',
-    is_read: true,
+    read: true,
     created_at: '2024-11-01T10:05:00Z',
   },
 ];
@@ -40,14 +33,14 @@ export const mockNotifications: Notification[] = [
 let notificationsStore = [...mockNotifications];
 
 export const getNotificationsHandler = (request: any): PaginatedResponse<Notification> => {
-  const { page, page_size, is_read } = request.query;
+  const { page, page_size, read } = request.query;
   let filtered = [...notificationsStore];
 
-  if (is_read !== undefined) {
-    filtered = filtered.filter(n => n.is_read === (is_read === 'true'));
+  if (read !== undefined) {
+    filtered = filtered.filter(n => n.read === (read === 'true'));
   }
 
-  return paginate(filtered, { page: parseInt(page) || 1, page_size: parseInt(page_size) || 10 });
+  return paginate(filtered, pageToSkipLimit(page, page_size));
 };
 
 export const markAsReadHandler = (request: any): Notification => {
@@ -58,13 +51,13 @@ export const markAsReadHandler = (request: any): Notification => {
     throw createMockError(404, { detail: 'Notification not found' });
   }
 
-  notif.is_read = true;
+  notif.read = true;
   return notif;
 };
 
 export const markAllAsReadHandler = (): { marked: number } => {
-  const count = notificationsStore.filter(n => !n.is_read).length;
-  notificationsStore.forEach(n => n.is_read = true);
+  const count = notificationsStore.filter(n => !n.read).length;
+  notificationsStore.forEach(n => n.read = true);
   return { marked: count };
 };
 

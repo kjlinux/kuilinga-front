@@ -5,7 +5,7 @@
  * This allows the frontend to work without a backend connection.
  */
 
-import { AxiosInstance, AxiosRequestConfig, AxiosResponse, InternalAxiosRequestConfig } from 'axios';
+import { AxiosInstance, AxiosResponse, InternalAxiosRequestConfig } from 'axios';
 import { MOCK_CONFIG } from './config';
 import { simulateDelay } from './utils/delay';
 import { mockHandlers } from './handlers';
@@ -80,7 +80,9 @@ const executeMockHandler = async (config: InternalAxiosRequestConfig): Promise<A
         await simulateDelay();
 
         // Extract path parameters
-        const pathParams = extractParams(cleanUrl, handler.pattern);
+        const pathParams = typeof handler.pattern === 'string'
+          ? extractParams(cleanUrl, handler.pattern)
+          : {};
 
         // Execute handler
         const responseData = await handler.handler({

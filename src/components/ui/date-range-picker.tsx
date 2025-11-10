@@ -16,15 +16,19 @@ import {
 
 interface DateRangePickerProps extends React.HTMLAttributes<HTMLDivElement> {
   onUpdate: (values: { range: DateRange }) => void;
+  initialDateFrom?: Date;
+  initialDateTo?: Date;
 }
 
 export function DateRangePicker({
   className,
   onUpdate,
+  initialDateFrom,
+  initialDateTo,
 }: DateRangePickerProps) {
   const [date, setDate] = React.useState<DateRange | undefined>({
-    from: new Date(),
-    to: new Date(),
+    from: initialDateFrom || new Date(),
+    to: initialDateTo || new Date(),
   })
 
   React.useEffect(() => {

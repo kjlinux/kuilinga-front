@@ -8,7 +8,7 @@
  * - POST /api/v1/auth/logout
  */
 
-import { Token, UserInLogin, UserRole } from '../../types';
+import { Token, UserInLogin } from '../../types';
 import { MOCK_CONFIG, createMockError } from '../config';
 import { mockUsers } from './users.mock';
 import { mockRoles } from './roles.mock';
@@ -17,8 +17,6 @@ import { mockRoles } from './roles.mock';
  * Mock current session storage
  */
 let currentMockUser: UserInLogin | null = null;
-let currentMockAccessToken: string | null = null;
-let currentMockRefreshToken: string | null = null;
 
 /**
  * Maps email to demo user
@@ -121,8 +119,6 @@ export const loginHandler = (request: any): Token => {
 
   // Store current session
   currentMockUser = user;
-  currentMockAccessToken = accessToken;
-  currentMockRefreshToken = refreshToken;
 
   const response: Token = {
     access_token: accessToken,
@@ -160,9 +156,6 @@ export const refreshTokenHandler = (request: any): Token => {
   // Generate new tokens
   const accessToken = `${MOCK_CONFIG.mockAccessToken}-${Date.now()}`;
   const newRefreshToken = `${MOCK_CONFIG.mockRefreshToken}-${Date.now()}`;
-
-  currentMockAccessToken = accessToken;
-  currentMockRefreshToken = newRefreshToken;
 
   const response: Token = {
     access_token: accessToken,
@@ -204,11 +197,9 @@ export const getCurrentUserHandler = (request: any): UserInLogin => {
 /**
  * POST /api/v1/auth/logout
  */
-export const logoutHandler = (request: any): { message: string } => {
+export const logoutHandler = (): { message: string } => {
   // Clear current session
   currentMockUser = null;
-  currentMockAccessToken = null;
-  currentMockRefreshToken = null;
 
   return { message: 'Successfully logged out' };
 };

@@ -7,24 +7,34 @@
 import { PaginatedResponse, PaginationParams } from '../../types';
 
 /**
+ * Converts page-based parameters to skip/limit format
+ */
+export function pageToSkipLimit(page?: string | number, pageSize?: string | number): { skip: number; limit: number } {
+  const pageNum = typeof page === 'string' ? parseInt(page) || 1 : (page || 1);
+  const limitNum = typeof pageSize === 'string' ? parseInt(pageSize) || 10 : (pageSize || 10);
+  return {
+    skip: (pageNum - 1) * limitNum,
+    limit: limitNum
+  };
+}
+
+/**
  * Paginates an array of items
  */
 export function paginate<T>(
   items: T[],
   params?: PaginationParams
 ): PaginatedResponse<T> {
-  const page = params?.page || 1;
-  const pageSize = params?.page_size || 10;
-  const skip = (page - 1) * pageSize;
+  const skip = params?.skip || 0;
+  const limit = params?.limit || 10;
 
-  const paginatedItems = items.slice(skip, skip + pageSize);
+  const paginatedItems = items.slice(skip, skip + limit);
 
   return {
     items: paginatedItems,
     total: items.length,
-    page,
-    page_size: pageSize,
-    total_pages: Math.ceil(items.length / pageSize),
+    skip,
+    limit,
   };
 }
 

@@ -70,10 +70,10 @@ const ReportsPage = () => {
     <div className="space-y-6">
       <div>
         <h1 className="text-3xl font-bold text-secondary mb-2">Rapports et Analyses</h1>
-        <p className="text-accent">Visualisez et exportez vos rapports de présence.</p>
+        <p data-tour="report-roles" className="text-accent">Visualisez et exportez vos rapports de présence.</p>
       </div>
 
-      <Card>
+      <Card data-tour="report-selection">
         <CardHeader>
           <CardTitle>Sélection du Rapport</CardTitle>
         </CardHeader>
@@ -114,7 +114,7 @@ const ReportsPage = () => {
           transition={{ duration: 0.3 }}
           className="space-y-6"
         >
-          <Card>
+          <Card data-tour="report-filters">
             <CardHeader>
               <CardTitle>{selectedReport.title}</CardTitle>
               <p className="text-sm text-muted-foreground">{selectedReport.description}</p>
@@ -126,7 +126,7 @@ const ReportsPage = () => {
                 onFilterChange={setFilters}
               />
               <div className="flex flex-col sm:flex-row gap-2">
-                <Button onClick={handleGeneratePreview} disabled={isGenerating} className="w-full sm:w-auto">
+                <Button data-tour="report-generate" onClick={handleGeneratePreview} disabled={isGenerating} className="w-full sm:w-auto">
                   <FileText className="mr-2 h-4 w-4" />
                   {isGenerating ? "Génération en cours..." : "Générer la prévisualisation"}
                 </Button>
@@ -147,7 +147,7 @@ const ReportsPage = () => {
           {isGenerating && <p>Chargement de la prévisualisation...</p>}
 
           {previewData && (
-            <Card>
+            <Card data-tour="report-preview">
               <CardHeader>
                 <CardTitle>Prévisualisation du Rapport</CardTitle>
               </CardHeader>

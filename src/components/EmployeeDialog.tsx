@@ -28,7 +28,7 @@ const EmployeeDialog = ({
   onConfirm,
   employee,
 }: EmployeeDialogProps) => {
-  const [formData, setFormData] = useState<Partial<EmployeeCreate | EmployeeUpdate>>({})
+  const [formData, setFormData] = useState<Partial<EmployeeCreate>>({})
   const [organizations, setOrganizations] = useState<Organization[]>([])
   const [sites, setSites] = useState<Site[]>([])
   const [departments, setDepartments] = useState<Department[]>([])
@@ -120,7 +120,7 @@ const EmployeeDialog = ({
           {!employee && (
             <div className="space-y-2">
               <Label htmlFor="organization_id">Organisation</Label>
-              <Select onValueChange={handleSelectChange("organization_id")} value={formData.organization_id}>
+              <Select onValueChange={handleSelectChange("organization_id")} value={formData.organization_id ?? undefined}>
                 <SelectTrigger>
                   <SelectValue placeholder="Sélectionner une organisation" />
                 </SelectTrigger>
@@ -135,7 +135,7 @@ const EmployeeDialog = ({
           )}
           <div className="space-y-2">
             <Label htmlFor="site_id">Site</Label>
-            <Select onValueChange={handleSelectChange("site_id")} value={formData.site_id}>
+            <Select onValueChange={handleSelectChange("site_id")} value={formData.site_id ?? undefined}>
               <SelectTrigger>
                 <SelectValue placeholder="Sélectionner un site" />
               </SelectTrigger>
@@ -148,7 +148,7 @@ const EmployeeDialog = ({
           </div>
           <div className="space-y-2">
             <Label htmlFor="department_id">Département</Label>
-            <Select onValueChange={handleSelectChange("department_id")} value={formData.department_id}>
+            <Select onValueChange={handleSelectChange("department_id")} value={formData.department_id ?? undefined}>
               <SelectTrigger>
                 <SelectValue placeholder="Sélectionner un département" />
               </SelectTrigger>

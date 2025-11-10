@@ -29,9 +29,13 @@ const Departments = () => {
     fetchData: departmentService.getDepartments,
   })
 
-  const handleOpenDialog = (department: Department | null = null) => {
-    setSelectedDepartment(department)
+  const handleOpenDialog = (department?: Department | null) => {
+    setSelectedDepartment(department || null)
     setIsDialogOpen(true)
+  }
+
+  const handleEdit = (department: Department) => {
+    handleOpenDialog(department)
   }
 
   const handleCloseDialog = () => {
@@ -112,6 +116,7 @@ const Departments = () => {
 
         <div className="flex items-center gap-2">
           <button
+            data-tour="org-add"
             onClick={() => handleOpenDialog()}
             className="btn-primary flex items-center gap-2"
           >
@@ -121,20 +126,18 @@ const Departments = () => {
         </div>
       </div>
 
-      <DataTable
-        data={data.map((d) => ({
-          ...d,
-          site: d.site?.name,
-          manager: d.manager?.full_name,
-        }))}
+      <div data-tour="org-departments">
+        <DataTable
+        data={data}
         columns={columns}
         isLoading={isLoading}
         pagination={pagination}
         onPageChange={handlePageChange}
         onSearchChange={handleSearchChange}
-        onEdit={handleOpenDialog}
+        onEdit={handleEdit}
         onDelete={handleDeleteRequest}
       />
+      </div>
 
       <DepartmentDialog
         isOpen={isDialogOpen}

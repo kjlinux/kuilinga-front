@@ -105,6 +105,7 @@ const Users = () => {
 
         <div className="flex items-center gap-2">
           <button
+            data-tour="admin-add"
             onClick={() => handleOpenDialog()}
             className="btn-primary flex items-center gap-2"
           >
@@ -114,7 +115,8 @@ const Users = () => {
         </div>
       </div>
 
-      <DataTable
+      <div data-tour="users-list">
+        <DataTable
         data={data}
         columns={columns}
         isLoading={isLoading}
@@ -124,6 +126,7 @@ const Users = () => {
         onEdit={handleOpenDialog}
         onDelete={handleDeleteRequest}
       />
+      </div>
 
       <UserDialog
         isOpen={isDialogOpen}

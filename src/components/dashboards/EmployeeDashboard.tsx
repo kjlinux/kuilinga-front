@@ -96,7 +96,7 @@ const EmployeeDashboard = () => {
                 nameKey="name"
                 label
               >
-                {leaveData.map((entry, index) => (
+                {leaveData.map((_entry, index) => (
                   <Cell
                     key={`cell-${index}`}
                     fill={COLORS[index % COLORS.length]}

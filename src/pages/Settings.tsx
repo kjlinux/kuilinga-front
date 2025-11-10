@@ -51,14 +51,12 @@ const Settings = () => {
     },
   });
 
-  const updateUserMutation = useMutation(
-    (data: UserUpdate) => userService.updateUser(user!.id, data),
-    {
-      onSuccess: () => {
-        queryClient.invalidateQueries('me');
-      },
-    }
-  );
+  const updateUserMutation = useMutation({
+    mutationFn: (data: UserUpdate) => userService.updateUser(user!.id, data),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['me'] });
+    },
+  });
 
   const onProfileSubmit = (values: z.infer<typeof profileSchema>) => {
     updateUserMutation.mutate(values);
@@ -86,7 +84,7 @@ const Settings = () => {
       <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
         {/* Menu des onglets */}
         <div className="lg:col-span-1">
-          <div className="card space-y-2">
+          <div data-tour="settings-tabs" className="card space-y-2">
             {tabs.map((tab) => {
               const Icon = tab.icon
               return (
@@ -109,21 +107,13 @@ const Settings = () => {
         <div className="lg:col-span-3">
           <motion.div key={activeTab} initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} className="card">
             {activeTab === "profile" && (
-              <div className="space-y-6">
+              <div data-tour="settings-profile" className="space-y-6">
                 <h2 className="text-xl font-semibold text-secondary">Informations du profil</h2>
 
                 <div className="flex items-center gap-4">
-                  {user?.photo ? (
-                    <img
-                      src={user.photo || "/placeholder.svg"}
-                      alt="Photo de profil"
-                      className="w-20 h-20 rounded-full object-cover"
-                    />
-                  ) : (
-                    <div className="w-20 h-20 bg-primary rounded-full flex items-center justify-center">
-                      <User className="w-10 h-10 text-white" />
-                    </div>
-                  )}
+                  <div className="w-20 h-20 bg-primary rounded-full flex items-center justify-center">
+                    <User className="w-10 h-10 text-white" />
+                  </div>
                   <Button variant="outline" onClick={() => document.getElementById('fileInput')?.click()}>Changer la photo</Button>
                   <input type="file" id="fileInput" style={{ display: 'none' }} />
                 </div>
@@ -165,7 +155,7 @@ const Settings = () => {
             )}
 
             {activeTab === "notifications" && (
-              <div className="space-y-6">
+              <div data-tour="settings-notifications" className="space-y-6">
                 <h2 className="text-xl font-semibold text-secondary">Préférences de notification</h2>
 
                 <div className="space-y-4">
@@ -196,7 +186,7 @@ const Settings = () => {
             )}
 
             {activeTab === "security" && (
-              <div className="space-y-6">
+              <div data-tour="settings-security" className="space-y-6">
                 <h2 className="text-xl font-semibold text-secondary">Sécurité du compte</h2>
 
                 <Form {...passwordForm}>

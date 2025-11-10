@@ -27,7 +27,7 @@ const LeaveDialog = ({
   onConfirm,
   leave,
 }: LeaveDialogProps) => {
-  const [formData, setFormData] = useState<Partial<LeaveCreate | LeaveUpdate>>({})
+  const [formData, setFormData] = useState<Partial<LeaveCreate & LeaveUpdate>>({})
   const [employees, setEmployees] = useState<Employee[]>([])
   const [errors, setErrors] = useState<Record<string, string>>({})
 
@@ -79,7 +79,7 @@ const LeaveDialog = ({
           {!leave && (
             <div className="space-y-2">
               <Label htmlFor="employee_id">Employé</Label>
-              <Select onValueChange={handleSelectChange("employee_id")} value={formData.employee_id}>
+              <Select onValueChange={handleSelectChange("employee_id")} value={formData.employee_id ?? undefined}>
                 <SelectTrigger>
                   <SelectValue placeholder="Sélectionner un employé" />
                 </SelectTrigger>
@@ -94,7 +94,7 @@ const LeaveDialog = ({
           )}
           <div className="space-y-2">
             <Label htmlFor="leave_type">Type</Label>
-            <Select onValueChange={handleSelectChange("leave_type")} value={formData.leave_type}>
+            <Select onValueChange={handleSelectChange("leave_type")} value={formData.leave_type ?? undefined}>
               <SelectTrigger>
                 <SelectValue placeholder="Sélectionner un type" />
               </SelectTrigger>

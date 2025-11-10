@@ -26,7 +26,7 @@ const SiteDialog = ({
   onConfirm,
   site,
 }: SiteDialogProps) => {
-  const [formData, setFormData] = useState<Partial<SiteCreate | SiteUpdate>>({})
+  const [formData, setFormData] = useState<Partial<SiteCreate>>({})
   const [organizations, setOrganizations] = useState<Organization[]>([])
   const [errors, setErrors] = useState<Record<string, string>>({})
 
@@ -88,7 +88,7 @@ const SiteDialog = ({
           {!site && (
             <div className="space-y-2">
               <Label htmlFor="organization_id">Organisation</Label>
-              <Select onValueChange={handleSelectChange("organization_id")} value={formData.organization_id}>
+              <Select onValueChange={handleSelectChange("organization_id")} value={formData.organization_id ?? undefined}>
                 <SelectTrigger>
                   <SelectValue placeholder="Sélectionner une organisation" />
                 </SelectTrigger>

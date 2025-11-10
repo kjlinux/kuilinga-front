@@ -115,7 +115,7 @@ const AdminDashboard = () => {
                 nameKey="plan"
                 label
               >
-                {data.plan_distribution.map((entry, index) => (
+                {data.plan_distribution.map((_entry, index) => (
                   <Cell
                     key={`cell-${index}`}
                     fill={COLORS[index % COLORS.length]}
@@ -143,7 +143,7 @@ const AdminDashboard = () => {
                 nameKey="status"
                 label
               >
-                {data.device_status_ratio.map((entry, index) => (
+                {data.device_status_ratio.map((_entry, index) => (
                   <Cell
                     key={`cell-${index}`}
                     fill={COLORS[index % COLORS.length]}

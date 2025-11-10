@@ -23,9 +23,13 @@ const Organizations = () => {
     fetchData: organizationService.getOrganizations,
   })
 
-  const handleOpenDialog = (organization: Organization | null = null) => {
-    setSelectedOrganization(organization)
+  const handleOpenDialog = (organization?: Organization | null) => {
+    setSelectedOrganization(organization || null)
     setIsDialogOpen(true)
+  }
+
+  const handleEdit = (organization: Organization) => {
+    handleOpenDialog(organization)
   }
 
   const handleCloseDialog = () => {
@@ -80,6 +84,7 @@ const Organizations = () => {
 
         <div className="flex items-center gap-2">
           <button
+            data-tour="org-add"
             onClick={() => handleOpenDialog()}
             className="btn-primary flex items-center gap-2"
           >
@@ -89,23 +94,18 @@ const Organizations = () => {
         </div>
       </div>
 
-      <DataTable
-        data={data.map(o => ({
-          ...o,
-          is_active: o.is_active ? "Active" : "Inactive",
-          plan: o.plan || "N/A",
-          sites_count: o.sites_count ?? 0,
-          employees_count: o.employees_count ?? 0,
-          users_count: o.users_count ?? 0,
-        }))}
+      <div data-tour="org-hierarchy">
+        <DataTable
+        data={data}
         columns={columns}
         isLoading={isLoading}
         pagination={pagination}
         onPageChange={handlePageChange}
         onSearchChange={handleSearchChange}
-        onEdit={handleOpenDialog}
+        onEdit={handleEdit}
         onDelete={handleDelete}
       />
+      </div>
 
       <OrganizationDialog
         isOpen={isDialogOpen}

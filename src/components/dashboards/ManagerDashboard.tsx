@@ -82,8 +82,8 @@ const ManagerDashboard = () => {
       </h2>
 
       {/* KPIs */}
-      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
-        <div className="card text-center">
+      <div data-tour="dashboard-cards" className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
+        <div data-tour="dashboard-kpis" className="card text-center">
           <h3 className="font-bold">Présents</h3>
           <p className="text-3xl">{data.present_today}</p>
         </div>
@@ -110,7 +110,7 @@ const ManagerDashboard = () => {
       </div>
 
       {/* Charts */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+      <div data-tour="dashboard-charts" className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         <div className="card h-96 lg:col-span-2">
           <h3 className="font-bold mb-4">Évolution des Présences (30j)</h3>
           <ResponsiveContainer>
@@ -147,7 +147,7 @@ const ManagerDashboard = () => {
                 nameKey="name"
                 label
               >
-                {patData.map((entry, index) => (
+                {patData.map((_entry, index) => (
                   <Cell
                     key={`cell-${index}`}
                     fill={COLORS[index % COLORS.length]}
@@ -162,7 +162,7 @@ const ManagerDashboard = () => {
       </div>
 
       {/* Real-time Attendances Table */}
-      <div className="card">
+      <div data-tour="dashboard-realtime" className="card">
         <h3 className="font-bold mb-4">Pointages en Temps Réel</h3>
         <div className="overflow-x-auto">
           <table className="w-full text-left">

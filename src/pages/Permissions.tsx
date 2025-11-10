@@ -101,6 +101,7 @@ const Permissions = () => {
 
         <div className="flex items-center gap-2">
           <button
+            data-tour="admin-add"
             onClick={() => handleOpenDialog()}
             className="btn-primary flex items-center gap-2"
           >
@@ -110,7 +111,8 @@ const Permissions = () => {
         </div>
       </div>
 
-      <DataTable
+      <div data-tour="permissions-list">
+        <DataTable
         data={data}
         columns={columns}
         isLoading={isLoading}
@@ -120,6 +122,7 @@ const Permissions = () => {
         onEdit={handleOpenDialog}
         onDelete={handleDeleteRequest}
       />
+      </div>
 
       <PermissionDialog
         isOpen={isDialogOpen}

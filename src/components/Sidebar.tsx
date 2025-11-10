@@ -102,7 +102,7 @@ const Sidebar: React.FC<SidebarProps> = ({
         </button>
 
         {/* Menu de navigation avec scroll */}
-        <nav className="flex-1 overflow-y-auto p-4 space-y-2 mt-4 lg:mt-0 pb-20">
+        <nav data-tour="sidebar-navigation" className="flex-1 overflow-y-auto p-4 space-y-2 mt-4 lg:mt-0 pb-20">
           {menuItems.map((item) => {
             const Icon = item.icon;
             if (item.subItems) {

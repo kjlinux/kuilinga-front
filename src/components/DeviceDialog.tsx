@@ -27,7 +27,7 @@ const DeviceDialog = ({
   onConfirm,
   device,
 }: DeviceDialogProps) => {
-  const [formData, setFormData] = useState<Partial<DeviceCreate | DeviceUpdate>>({})
+  const [formData, setFormData] = useState<Partial<DeviceCreate>>({})
   const [sites, setSites] = useState<Site[]>([])
   const [organizations, setOrganizations] = useState<Organization[]>([])
   const [errors, setErrors] = useState<Record<string, string>>({})
@@ -87,7 +87,7 @@ const DeviceDialog = ({
           {!device && (
             <div className="space-y-2">
               <Label htmlFor="organization_id">Organisation</Label>
-              <Select onValueChange={handleSelectChange("organization_id")} value={formData.organization_id}>
+              <Select onValueChange={handleSelectChange("organization_id")} value={formData.organization_id ?? undefined}>
                 <SelectTrigger>
                   <SelectValue placeholder="Sélectionner une organisation" />
                 </SelectTrigger>
@@ -102,7 +102,7 @@ const DeviceDialog = ({
           )}
           <div className="space-y-2">
             <Label htmlFor="site_id">Site</Label>
-            <Select onValueChange={handleSelectChange("site_id")} value={formData.site_id}>
+            <Select onValueChange={handleSelectChange("site_id")} value={formData.site_id ?? undefined}>
               <SelectTrigger>
                 <SelectValue placeholder="Sélectionner un site" />
               </SelectTrigger>

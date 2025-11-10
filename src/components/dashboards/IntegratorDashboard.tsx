@@ -88,7 +88,7 @@ const IntegratorDashboard = () => {
                 nameKey="status"
                 label
               >
-                {data.device_status_ratio.map((entry, index) => (
+                {data.device_status_ratio.map((_entry, index) => (
                   <Cell
                     key={`cell-${index}`}
                     fill={COLORS[index % COLORS.length]}

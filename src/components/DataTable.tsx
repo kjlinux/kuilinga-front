@@ -21,8 +21,9 @@ export interface DataTableProps<T> {
   onSearchChange?: (newSearch: string) => void
   onEdit?: (item: T) => void
   onDelete?: (item: T) => void
-  onRetry: () => void
+  onRetry?: () => void
   children?: ReactNode
+  searchDataTour?: string
 }
 
 export const DataTable = <T extends { id: string }>({
@@ -35,17 +36,17 @@ export const DataTable = <T extends { id: string }>({
   onSearchChange,
   onEdit,
   onDelete,
+  searchDataTour,
 }: DataTableProps<T>) => {
   const skip = pagination?.pageIndex ? pagination.pageIndex * pagination.pageSize : 0;
   const limit = pagination?.pageSize || 10;
-  const total = pagination?.pageCount ? pagination.pageCount * limit : 0;
   const search = "";
   const totalPages = pagination?.pageCount || 1;
 
   return (
     <div className="space-y-4">
       {onSearchChange && (
-        <div className="flex items-center justify-between">
+        <div data-tour={searchDataTour} className="flex items-center justify-between">
           <div className="relative">
             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-accent" />
             <input
@@ -104,12 +105,13 @@ export const DataTable = <T extends { id: string }>({
                     const cellKey = col.id || (col as any).accessorKey || index;
                     let cellValue;
 
-                    if (col.cell) {
+                    if (col.cell && typeof col.cell === 'function') {
                       // Use custom cell renderer if provided
                       cellValue = col.cell({ row: { original: item } } as any);
                     } else if ((col as any).accessorKey) {
                       // Use accessorKey to get the value
-                      cellValue = item[(col as any).accessorKey] ?? "N/A";
+                      const accessorKey = (col as any).accessorKey as keyof T;
+                      cellValue = item[accessorKey] ?? "N/A";
                     } else {
                       cellValue = "N/A";
                     }

@@ -27,7 +27,7 @@ const DepartmentDialog = ({
   onConfirm,
   department,
 }: DepartmentDialogProps) => {
-  const [formData, setFormData] = useState<Partial<DepartmentCreate | DepartmentUpdate>>({})
+  const [formData, setFormData] = useState<Partial<DepartmentCreate>>({})
   const [sites, setSites] = useState<Site[]>([])
   const [managers, setManagers] = useState<Employee[]>([])
   const [errors, setErrors] = useState<Record<string, string>>({})
@@ -82,7 +82,7 @@ const DepartmentDialog = ({
           </div>
           <div className="space-y-2">
             <Label htmlFor="site_id">Site</Label>
-            <Select onValueChange={handleSelectChange("site_id")} value={formData.site_id}>
+            <Select onValueChange={handleSelectChange("site_id")} value={formData.site_id ?? undefined}>
               <SelectTrigger>
                 <SelectValue placeholder="Sélectionner un site" />
               </SelectTrigger>
@@ -96,7 +96,7 @@ const DepartmentDialog = ({
           </div>
           <div className="space-y-2">
             <Label htmlFor="manager_id">Manager</Label>
-            <Select onValueChange={handleSelectChange("manager_id")} value={formData.manager_id}>
+            <Select onValueChange={handleSelectChange("manager_id")} value={formData.manager_id ?? undefined}>
               <SelectTrigger>
                 <SelectValue placeholder="Sélectionner un manager" />
               </SelectTrigger>

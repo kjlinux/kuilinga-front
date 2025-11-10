@@ -88,12 +88,12 @@ const Attendance = () => {
           <h1 className="text-3xl font-bold text-secondary mb-2">
             Présences en temps réel
           </h1>
-          <p className="text-accent">
+          <p data-tour="attendance-realtime-indicator" className="text-accent">
             Connecté au serveur temps réel
           </p>
         </div>
 
-        <div className="flex items-center gap-2">
+        <div data-tour="attendance-actions" className="flex items-center gap-2">
           <button
             onClick={refresh}
             disabled={isLoading}
@@ -112,26 +112,29 @@ const Attendance = () => {
         </div>
       </div>
 
-      <DataTable
-        data={(data || []).map((a) => ({
-          ...a,
-          employee: a.employee
-            ? `${a.employee.first_name} ${a.employee.last_name}`
-            : "N/A",
-          timestamp: format(new Date(a.timestamp), "Pp", { locale: fr }),
-          // duration: a.duration ?? "N/A",
-          device: a.device?.serial_number ?? "N/A",
-          geo: a.geo ?? "N/A",
-        }))}
-        columns={columns}
-        isLoading={isLoading}
-        pagination={pagination}
-        onPageChange={handlePageChange}
-        onSearchChange={handleSearchChange}
-        onEdit={() => {}} // No edit action
-        onDelete={() => {}} // No delete action
-        error={error}
-      />
+      <div data-tour="attendance-list">
+        <DataTable
+          data={(data || []).map((a) => ({
+            ...a,
+            employee: a.employee
+              ? `${a.employee.first_name} ${a.employee.last_name}`
+              : "N/A",
+            timestamp: format(new Date(a.timestamp), "Pp", { locale: fr }),
+            // duration: a.duration ?? "N/A",
+            device: a.device?.serial_number ?? "N/A",
+            geo: a.geo ?? "N/A",
+          }))}
+          columns={columns}
+          isLoading={isLoading}
+          pagination={pagination}
+          onPageChange={handlePageChange}
+          onSearchChange={handleSearchChange}
+          onEdit={() => {}} // No edit action
+          onDelete={() => {}} // No delete action
+          error={error}
+          searchDataTour="attendance-filters"
+        />
+      </div>
     </div>
   )
 }

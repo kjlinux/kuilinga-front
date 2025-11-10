@@ -27,9 +27,13 @@ const Devices = () => {
     fetchData: deviceService.getDevices,
   })
 
-  const handleOpenDialog = (device: Device | null = null) => {
-    setSelectedDevice(device)
+  const handleOpenDialog = (device?: Device | null) => {
+    setSelectedDevice(device || null)
     setIsDialogOpen(true)
+  }
+
+  const handleEdit = (device: Device) => {
+    handleOpenDialog(device)
   }
 
   const handleCloseDialog = () => {
@@ -121,6 +125,7 @@ const Devices = () => {
 
         <div className="flex items-center gap-2">
           <button
+            data-tour="add-device"
             onClick={() => handleOpenDialog()}
             className="btn-primary flex items-center gap-2"
           >
@@ -130,26 +135,20 @@ const Devices = () => {
         </div>
       </div>
 
-      <DataTable
-        data={data.map((d) => ({
-          ...d,
-          type: d.type || "N/A",
-          status: getStatusBadge(d.status),
-          organization: d.organization?.name || "N/A",
-          site: d.site?.name || "N/A",
-          last_attendance_timestamp: d.last_attendance_timestamp
-            ? new Date(d.last_attendance_timestamp).toLocaleString()
-            : "N/A",
-          daily_attendance_count: d.daily_attendance_count ?? 0,
-        }))}
+      <div data-tour="devices-list">
+        <DataTable
+          data-tour="devices-status"
+        data={data}
         columns={columns}
         isLoading={isLoading}
         pagination={pagination}
         onPageChange={handlePageChange}
         onSearchChange={handleSearchChange}
-        onEdit={handleOpenDialog}
+        onEdit={handleEdit}
         onDelete={handleDeleteRequest}
+        searchDataTour="devices-search"
       />
+      </div>
 
       <DeviceDialog
         isOpen={isDialogOpen}

@@ -27,9 +27,13 @@ const Leaves = () => {
     fetchData: leaveService.getLeaves,
   })
 
-  const handleOpenDialog = (leave: Leave | null = null) => {
-    setSelectedLeave(leave)
+  const handleOpenDialog = (leave?: Leave | null) => {
+    setSelectedLeave(leave || null)
     setIsDialogOpen(true)
+  }
+
+  const handleEdit = (leave: Leave) => {
+    handleOpenDialog(leave)
   }
 
   const handleCloseDialog = () => {
@@ -129,6 +133,7 @@ const Leaves = () => {
 
         <div className="flex items-center gap-2">
           <button
+            data-tour="add-leave"
             onClick={() => handleOpenDialog()}
             className="btn-primary flex items-center gap-2"
           >
@@ -138,7 +143,9 @@ const Leaves = () => {
         </div>
       </div>
 
-      <DataTable
+      <div data-tour="leaves-list">
+        <DataTable
+          data-tour="leaves-status"
         data={data.map((l) => ({
           ...l,
           employee: l.employee?.full_name,
@@ -153,9 +160,11 @@ const Leaves = () => {
         pagination={pagination}
         onPageChange={handlePageChange}
         onSearchChange={handleSearchChange}
-        onEdit={handleOpenDialog}
+        onEdit={handleEdit}
         onDelete={handleDeleteRequest}
+        searchDataTour="leaves-search"
       />
+      </div>
 
       <LeaveDialog
         isOpen={isDialogOpen}

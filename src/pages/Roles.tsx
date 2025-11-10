@@ -109,6 +109,7 @@ const Roles = () => {
 
         <div className="flex items-center gap-2">
           <button
+            data-tour="admin-add"
             onClick={() => handleOpenDialog()}
             className="btn-primary flex items-center gap-2"
           >
@@ -118,7 +119,8 @@ const Roles = () => {
         </div>
       </div>
 
-      <DataTable
+      <div data-tour="roles-system">
+        <DataTable
         data={data}
         columns={columns}
         isLoading={isLoading}
@@ -128,6 +130,7 @@ const Roles = () => {
         onEdit={handleOpenDialog}
         onDelete={handleDeleteRequest}
       />
+      </div>
 
       <RoleDialog
         isOpen={isDialogOpen}

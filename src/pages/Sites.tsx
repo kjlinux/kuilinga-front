@@ -27,9 +27,13 @@ const Sites = () => {
     fetchData: siteService.getSites,
   })
 
-  const handleOpenDialog = (site: Site | null = null) => {
-    setSelectedSite(site)
+  const handleOpenDialog = (site?: Site | null) => {
+    setSelectedSite(site || null)
     setIsDialogOpen(true)
+  }
+
+  const handleEdit = (site: Site) => {
+    handleOpenDialog(site)
   }
 
   const handleCloseDialog = () => {
@@ -106,6 +110,7 @@ const Sites = () => {
 
         <div className="flex items-center gap-2">
           <button
+            data-tour="org-add"
             onClick={() => handleOpenDialog()}
             className="btn-primary flex items-center gap-2"
           >
@@ -115,16 +120,18 @@ const Sites = () => {
         </div>
       </div>
 
-      <DataTable
-        data={data.map((s) => ({ ...s, organization: s.organization?.name }))}
+      <div data-tour="org-sites">
+        <DataTable
+        data={data}
         columns={columns}
         isLoading={isLoading}
         pagination={pagination}
         onPageChange={handlePageChange}
         onSearchChange={handleSearchChange}
-        onEdit={handleOpenDialog}
+        onEdit={handleEdit}
         onDelete={handleDeleteRequest}
       />
+      </div>
 
       <SiteDialog
         isOpen={isDialogOpen}

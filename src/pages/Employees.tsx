@@ -31,9 +31,13 @@ const Employees = () => {
     fetchData: employeeService.getEmployees,
   })
 
-  const handleOpenDialog = (employee: Employee | null = null) => {
-    setSelectedEmployee(employee)
+  const handleOpenDialog = (employee?: Employee | null) => {
+    setSelectedEmployee(employee || null)
     setIsDialogOpen(true)
+  }
+
+  const handleEdit = (employee: Employee) => {
+    handleOpenDialog(employee)
   }
 
   const handleCloseDialog = () => {
@@ -115,11 +119,12 @@ const Employees = () => {
         </div>
 
         <div className="flex items-center gap-2">
-          <button className="btn-outline flex items-center gap-2">
+          <button data-tour="employee-import" className="btn-outline flex items-center gap-2">
             <Upload className="w-4 h-4" />
             <span className="hidden sm:inline">Importer</span>
           </button>
           <button
+            data-tour="add-employee"
             onClick={() => handleOpenDialog()}
             className="btn-primary flex items-center gap-2"
           >
@@ -129,20 +134,20 @@ const Employees = () => {
         </div>
       </div>
 
-      <DataTable
-        data={data.map((e) => ({
-          ...e,
-          department: e.department?.name,
-          site: e.site?.name,
-        }))}
-        columns={columns}
-        isLoading={isLoading}
-        pagination={pagination}
-        onPageChange={handlePageChange}
-        onSearchChange={handleSearchChange}
-        onEdit={handleOpenDialog}
-        onDelete={handleDeleteRequest}
-      />
+      <div data-tour="employee-list">
+        <DataTable
+          data-tour="employee-details"
+          data={data}
+          columns={columns}
+          isLoading={isLoading}
+          pagination={pagination}
+          onPageChange={handlePageChange}
+          onSearchChange={handleSearchChange}
+          onEdit={handleEdit}
+          onDelete={handleDeleteRequest}
+          searchDataTour="employee-search"
+        />
+      </div>
 
       <EmployeeDialog
         isOpen={isDialogOpen}

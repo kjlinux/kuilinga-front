@@ -1,26 +1,35 @@
 import { apiService } from './api.service';
 import { API_CONFIG } from '../config/api';
-import { Permission, PermissionCreate, PermissionUpdate, PaginatedResponse } from '../types';
+import { Permission, PermissionCreate, PermissionUpdate, PaginatedResponse, PaginationParams } from '../types';
 
 const permissionService = {
-  getPermissions: (skip = 0, limit = 100) => {
-    return apiService.get<PaginatedResponse<Permission>>(`${API_CONFIG.ENDPOINTS.PERMISSIONS}?skip=${skip}&limit=${limit}`);
+  getPermissions: async (params: PaginationParams = {}): Promise<PaginatedResponse<Permission>> => {
+    const query = new URLSearchParams({
+      skip: (params.skip ?? 0).toString(),
+      limit: (params.limit ?? 100).toString(),
+    }).toString();
+    const response = await apiService.get<PaginatedResponse<Permission>>(`${API_CONFIG.ENDPOINTS.PERMISSIONS}?${query}`);
+    return response.data;
   },
 
-  getPermissionById: (permissionId: string) => {
-    return apiService.get<Permission>(`${API_CONFIG.ENDPOINTS.PERMISSIONS}/${permissionId}`);
+  getPermissionById: async (permissionId: string) => {
+    const response = await apiService.get<Permission>(`${API_CONFIG.ENDPOINTS.PERMISSIONS}/${permissionId}`);
+    return response.data;
   },
 
-  createPermission: (permissionData: PermissionCreate) => {
-    return apiService.post<Permission>(API_CONFIG.ENDPOINTS.PERMISSIONS, permissionData);
+  createPermission: async (permissionData: PermissionCreate) => {
+    const response = await apiService.post<Permission>(API_CONFIG.ENDPOINTS.PERMISSIONS, permissionData);
+    return response.data;
   },
 
-  updatePermission: (permissionId: string, permissionData: PermissionUpdate) => {
-    return apiService.put<Permission>(`${API_CONFIG.ENDPOINTS.PERMISSIONS}/${permissionId}`, permissionData);
+  updatePermission: async (permissionId: string, permissionData: PermissionUpdate) => {
+    const response = await apiService.put<Permission>(`${API_CONFIG.ENDPOINTS.PERMISSIONS}/${permissionId}`, permissionData);
+    return response.data;
   },
 
-  deletePermission: (permissionId: string) => {
-    return apiService.delete<Permission>(`${API_CONFIG.ENDPOINTS.PERMISSIONS}/${permissionId}`);
+  deletePermission: async (permissionId: string) => {
+    const response = await apiService.delete<Permission>(`${API_CONFIG.ENDPOINTS.PERMISSIONS}/${permissionId}`);
+    return response.data;
   },
 };
 

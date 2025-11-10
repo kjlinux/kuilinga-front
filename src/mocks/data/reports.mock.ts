@@ -75,14 +75,15 @@ export const downloadReportHandler = (request: any): { download_url: string; fil
 };
 
 export const reportHandlers = [
+  // Generic report handlers that match all report endpoints
   {
     method: 'POST',
-    pattern: '/api/v1/reports/preview',
+    pattern: /^\/api\/v1\/reports\/.*\/preview$/,
     handler: generateReportPreviewHandler,
   },
   {
     method: 'POST',
-    pattern: '/api/v1/reports/download',
+    pattern: /^\/api\/v1\/reports\/.*\/download$/,
     handler: downloadReportHandler,
   },
 ];

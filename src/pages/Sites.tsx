@@ -85,13 +85,13 @@ const Sites = () => {
   }
 
   const columns = [
-    { key: "name", header: "Nom" },
-    { key: "address", header: "Adresse" },
-    { key: "organization", header: "Organisation" },
-    { key: "timezone", header: "Fuseau horaire" },
-    { key: "departments_count", header: "Départements" },
-    { key: "employees_count", header: "Employés" },
-    { key: "devices_count", header: "Terminaux" },
+    { accessorKey: "name", header: "Nom" },
+    { accessorKey: "address", header: "Adresse" },
+    { accessorKey: "organization", header: "Organisation" },
+    { accessorKey: "timezone", header: "Fuseau horaire" },
+    { accessorKey: "departments_count", header: "Départements" },
+    { accessorKey: "employees_count", header: "Employés" },
+    { accessorKey: "devices_count", header: "Terminaux" },
   ]
 
   return (

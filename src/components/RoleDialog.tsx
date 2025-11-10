@@ -1,185 +1,136 @@
 import {
   Dialog,
   DialogContent,
-  DialogDescription,
   DialogHeader,
   DialogTitle,
-} from '@/components/ui/dialog';
-import {
-  Form,
-  FormControl,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-} from '@/components/ui/form';
-import { Input } from '@/components/ui/input';
-import { Button } from '@/components/ui/button';
-import { useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
-import * as z from 'zod';
-import { Role, RoleCreate, RoleUpdate, Permission } from '@/types';
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import roleService from '@/services/role.service';
-import permissionService from '@/services/permission.service';
+  DialogFooter,
+} from "@/components/ui/dialog"
+import { Button } from "@/components/ui/button"
+import { Input } from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
 import { Checkbox } from "@/components/ui/checkbox"
-
+import type { Role, RoleCreate, RoleUpdate, Permission } from "../types"
+import { useEffect, useState } from "react"
+import permissionService from "@/services/permission.service"
 
 interface RoleDialogProps {
-  open: boolean;
-  onClose: () => void;
-  role: Role | null;
+  isOpen: boolean
+  onClose: () => void
+  onConfirm: (data: RoleCreate | RoleUpdate) => void
+  role: Role | null
 }
 
-const formSchema = z.object({
-  name: z.string().min(2, 'Role name must be at least 2 characters.'),
-  description: z.string().optional(),
-  permission_ids: z.array(z.string()).optional(),
-});
+const RoleDialog = ({
+  isOpen,
+  onClose,
+  onConfirm,
+  role,
+}: RoleDialogProps) => {
+  const [formData, setFormData] = useState<Partial<RoleCreate | RoleUpdate>>({})
+  const [permissions, setPermissions] = useState<Permission[]>([])
+  const [selectedPermissions, setSelectedPermissions] = useState<string[]>([])
+  const [errors, setErrors] = useState<Record<string, string>>({})
 
-const RoleDialog = ({ open, onClose, role }: RoleDialogProps) => {
-  const queryClient = useQueryClient();
-  const form = useForm<z.infer<typeof formSchema>>({
-    resolver: zodResolver(formSchema),
-    defaultValues: {
-      name: role?.name || '',
-      description: role?.description || '',
-      permission_ids: role?.permissions.map(p => p.id) || [],
-    },
-  });
+  useEffect(() => {
+    permissionService.getPermissions({ limit: 1000 }).then(res => setPermissions(res.items))
+  }, [])
 
-  const { data: permissions } = useQuery({
-    queryKey: ['permissions'],
-    queryFn: () => permissionService.getPermissions(),
-  });
-
-  const createRoleMutation = useMutation({
-    mutationFn: (data: RoleCreate) => roleService.createRole(data),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['roles'] });
-      onClose();
-    },
-  });
-
-  const updateRoleMutation = useMutation({
-    mutationFn: (data: RoleUpdate) => roleService.updateRole(role!.id, data),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['roles'] });
-      onClose();
-    },
-  });
-
-  const assignPermissionMutation = useMutation({
-    mutationFn: ({ roleId, permissionId }: { roleId: string; permissionId: string }) =>
-      roleService.assignPermissionToRole(roleId, permissionId),
-  });
-
-  const onSubmit = async (values: z.infer<typeof formSchema>) => {
-    const { permission_ids, ...roleData } = values;
+  useEffect(() => {
     if (role) {
-      updateRoleMutation.mutate(roleData);
+      setFormData({
+        name: role.name,
+        description: role.description,
+      })
+      setSelectedPermissions(role.permissions?.map(p => p.id) || [])
     } else {
-      const newRole = await createRoleMutation.mutateAsync(roleData);
-      if (newRole && permission_ids) {
-        permission_ids.forEach(permissionId => {
-          assignPermissionMutation.mutate({ roleId: newRole.id, permissionId });
-        });
-      }
+      setFormData({})
+      setSelectedPermissions([])
     }
-  };
+    setErrors({})
+  }, [role])
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setFormData({ ...formData, [e.target.id]: e.target.value })
+  }
+
+  const handlePermissionToggle = (permissionId: string) => {
+    setSelectedPermissions(prev =>
+      prev.includes(permissionId)
+        ? prev.filter(id => id !== permissionId)
+        : [...prev, permissionId]
+    )
+  }
+
+  const validate = () => {
+    const newErrors: Record<string, string> = {}
+    if (!formData.name) newErrors.name = "Le nom est requis"
+    setErrors(newErrors)
+    return Object.keys(newErrors).length === 0
+  }
+
+  const handleSubmit = () => {
+    if (validate()) {
+      const dataToSubmit = {
+        ...formData,
+        permission_ids: selectedPermissions,
+      } as RoleCreate | RoleUpdate
+      onConfirm(dataToSubmit)
+    }
+  }
 
   return (
-    <Dialog open={open} onOpenChange={onClose}>
-      <DialogContent>
+    <Dialog open={isOpen} onOpenChange={onClose}>
+      <DialogContent className="max-h-[90vh] overflow-y-auto">
         <DialogHeader>
-          <DialogTitle>{role ? 'Edit Role' : 'Add Role'}</DialogTitle>
-          <DialogDescription>
-            {role
-              ? 'Update the role details.'
-              : 'Fill in the form to create a new role.'}
-          </DialogDescription>
+          <DialogTitle>{role ? "Modifier" : "Ajouter"} un rôle</DialogTitle>
         </DialogHeader>
-        <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-            <FormField
-              control={form.control}
-              name="name"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Name</FormLabel>
-                  <FormControl>
-                    <Input placeholder="e.g. Administrator" {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <FormField
-              control={form.control}
-              name="description"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Description</FormLabel>
-                  <FormControl>
-                    <Input placeholder="e.g. Can manage all users" {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <FormField
-              control={form.control}
-              name="permission_ids"
-              render={() => (
-                <FormItem>
-                  <div className="mb-4">
-                    <FormLabel className="text-base">Permissions</FormLabel>
-                  </div>
-                  {permissions?.items.map((permission: Permission) => (
-                    <FormField
-                      key={permission.id}
-                      control={form.control}
-                      name="permission_ids"
-                      render={({ field }) => {
-                        return (
-                          <FormItem
-                            key={permission.id}
-                            className="flex flex-row items-start space-x-3 space-y-0"
-                          >
-                            <FormControl>
-                              <Checkbox
-                                checked={field.value?.includes(permission.id)}
-                                onCheckedChange={(checked) => {
-                                  return checked
-                                    ? field.onChange([...(field.value || []), permission.id])
-                                    : field.onChange(
-                                        field.value?.filter(
-                                          (value) => value !== permission.id
-                                        )
-                                      )
-                                }}
-                              />
-                            </FormControl>
-                            <FormLabel className="font-normal">
-                              {permission.name}
-                            </FormLabel>
-                          </FormItem>
-                        )
-                      }}
-                    />
-                  ))}
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <Button type="submit">
-              {role ? 'Update Role' : 'Create Role'}
-            </Button>
-          </form>
-        </Form>
+        <div className="space-y-4 py-4">
+          <div className="space-y-2">
+            <Label htmlFor="name">Nom</Label>
+            <Input id="name" value={formData.name ?? ""} onChange={handleChange} />
+            {errors.name && <p className="text-red-500 text-sm">{errors.name}</p>}
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor="description">Description</Label>
+            <Input id="description" value={formData.description ?? ""} onChange={handleChange} />
+          </div>
+          <div className="space-y-2">
+            <Label>Permissions</Label>
+            <div className="border rounded-lg p-4 max-h-60 overflow-y-auto space-y-2">
+              {permissions.map(permission => (
+                <div key={permission.id} className="flex items-center space-x-2">
+                  <Checkbox
+                    id={permission.id}
+                    checked={selectedPermissions.includes(permission.id)}
+                    onCheckedChange={() => handlePermissionToggle(permission.id)}
+                  />
+                  <label
+                    htmlFor={permission.id}
+                    className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 cursor-pointer"
+                  >
+                    {permission.name}
+                    {permission.description && (
+                      <span className="text-xs text-gray-500 ml-2">
+                        ({permission.description})
+                      </span>
+                    )}
+                  </label>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+        <DialogFooter>
+          <Button variant="outline" onClick={onClose}>
+            Annuler
+          </Button>
+          <Button onClick={handleSubmit}>
+            {role ? "Enregistrer" : "Ajouter"}
+          </Button>
+        </DialogFooter>
       </DialogContent>
     </Dialog>
-  );
-};
+  )
+}
 
-export default RoleDialog;
+export default RoleDialog

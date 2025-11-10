@@ -98,13 +98,13 @@ const Devices = () => {
   }
 
   const columns = [
-    { key: "serial_number", header: "N° Série" },
-    { key: "type", header: "Type" },
-    { key: "status", header: "Statut" },
-    { key: "organization", header: "Organisation" },
-    { key: "site", header: "Site" },
-    { key: "last_attendance_timestamp", header: "Dernier Pointage" },
-    { key: "daily_attendance_count", header: "Pointages du Jour" },
+    { accessorKey: "serial_number", header: "N° Série" },
+    { accessorKey: "type", header: "Type" },
+    { accessorKey: "status", header: "Statut" },
+    { accessorKey: "organization", header: "Organisation" },
+    { accessorKey: "site", header: "Site" },
+    { accessorKey: "last_attendance_timestamp", header: "Dernier Pointage" },
+    { accessorKey: "daily_attendance_count", header: "Pointages du Jour" },
   ]
 
   return (
@@ -133,12 +133,14 @@ const Devices = () => {
       <DataTable
         data={data.map((d) => ({
           ...d,
+          type: d.type || "N/A",
           status: getStatusBadge(d.status),
-          organization: d.organization?.name,
-          site: d.site?.name,
+          organization: d.organization?.name || "N/A",
+          site: d.site?.name || "N/A",
           last_attendance_timestamp: d.last_attendance_timestamp
             ? new Date(d.last_attendance_timestamp).toLocaleString()
             : "N/A",
+          daily_attendance_count: d.daily_attendance_count ?? 0,
         }))}
         columns={columns}
         isLoading={isLoading}

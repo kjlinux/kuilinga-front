@@ -6,181 +6,185 @@ import { Site, PaginatedResponse } from '../../types';
 import { createMockError } from '../interceptor';
 import { paginate, filterBySearch } from '../utils/pagination';
 import { randomUUID } from '../utils/generators';
+import { mockOrganizations } from './organizations.mock';
+import { mockDepartments } from './departments.mock';
+import { mockEmployees } from './employees.mock';
+import { mockDevices } from './devices.mock';
 
 /**
  * Initial mock sites data
  */
 export const mockSites: Site[] = [
-  // TechCorp sites (org-1)
+  // Burkina Tech sites (org-1)
   {
     id: 'site-1',
-    name: 'TechCorp Paris HQ',
+    name: 'Burkina Tech Ouagadougou Siège',
     organization_id: 'org-1',
-    address: '123 Avenue des Champs-Élysées, 75008 Paris',
-    phone_number: '+33 1 23 45 67 89',
-    timezone: 'Europe/Paris',
+    address: 'Avenue Kwamé N\'Krumah, Secteur 4, Ouagadougou',
+    phone_number: '+226 25 31 45 67',
+    timezone: 'Africa/Ouagadougou',
     is_active: true,
     created_at: '2023-01-15T10:00:00Z',
     updated_at: '2024-11-01T14:30:00Z',
   },
   {
     id: 'site-2',
-    name: 'TechCorp Marseille',
+    name: 'Burkina Tech Bobo-Dioulasso',
     organization_id: 'org-1',
-    address: '56 Rue de la République, 13001 Marseille',
-    phone_number: '+33 4 91 12 34 56',
-    timezone: 'Europe/Paris',
+    address: 'Avenue de la Nation, Secteur 7, Bobo-Dioulasso',
+    phone_number: '+226 20 97 12 34',
+    timezone: 'Africa/Ouagadougou',
     is_active: true,
     created_at: '2023-02-10T11:00:00Z',
     updated_at: '2024-10-20T09:15:00Z',
   },
   {
     id: 'site-3',
-    name: 'TechCorp Lyon',
+    name: 'Burkina Tech Koudougou',
     organization_id: 'org-1',
-    address: '89 Cours Lafayette, 69003 Lyon',
-    phone_number: '+33 4 78 23 45 67',
-    timezone: 'Europe/Paris',
+    address: 'Rue de la Fraternité, Secteur 3, Koudougou',
+    phone_number: '+226 25 44 23 45',
+    timezone: 'Africa/Ouagadougou',
     is_active: true,
     created_at: '2023-04-05T09:30:00Z',
     updated_at: '2024-10-25T16:00:00Z',
   },
   {
     id: 'site-4',
-    name: 'TechCorp Bordeaux',
+    name: 'Burkina Tech Ouahigouya',
     organization_id: 'org-1',
-    address: '34 Cours de l\'Intendance, 33000 Bordeaux',
-    phone_number: '+33 5 56 34 45 56',
-    timezone: 'Europe/Paris',
+    address: 'Avenue de l\'Indépendance, Secteur 5, Ouahigouya',
+    phone_number: '+226 24 55 34 45',
+    timezone: 'Africa/Ouagadougou',
     is_active: true,
     created_at: '2023-06-15T08:00:00Z',
     updated_at: '2024-11-03T11:20:00Z',
   },
   {
     id: 'site-5',
-    name: 'TechCorp Lille',
+    name: 'Burkina Tech Banfora',
     organization_id: 'org-1',
-    address: '78 Rue Nationale, 59000 Lille',
-    phone_number: '+33 3 20 45 67 89',
-    timezone: 'Europe/Paris',
+    address: 'Route de Sindou, Secteur 2, Banfora',
+    phone_number: '+226 20 91 45 67',
+    timezone: 'Africa/Ouagadougou',
     is_active: true,
     created_at: '2023-08-20T10:30:00Z',
     updated_at: '2024-10-30T13:45:00Z',
   },
 
-  // InnovateLab sites (org-2)
+  // Faso Innovation sites (org-2)
   {
     id: 'site-6',
-    name: 'InnovateLab Lyon Central',
+    name: 'Faso Innovation Bobo-Dioulasso',
     organization_id: 'org-2',
-    address: '45 Rue de la République, 69002 Lyon',
-    phone_number: '+33 4 12 34 56 78',
-    timezone: 'Europe/Paris',
+    address: 'Avenue de la Nation, Secteur 15, Bobo-Dioulasso',
+    phone_number: '+226 20 97 45 32',
+    timezone: 'Africa/Ouagadougou',
     is_active: true,
     created_at: '2023-03-20T09:00:00Z',
     updated_at: '2024-10-15T16:45:00Z',
   },
   {
     id: 'site-7',
-    name: 'InnovateLab Grenoble',
+    name: 'Faso Innovation Dédougou',
     organization_id: 'org-2',
-    address: '12 Rue Félix Poulat, 38000 Grenoble',
-    phone_number: '+33 4 76 12 34 56',
-    timezone: 'Europe/Paris',
+    address: 'Route Nationale 14, Secteur 4, Dédougou',
+    phone_number: '+226 20 52 12 34',
+    timezone: 'Africa/Ouagadougou',
     is_active: true,
     created_at: '2023-05-10T10:00:00Z',
     updated_at: '2024-10-22T14:00:00Z',
   },
   {
     id: 'site-8',
-    name: 'InnovateLab Toulouse',
+    name: 'Faso Innovation Kaya',
     organization_id: 'org-2',
-    address: '67 Allées Jean Jaurès, 31000 Toulouse',
-    phone_number: '+33 5 61 23 45 67',
-    timezone: 'Europe/Paris',
+    address: 'Avenue Thomas Sankara, Secteur 2, Kaya',
+    phone_number: '+226 24 45 23 45',
+    timezone: 'Africa/Ouagadougou',
     is_active: true,
     created_at: '2023-07-12T11:30:00Z',
     updated_at: '2024-11-02T10:30:00Z',
   },
 
-  // GlobalServices sites (org-3)
+  // Sahel Services sites (org-3)
   {
     id: 'site-9',
-    name: 'GlobalServices Paris 9e',
+    name: 'Sahel Services Ouagadougou',
     organization_id: 'org-3',
-    address: '78 Boulevard Haussmann, 75009 Paris',
-    phone_number: '+33 1 34 56 78 90',
-    timezone: 'Europe/Paris',
+    address: 'Boulevard Charles De Gaulle, Secteur 12, Ouagadougou',
+    phone_number: '+226 25 36 78 90',
+    timezone: 'Africa/Ouagadougou',
     is_active: true,
     created_at: '2022-11-10T11:00:00Z',
     updated_at: '2024-11-05T10:20:00Z',
   },
   {
     id: 'site-10',
-    name: 'GlobalServices La Défense',
+    name: 'Sahel Services Ziniaré',
     organization_id: 'org-3',
-    address: '1 Parvis de La Défense, 92800 Puteaux',
-    phone_number: '+33 1 45 67 89 01',
-    timezone: 'Europe/Paris',
+    address: 'Route de Ouagadougou, Secteur 1, Ziniaré',
+    phone_number: '+226 25 30 67 89',
+    timezone: 'Africa/Ouagadougou',
     is_active: true,
     created_at: '2023-01-20T09:00:00Z',
     updated_at: '2024-10-18T15:30:00Z',
   },
   {
     id: 'site-11',
-    name: 'GlobalServices Nantes',
+    name: 'Sahel Services Tenkodogo',
     organization_id: 'org-3',
-    address: '23 Rue de Strasbourg, 44000 Nantes',
-    phone_number: '+33 2 40 12 34 56',
-    timezone: 'Europe/Paris',
+    address: 'Avenue de la Liberté, Secteur 3, Tenkodogo',
+    phone_number: '+226 40 71 12 34',
+    timezone: 'Africa/Ouagadougou',
     is_active: true,
     created_at: '2023-03-15T10:30:00Z',
     updated_at: '2024-10-28T12:15:00Z',
   },
   {
     id: 'site-12',
-    name: 'GlobalServices Strasbourg',
+    name: 'Sahel Services Fada N\'Gourma',
     organization_id: 'org-3',
-    address: '15 Place Kléber, 67000 Strasbourg',
-    phone_number: '+33 3 88 23 45 67',
-    timezone: 'Europe/Paris',
+    address: 'Rue du Commerce, Secteur 2, Fada N\'Gourma',
+    phone_number: '+226 40 77 23 45',
+    timezone: 'Africa/Ouagadougou',
     is_active: true,
     created_at: '2023-05-25T08:45:00Z',
     updated_at: '2024-11-01T09:00:00Z',
   },
 
-  // DataTech Solutions sites (org-4)
+  // DataFaso Solutions sites (org-4)
   {
     id: 'site-13',
-    name: 'DataTech Toulouse HQ',
+    name: 'DataFaso Koudougou Siège',
     organization_id: 'org-4',
-    address: '12 Rue Victor Hugo, 31000 Toulouse',
-    phone_number: '+33 5 67 89 01 23',
-    timezone: 'Europe/Paris',
+    address: 'Rue de la Révolution, Secteur 7, Koudougou',
+    phone_number: '+226 25 44 67 89',
+    timezone: 'Africa/Ouagadougou',
     is_active: true,
     created_at: '2023-06-05T08:30:00Z',
     updated_at: '2024-10-28T12:00:00Z',
   },
   {
     id: 'site-14',
-    name: 'DataTech Montpellier',
+    name: 'DataFaso Réo',
     organization_id: 'org-4',
-    address: '34 Rue de la Loge, 34000 Montpellier',
-    phone_number: '+33 4 67 12 34 56',
-    timezone: 'Europe/Paris',
+    address: 'Avenue Principale, Secteur 1, Réo',
+    phone_number: '+226 25 46 12 34',
+    timezone: 'Africa/Ouagadougou',
     is_active: true,
     created_at: '2023-08-10T09:00:00Z',
     updated_at: '2024-10-15T14:30:00Z',
   },
 
-  // CloudNet Systems sites (org-5)
+  // Moaga Digital sites (org-5)
   {
     id: 'site-15',
-    name: 'CloudNet Nice HQ',
+    name: 'Moaga Digital Ouahigouya',
     organization_id: 'org-5',
-    address: '90 Promenade des Anglais, 06000 Nice',
-    phone_number: '+33 4 23 45 67 89',
-    timezone: 'Europe/Paris',
+    address: 'Avenue de l\'Indépendance, Secteur 8, Ouahigouya',
+    phone_number: '+226 24 55 67 89',
+    timezone: 'Africa/Ouagadougou',
     is_active: false,
     created_at: '2023-08-12T07:00:00Z',
     updated_at: '2024-09-20T15:30:00Z',
@@ -191,6 +195,28 @@ export const mockSites: Site[] = [
  * In-memory store
  */
 let sitesStore = [...mockSites];
+
+/**
+ * Enrich site with related entities
+ */
+const enrichSite = (site: Site): any => {
+  const organization = mockOrganizations.find(o => o.id === site.organization_id);
+  const departments = mockDepartments.filter(d => d.site_id === site.id);
+  const departmentIds = departments.map(d => d.id);
+  const employees = mockEmployees.filter(e => e.department_id && departmentIds.includes(e.department_id));
+  const devices = mockDevices.filter(d => d.site_id === site.id);
+
+  return {
+    ...site,
+    organization: organization ? {
+      id: organization.id,
+      name: organization.name,
+    } : null,
+    departments_count: departments.length,
+    employees_count: employees.length,
+    devices_count: devices.length,
+  };
+};
 
 /**
  * GET /api/v1/sites
@@ -212,7 +238,9 @@ export const getSitesHandler = (request: any): PaginatedResponse<Site> => {
     filteredSites = filteredSites.filter(s => s.is_active === (is_active === 'true'));
   }
 
-  return paginate(filteredSites, { page: parseInt(page) || 1, page_size: parseInt(page_size) || 10 });
+  const enrichedSites = filteredSites.map(enrichSite);
+
+  return paginate(enrichedSites, { page: parseInt(page) || 1, page_size: parseInt(page_size) || 10 });
 };
 
 /**
@@ -226,7 +254,7 @@ export const getSiteByIdHandler = (request: any): Site => {
     throw createMockError(404, { detail: 'Site not found' });
   }
 
-  return site;
+  return enrichSite(site);
 };
 
 /**

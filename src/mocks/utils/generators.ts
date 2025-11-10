@@ -66,14 +66,14 @@ export const randomUUID = (): string => {
 };
 
 /**
- * Generates a random phone number
+ * Generates a random phone number (Burkina Faso format)
  */
 export const randomPhone = (): string => {
   const formats = [
-    '+33 6 ## ## ## ##',
-    '+33 7 ## ## ## ##',
-    '06 ## ## ## ##',
-    '07 ## ## ## ##',
+    '+226 ## ## ## ##',
+    '+226 ## ## ## ##',
+    '## ## ## ##',
+    '## ## ## ##',
   ];
   const format = randomElement(formats);
   return format.replace(/#/g, () => randomInt(0, 9).toString());
@@ -92,48 +92,58 @@ export const randomEmail = (firstName: string, lastName: string, domain: string 
 };
 
 /**
- * French first names
+ * Burkinabe first names (from various ethnic groups: Mossi, Peul, Dioula, etc.)
  */
-export const frenchFirstNames = {
+export const burkinabeFirstNames = {
   male: [
-    'Alexandre', 'Antoine', 'Arthur', 'Baptiste', 'Benjamin', 'Charles', 'Clément', 'David',
-    'Étienne', 'François', 'Gabriel', 'Hugo', 'Jean', 'Julien', 'Louis', 'Lucas',
-    'Mathieu', 'Maxime', 'Nicolas', 'Olivier', 'Paul', 'Pierre', 'Raphaël', 'Thomas',
+    'Abdoulaye', 'Adama', 'Amadou', 'Boureima', 'Moussa', 'Ousmane', 'Seydou', 'Ibrahim',
+    'Issouf', 'Karim', 'Mamadou', 'Hamidou', 'Souleymane', 'Zakaria', 'Yacouba', 'Rasmané',
+    'Mahamadi', 'Souleyman', 'Boubacar', 'Salifou', 'Issaka', 'Boukary', 'Alassane', 'Idrissa',
   ],
   female: [
-    'Alice', 'Amélie', 'Anna', 'Camille', 'Charlotte', 'Chloé', 'Clara', 'Élise',
-    'Emma', 'Jade', 'Jeanne', 'Julie', 'Juliette', 'Léa', 'Louise', 'Manon',
-    'Marie', 'Mathilde', 'Océane', 'Sarah', 'Sophie', 'Valentine', 'Zoé',
+    'Fatoumata', 'Aminata', 'Mariam', 'Awa', 'Aïssatou', 'Sarata', 'Zalissa', 'Rakieta',
+    'Rasmata', 'Hawa', 'Zenabo', 'Safiatou', 'Maïmouna', 'Salamata', 'Asseta', 'Bibata',
+    'Adama', 'Fati', 'Kadi', 'Rokia', 'Zénabu', 'Kadiatou', 'Yacouba',
   ],
 };
 
 /**
- * French last names
+ * Burkinabe last names (from various ethnic groups)
  */
-export const frenchLastNames = [
-  'Bernard', 'Bonnet', 'Dubois', 'Durand', 'Fournier', 'Garnier', 'Girard', 'Lambert',
-  'Lefebvre', 'Leroy', 'Martin', 'Mercier', 'Michel', 'Moreau', 'Petit', 'Richard',
-  'Robert', 'Roux', 'Simon', 'Thomas',
+export const burkinabeLastNames = [
+  'Ouédraogo', 'Sawadogo', 'Compaoré', 'Zoungrana', 'Kaboré', 'Traoré', 'Koné', 'Ouattara',
+  'Sankara', 'Zongo', 'Diallo', 'Barry', 'Barro', 'Kinda', 'Tapsoba', 'Kaboré',
+  'Nacoulma', 'Ilboudo', 'Kéré', 'Sana', 'Tao', 'Sorgho', 'Nikiema', 'Yé',
 ];
 
 /**
- * Generates a random French full name
+ * Generates a random Burkinabe full name
  */
-export const randomFrenchName = (): { firstName: string; lastName: string; gender: 'male' | 'female' } => {
+export const randomBurkinabeName = (): { firstName: string; lastName: string; gender: 'male' | 'female' } => {
   const gender = randomBoolean() ? 'male' : 'female';
-  const firstName = randomElement(frenchFirstNames[gender]);
-  const lastName = randomElement(frenchLastNames);
+  const firstName = randomElement(burkinabeFirstNames[gender]);
+  const lastName = randomElement(burkinabeLastNames);
   return { firstName, lastName, gender };
 };
 
 /**
- * French cities
+ * @deprecated Use randomBurkinabeName instead
  */
-export const frenchCities = [
-  'Paris', 'Marseille', 'Lyon', 'Toulouse', 'Nice', 'Nantes', 'Strasbourg', 'Montpellier',
-  'Bordeaux', 'Lille', 'Rennes', 'Reims', 'Le Havre', 'Saint-Étienne', 'Toulon', 'Grenoble',
-  'Dijon', 'Angers', 'Nîmes', 'Villeurbanne', 'Saint-Denis', 'Clermont-Ferrand',
+export const randomFrenchName = randomBurkinabeName;
+
+/**
+ * Burkinabe cities
+ */
+export const burkinabeCities = [
+  'Ouagadougou', 'Bobo-Dioulasso', 'Koudougou', 'Ouahigouya', 'Banfora', 'Dédougou',
+  'Kaya', 'Tenkodogo', 'Fada N\'Gourma', 'Gaoua', 'Ziniaré', 'Réo', 'Kongoussi',
+  'Manga', 'Dori', 'Diébougou', 'Houndé', 'Nouna', 'Pouytenga', 'Bogandé', 'Léo',
 ];
+
+/**
+ * @deprecated Use burkinabeCities instead
+ */
+export const frenchCities = burkinabeCities;
 
 /**
  * Company name suffixes

@@ -23,7 +23,8 @@ class AttendanceService {
   }
 
   async createAttendance(data: AttendanceCreate): Promise<Attendance | undefined> {
-    return apiService.post<Attendance>(API_CONFIG.ENDPOINTS.ATTENDANCE, data);
+    const response = await apiService.post<Attendance>(API_CONFIG.ENDPOINTS.ATTENDANCE, data);
+    return response.data;
   }
 
   // Clock in/out endpoint - uses dedicated /api/v1/attendance/clock endpoint

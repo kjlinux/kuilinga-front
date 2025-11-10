@@ -2,10 +2,11 @@
  * Leaves Mock Data and Handlers
  */
 
-import { Leave, LeaveType, LeaveStatus, PaginatedResponse } from '../../types';
+import { Leave, LeaveType, LeaveStatus, PaginatedResponse, LeaveEmployee, LeaveApprover } from '../../types';
 import { createMockError } from '../interceptor';
 import { paginate, filterBySearch } from '../utils/pagination';
 import { randomUUID, randomElement } from '../utils/generators';
+import { mockEmployees } from './employees.mock';
 
 /**
  * Initial mock leaves data
@@ -75,6 +76,7 @@ export const mockLeaves: Leave[] = [
     approved_at: '2024-10-27T15:00:00Z',
     created_at: '2024-10-25T11:00:00Z',
     updated_at: '2024-10-27T15:00:00Z',
+    comments: 'Demande rejetée car effectif minimal requis ce jour-là',
   },
 ];
 
@@ -82,6 +84,36 @@ export const mockLeaves: Leave[] = [
  * In-memory store
  */
 let leavesStore = [...mockLeaves];
+
+/**
+ * Helper function to enrich a leave with employee and approver details
+ */
+const enrichLeave = (leave: any): Leave => {
+  const employee = mockEmployees.find(emp => emp.id === leave.employee_id);
+  const approver = leave.approved_by ? mockEmployees.find(emp => emp.id === leave.approved_by) : null;
+
+  // Calculate duration in days
+  const startDate = new Date(leave.start_date);
+  const endDate = new Date(leave.end_date);
+  const duration = Math.ceil((endDate.getTime() - startDate.getTime()) / (1000 * 60 * 60 * 24)) + 1;
+
+  const enrichedLeave: Leave = {
+    ...leave,
+    duration,
+    employee: employee ? {
+      id: employee.id,
+      first_name: employee.first_name,
+      last_name: employee.last_name,
+      full_name: `${employee.first_name} ${employee.last_name}`,
+    } : undefined,
+    approver: approver ? {
+      id: approver.id,
+      full_name: `${approver.first_name} ${approver.last_name}`,
+    } : undefined,
+  };
+
+  return enrichedLeave;
+};
 
 /**
  * GET /api/v1/leaves
@@ -107,7 +139,13 @@ export const getLeavesHandler = (request: any): PaginatedResponse<Leave> => {
     filteredLeaves = filterBySearch(filteredLeaves, search, ['reason']);
   }
 
-  return paginate(filteredLeaves, { page: parseInt(page) || 1, page_size: parseInt(page_size) || 10 });
+  const paginatedResult = paginate(filteredLeaves, { page: parseInt(page) || 1, page_size: parseInt(page_size) || 10 });
+
+  // Enrich leaves with employee and approver details
+  return {
+    ...paginatedResult,
+    items: paginatedResult.items.map(enrichLeave),
+  };
 };
 
 /**
@@ -121,7 +159,7 @@ export const getLeaveByIdHandler = (request: any): Leave => {
     throw createMockError(404, { detail: 'Leave not found' });
   }
 
-  return leave;
+  return enrichLeave(leave);
 };
 
 /**
@@ -137,7 +175,7 @@ export const createLeaveHandler = (request: any): Leave => {
   }
 
   const now = new Date().toISOString();
-  const newLeave: Leave = {
+  const newLeave = {
     id: randomUUID(),
     employee_id: data.employee_id,
     leave_type: data.leave_type,
@@ -152,7 +190,7 @@ export const createLeaveHandler = (request: any): Leave => {
   };
 
   leavesStore.push(newLeave);
-  return newLeave;
+  return enrichLeave(newLeave);
 };
 
 /**
@@ -167,7 +205,7 @@ export const updateLeaveHandler = (request: any): Leave => {
     throw createMockError(404, { detail: 'Leave not found' });
   }
 
-  const updatedLeave: Leave = {
+  const updatedLeave = {
     ...leavesStore[index],
     ...data,
     id,
@@ -175,7 +213,7 @@ export const updateLeaveHandler = (request: any): Leave => {
   };
 
   leavesStore[index] = updatedLeave;
-  return updatedLeave;
+  return enrichLeave(updatedLeave);
 };
 
 /**

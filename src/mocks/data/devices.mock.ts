@@ -6,6 +6,8 @@ import { Device, DeviceStatus, PaginatedResponse } from '../../types';
 import { createMockError } from '../interceptor';
 import { paginate, filterBySearch } from '../utils/pagination';
 import { randomUUID, randomElement } from '../utils/generators';
+import { mockSites } from './sites.mock';
+import { mockOrganizations } from './organizations.mock';
 
 /**
  * Initial mock devices data
@@ -199,6 +201,30 @@ export const mockDevices: Device[] = [
 let devicesStore = [...mockDevices];
 
 /**
+ * Enrich device with related entities
+ */
+const enrichDevice = (device: Device): any => {
+  const site = mockSites.find(s => s.id === device.site_id);
+  const organization = site ? mockOrganizations.find(o => o.id === site.organization_id) : null;
+
+  return {
+    ...device,
+    type: device.model || 'Biometric Reader',
+    site: site ? {
+      id: site.id,
+      name: site.name,
+      organization_id: site.organization_id,
+    } : null,
+    organization: organization ? {
+      id: organization.id,
+      name: organization.name,
+    } : null,
+    last_attendance_timestamp: device.last_sync,
+    daily_attendance_count: device.status === DeviceStatus.Online ? Math.floor(Math.random() * 50) + 10 : 0,
+  };
+};
+
+/**
  * GET /api/v1/devices
  */
 export const getDevicesHandler = (request: any): PaginatedResponse<Device> => {
@@ -218,7 +244,9 @@ export const getDevicesHandler = (request: any): PaginatedResponse<Device> => {
     filteredDevices = filteredDevices.filter(d => d.status === status);
   }
 
-  return paginate(filteredDevices, { page: parseInt(page) || 1, page_size: parseInt(page_size) || 10 });
+  const enrichedDevices = filteredDevices.map(enrichDevice);
+
+  return paginate(enrichedDevices, { page: parseInt(page) || 1, page_size: parseInt(page_size) || 10 });
 };
 
 /**
@@ -232,7 +260,7 @@ export const getDeviceByIdHandler = (request: any): Device => {
     throw createMockError(404, { detail: 'Device not found' });
   }
 
-  return device;
+  return enrichDevice(device);
 };
 
 /**

@@ -59,15 +59,15 @@ const Organizations = () => {
   }
 
   const columns = [
-    { key: "name", header: "Nom" },
-    { key: "email", header: "Email" },
-    { key: "phone", header: "Téléphone" },
-    { key: "timezone", header: "Fuseau horaire" },
-    { key: "plan", header: "Plan" },
-    { key: "is_active", header: "Statut" },
-    { key: "sites_count", header: "Sites" },
-    { key: "employees_count", header: "Employés" },
-    { key: "users_count", header: "Utilisateurs" },
+    { accessorKey: "name", header: "Nom" },
+    { accessorKey: "email", header: "Email" },
+    { accessorKey: "phone", header: "Téléphone" },
+    { accessorKey: "timezone", header: "Fuseau horaire" },
+    { accessorKey: "plan", header: "Plan" },
+    { accessorKey: "is_active", header: "Statut" },
+    { accessorKey: "sites_count", header: "Sites" },
+    { accessorKey: "employees_count", header: "Employés" },
+    { accessorKey: "users_count", header: "Utilisateurs" },
   ]
 
   return (
@@ -90,7 +90,14 @@ const Organizations = () => {
       </div>
 
       <DataTable
-        data={data.map(o => ({...o, is_active: o.is_active ? "Active" : "Inactive"}))}
+        data={data.map(o => ({
+          ...o,
+          is_active: o.is_active ? "Active" : "Inactive",
+          plan: o.plan || "N/A",
+          sites_count: o.sites_count ?? 0,
+          employees_count: o.employees_count ?? 0,
+          users_count: o.users_count ?? 0,
+        }))}
         columns={columns}
         isLoading={isLoading}
         pagination={pagination}

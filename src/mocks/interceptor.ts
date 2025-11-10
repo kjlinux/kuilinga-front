@@ -21,7 +21,12 @@ interface MockError {
 /**
  * Checks if a request matches a mock handler pattern
  */
-const matchesPattern = (url: string, pattern: string): boolean => {
+const matchesPattern = (url: string, pattern: string | RegExp): boolean => {
+  // If pattern is already a RegExp, use it directly
+  if (pattern instanceof RegExp) {
+    return pattern.test(url);
+  }
+
   // Convert URL pattern to regex (e.g., /api/v1/users/:id => /api/v1/users/[^/]+)
   const regexPattern = pattern
     .replace(/:[^/]+/g, '[^/]+') // Replace :param with regex
@@ -57,7 +62,8 @@ const executeMockHandler = async (config: InternalAxiosRequestConfig): Promise<A
   const url = config.url || '';
 
   // Remove base URL and query params for matching
-  const cleanUrl = url.split('?')[0];
+  // Also remove trailing slashes to normalize URL matching
+  const cleanUrl = url.split('?')[0].replace(/\/$/, '');
 
   if (MOCK_CONFIG.logRequests) {
     console.log(`[MOCK] ${method} ${cleanUrl}`, {

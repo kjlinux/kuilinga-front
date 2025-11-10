@@ -11,178 +11,119 @@ import { randomUUID } from '../utils/generators';
 import { mockRoles } from './roles.mock';
 
 /**
- * Initial mock users data
+ * Helper to get role by ID from mockRoles
+ */
+const getRoleById = (roleId: string): Role => {
+  const role = mockRoles.find(r => r.id === roleId);
+  if (!role) {
+    throw new Error(`Role with id ${roleId} not found`);
+  }
+  return role;
+};
+
+/**
+ * Initial mock users data with roles that have permissions
  */
 export const mockUsers: User[] = [
   {
     id: '1',
     email: 'superadmin@kuilinga.com',
     full_name: 'Super Admin',
-    phone_number: '+33 6 12 34 56 78',
+    phone_number: '+226 70 12 34 56',
     organization_id: null,
     is_active: true,
     is_superuser: true,
-    roles: [
-      {
-        id: 'role-super-admin',
-        name: 'super-admin',
-        description: 'Super Administrator with full system access',
-        permissions: [],
-      },
-    ],
+    roles: [getRoleById('role-super-admin')],
   },
   {
     id: '2',
     email: 'admin@kuilinga.com',
-    full_name: 'Admin Organization',
-    phone_number: '+33 6 23 45 67 89',
+    full_name: 'Abdoulaye Ouédraogo',
+    phone_number: '+226 70 23 45 67',
     organization_id: 'org-1',
     is_active: true,
     is_superuser: false,
-    roles: [
-      {
-        id: 'role-admin-org',
-        name: 'admin-organization',
-        description: 'Organization Administrator',
-        permissions: [],
-      },
-    ],
+    roles: [getRoleById('role-admin-org')],
   },
   {
     id: '3',
     email: 'rh@kuilinga.com',
-    full_name: 'Responsable RH',
-    phone_number: '+33 6 34 56 78 90',
+    full_name: 'Fatoumata Sawadogo',
+    phone_number: '+226 70 34 56 78',
     organization_id: 'org-1',
     is_active: true,
     is_superuser: false,
-    roles: [
-      {
-        id: 'role-rh',
-        name: 'rh',
-        description: 'Human Resources',
-        permissions: [],
-      },
-    ],
+    roles: [getRoleById('role-rh')],
   },
   {
     id: '4',
     email: 'manager@kuilinga.com',
-    full_name: 'Manager Équipe',
-    phone_number: '+33 6 45 67 89 01',
+    full_name: 'Ousmane Compaoré',
+    phone_number: '+226 70 45 67 89',
     organization_id: 'org-1',
     is_active: true,
     is_superuser: false,
-    roles: [
-      {
-        id: 'role-manager',
-        name: 'manager',
-        description: 'Team Manager',
-        permissions: [],
-      },
-    ],
+    roles: [getRoleById('role-manager')],
   },
   {
     id: '5',
     email: 'employee@kuilinga.com',
-    full_name: 'Employé Standard',
-    phone_number: '+33 6 56 78 90 12',
+    full_name: 'Aminata Traoré',
+    phone_number: '+226 70 56 78 90',
     organization_id: 'org-1',
     is_active: true,
     is_superuser: false,
-    roles: [
-      {
-        id: 'role-employee',
-        name: 'employee',
-        description: 'Standard Employee',
-        permissions: [],
-      },
-    ],
+    roles: [getRoleById('role-employee')],
   },
   {
     id: '6',
-    email: 'marie.dubois@kuilinga.com',
-    full_name: 'Marie Dubois',
-    phone_number: '+33 6 67 89 01 23',
+    email: 'mariam.kone@kuilinga.com',
+    full_name: 'Mariam Koné',
+    phone_number: '+226 70 67 89 01',
     organization_id: 'org-1',
     is_active: true,
     is_superuser: false,
-    roles: [
-      {
-        id: 'role-manager',
-        name: 'manager',
-        description: 'Team Manager',
-        permissions: [],
-      },
-    ],
+    roles: [getRoleById('role-manager')],
   },
   {
     id: '7',
-    email: 'thomas.martin@kuilinga.com',
-    full_name: 'Thomas Martin',
-    phone_number: '+33 6 78 90 12 34',
+    email: 'amadou.sorgho@kuilinga.com',
+    full_name: 'Amadou Sorgho',
+    phone_number: '+226 70 78 90 12',
     organization_id: 'org-2',
     is_active: true,
     is_superuser: false,
-    roles: [
-      {
-        id: 'role-admin-org',
-        name: 'admin-organization',
-        description: 'Organization Administrator',
-        permissions: [],
-      },
-    ],
+    roles: [getRoleById('role-admin-org')],
   },
   {
     id: '8',
-    email: 'sophie.bernard@kuilinga.com',
-    full_name: 'Sophie Bernard',
-    phone_number: '+33 6 89 01 23 45',
+    email: 'safiatou.nikiema@kuilinga.com',
+    full_name: 'Safiatou Nikiema',
+    phone_number: '+226 70 89 01 23',
     organization_id: 'org-2',
     is_active: true,
     is_superuser: false,
-    roles: [
-      {
-        id: 'role-rh',
-        name: 'rh',
-        description: 'Human Resources',
-        permissions: [],
-      },
-    ],
+    roles: [getRoleById('role-rh')],
   },
   {
     id: '9',
-    email: 'lucas.petit@kuilinga.com',
-    full_name: 'Lucas Petit',
-    phone_number: '+33 6 90 12 34 56',
+    email: 'boubacar.diallo@kuilinga.com',
+    full_name: 'Boubacar Diallo',
+    phone_number: '+226 70 90 12 34',
     organization_id: 'org-3',
     is_active: true,
     is_superuser: false,
-    roles: [
-      {
-        id: 'role-employee',
-        name: 'employee',
-        description: 'Standard Employee',
-        permissions: [],
-      },
-    ],
+    roles: [getRoleById('role-employee')],
   },
   {
     id: '10',
-    email: 'emma.laurent@kuilinga.com',
-    full_name: 'Emma Laurent',
-    phone_number: '+33 7 01 23 45 67',
+    email: 'salamata.ouattara@kuilinga.com',
+    full_name: 'Salamata Ouattara',
+    phone_number: '+226 71 01 23 45',
     organization_id: 'org-3',
     is_active: true,
     is_superuser: false,
-    roles: [
-      {
-        id: 'role-manager',
-        name: 'manager',
-        description: 'Team Manager',
-        permissions: [],
-      },
-    ],
+    roles: [getRoleById('role-manager')],
   },
 ];
 

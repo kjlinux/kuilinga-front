@@ -94,10 +94,10 @@ const Departments = () => {
   }
 
   const columns = [
-    { key: "name", header: "Nom" },
-    { key: "site", header: "Site" },
-    { key: "manager", header: "Manager" },
-    { key: "employees_count", header: "N° Employés" },
+    { accessorKey: "name", header: "Nom" },
+    { accessorKey: "site", header: "Site" },
+    { accessorKey: "manager", header: "Manager" },
+    { accessorKey: "employees_count", header: "N° Employés" },
   ]
 
   return (

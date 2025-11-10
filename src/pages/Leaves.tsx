@@ -105,14 +105,14 @@ const Leaves = () => {
   }
 
   const columns = [
-    { key: "employee", header: "Employé" },
-    { key: "leave_type", header: "Type" },
-    { key: "start_date", header: "Date début" },
-    { key: "end_date", header: "Date fin" },
-    { key: "duration", header: "Durée" },
-    { key: "reason", header: "Raison" },
-    { key: "status", header: "Statut" },
-    { key: "approver", header: "Approbateur" },
+    { accessorKey: "employee", header: "Employé" },
+    { accessorKey: "leave_type", header: "Type" },
+    { accessorKey: "start_date", header: "Date début" },
+    { accessorKey: "end_date", header: "Date fin" },
+    { accessorKey: "duration", header: "Durée" },
+    { accessorKey: "reason", header: "Raison" },
+    { accessorKey: "status", header: "Statut" },
+    { accessorKey: "approver", header: "Approbateur" },
   ]
 
   return (

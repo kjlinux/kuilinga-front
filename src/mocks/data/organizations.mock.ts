@@ -6,6 +6,9 @@ import { Organization, PaginatedResponse } from '../../types';
 import { createMockError } from '../interceptor';
 import { paginate, filterBySearch } from '../utils/pagination';
 import { randomUUID } from '../utils/generators';
+import { mockSites } from './sites.mock';
+import { mockEmployees } from './employees.mock';
+import { mockDepartments } from './departments.mock';
 
 /**
  * Initial mock organizations data
@@ -13,65 +16,65 @@ import { randomUUID } from '../utils/generators';
 export const mockOrganizations: Organization[] = [
   {
     id: 'org-1',
-    name: 'TechCorp',
-    description: 'Leading technology company specializing in software development',
-    address: '123 Avenue des Champs-Élysées, 75008 Paris',
-    phone_number: '+33 1 23 45 67 89',
-    email: 'contact@techcorp.fr',
-    website: 'https://www.techcorp.fr',
-    timezone: 'Europe/Paris',
+    name: 'Burkina Tech',
+    description: 'Entreprise leader en développement de solutions logicielles',
+    address: 'Avenue Kwamé N\'Krumah, Secteur 4, Ouagadougou',
+    phone_number: '+226 25 31 45 67',
+    email: 'contact@burkinatech.bf',
+    website: 'https://www.burkinatech.bf',
+    timezone: 'Africa/Ouagadougou',
     is_active: true,
     created_at: '2023-01-15T10:00:00Z',
     updated_at: '2024-11-01T14:30:00Z',
   },
   {
     id: 'org-2',
-    name: 'InnovateLab',
-    description: 'Innovation and research laboratory for cutting-edge solutions',
-    address: '45 Rue de la République, 69002 Lyon',
-    phone_number: '+33 4 12 34 56 78',
-    email: 'info@innovatelab.fr',
-    website: 'https://www.innovatelab.fr',
-    timezone: 'Europe/Paris',
+    name: 'Faso Innovation',
+    description: 'Laboratoire d\'innovation et de recherche pour des solutions de pointe',
+    address: 'Avenue de la Nation, Secteur 15, Bobo-Dioulasso',
+    phone_number: '+226 20 97 45 32',
+    email: 'info@fasoinnovation.bf',
+    website: 'https://www.fasoinnovation.bf',
+    timezone: 'Africa/Ouagadougou',
     is_active: true,
     created_at: '2023-03-20T09:00:00Z',
     updated_at: '2024-10-15T16:45:00Z',
   },
   {
     id: 'org-3',
-    name: 'GlobalServices',
-    description: 'International consulting and services provider',
-    address: '78 Boulevard Haussmann, 75009 Paris',
-    phone_number: '+33 1 34 56 78 90',
-    email: 'contact@globalservices.fr',
-    website: 'https://www.globalservices.fr',
-    timezone: 'Europe/Paris',
+    name: 'Sahel Services',
+    description: 'Prestataire de services de conseil international',
+    address: 'Boulevard Charles De Gaulle, Secteur 12, Ouagadougou',
+    phone_number: '+226 25 36 78 90',
+    email: 'contact@sahelservices.bf',
+    website: 'https://www.sahelservices.bf',
+    timezone: 'Africa/Ouagadougou',
     is_active: true,
     created_at: '2022-11-10T11:00:00Z',
     updated_at: '2024-11-05T10:20:00Z',
   },
   {
     id: 'org-4',
-    name: 'DataTech Solutions',
-    description: 'Data analytics and business intelligence company',
-    address: '12 Rue Victor Hugo, 31000 Toulouse',
-    phone_number: '+33 5 67 89 01 23',
-    email: 'hello@datatech.fr',
-    website: 'https://www.datatech.fr',
-    timezone: 'Europe/Paris',
+    name: 'DataFaso Solutions',
+    description: 'Entreprise d\'analyse de données et d\'intelligence d\'affaires',
+    address: 'Rue de la Révolution, Secteur 7, Koudougou',
+    phone_number: '+226 25 44 67 89',
+    email: 'hello@datafaso.bf',
+    website: 'https://www.datafaso.bf',
+    timezone: 'Africa/Ouagadougou',
     is_active: true,
     created_at: '2023-06-05T08:30:00Z',
     updated_at: '2024-10-28T12:00:00Z',
   },
   {
     id: 'org-5',
-    name: 'CloudNet Systems',
-    description: 'Cloud infrastructure and networking solutions',
-    address: '90 Promenade des Anglais, 06000 Nice',
-    phone_number: '+33 4 23 45 67 89',
-    email: 'support@cloudnet.fr',
-    website: 'https://www.cloudnet.fr',
-    timezone: 'Europe/Paris',
+    name: 'Moaga Digital',
+    description: 'Solutions d\'infrastructure cloud et de réseautage',
+    address: 'Avenue de l\'Indépendance, Secteur 8, Ouahigouya',
+    phone_number: '+226 24 55 67 89',
+    email: 'support@moagadigital.bf',
+    website: 'https://www.moagadigital.bf',
+    timezone: 'Africa/Ouagadougou',
     is_active: false,
     created_at: '2023-08-12T07:00:00Z',
     updated_at: '2024-09-20T15:30:00Z',
@@ -82,6 +85,43 @@ export const mockOrganizations: Organization[] = [
  * In-memory store
  */
 let organizationsStore = [...mockOrganizations];
+
+/**
+ * Enrich organization with related entities
+ */
+const enrichOrganization = (org: Organization): any => {
+  const sites = mockSites.filter(s => s.organization_id === org.id);
+  const siteIds = sites.map(s => s.id);
+  const departments = mockDepartments.filter(d => siteIds.includes(d.site_id));
+  const departmentIds = departments.map(d => d.id);
+  const employees = mockEmployees.filter(e => e.department_id && departmentIds.includes(e.department_id));
+
+  // Import users inline to avoid circular dependency
+  let users_count = 0;
+  try {
+    const { mockUsers } = require('./users.mock');
+    users_count = mockUsers.filter((u: any) => u.organization_id === org.id).length;
+  } catch (e) {
+    users_count = 0;
+  }
+
+  // Determine plan based on organization
+  let plan = 'Basic';
+  if (org.id === 'org-1' || org.id === 'org-3') {
+    plan = 'Enterprise';
+  } else if (org.id === 'org-2' || org.id === 'org-4') {
+    plan = 'Professional';
+  }
+
+  return {
+    ...org,
+    phone: org.phone_number,
+    plan,
+    sites_count: sites.length,
+    employees_count: employees.length,
+    users_count,
+  };
+};
 
 /**
  * GET /api/v1/organizations
@@ -99,7 +139,9 @@ export const getOrganizationsHandler = (request: any): PaginatedResponse<Organiz
     filteredOrgs = filteredOrgs.filter(o => o.is_active === (is_active === 'true'));
   }
 
-  return paginate(filteredOrgs, { page: parseInt(page) || 1, page_size: parseInt(page_size) || 10 });
+  const enrichedOrgs = filteredOrgs.map(enrichOrganization);
+
+  return paginate(enrichedOrgs, { page: parseInt(page) || 1, page_size: parseInt(page_size) || 10 });
 };
 
 /**
@@ -113,7 +155,7 @@ export const getOrganizationByIdHandler = (request: any): Organization => {
     throw createMockError(404, { detail: 'Organization not found' });
   }
 
-  return org;
+  return enrichOrganization(org);
 };
 
 /**

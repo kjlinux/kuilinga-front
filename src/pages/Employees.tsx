@@ -92,16 +92,16 @@ const Employees = () => {
   }
 
   const columns = [
-    { key: "employee_number", header: "N° Employé" },
-    { key: "first_name", header: "Prénom" },
-    { key: "last_name", header: "Nom" },
-    { key: "email", header: "Email" },
-    { key: "phone", header: "Téléphone" },
-    { key: "position", header: "Poste" },
-    { key: "department", header: "Département" },
-    { key: "site", header: "Site" },
-    { key: "badge_id", header: "N° Badge" },
-    { key: "status", header: "Statut" },
+    { accessorKey: "registration_number", header: "N° Employé" },
+    { accessorKey: "first_name", header: "Prénom" },
+    { accessorKey: "last_name", header: "Nom" },
+    { accessorKey: "email", header: "Email" },
+    { accessorKey: "phone_number", header: "Téléphone" },
+    { accessorKey: "job_title", header: "Poste" },
+    { accessorKey: "department", header: "Département" },
+    { accessorKey: "site", header: "Site" },
+    { accessorKey: "badge_id", header: "N° Badge" },
+    { accessorKey: "is_active", header: "Statut", cell: ({ row }: any) => row.original.is_active ? "Actif" : "Inactif" },
   ]
 
   return (

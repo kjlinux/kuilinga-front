@@ -68,17 +68,17 @@ const Attendance = () => {
 
   const columns = [
     {
-      key: "employee",
+      accessorKey: "employee",
       header: "Employé",
     },
     {
-      key: "timestamp",
+      accessorKey: "timestamp",
       header: "Date/Heure",
     },
-    { key: "type", header: "Type" },
-    // { key: "duration", header: "Durée" },
-    { key: "device", header: "Dispositif" },
-    { key: "geo", header: "Géolocalisation" },
+    { accessorKey: "type", header: "Type" },
+    // { accessorKey: "duration", header: "Durée" },
+    { accessorKey: "device", header: "Dispositif" },
+    { accessorKey: "geo", header: "Géolocalisation" },
   ]
 
   return (

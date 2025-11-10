@@ -11,6 +11,7 @@
 import { Token, UserInLogin, UserRole } from '../../types';
 import { MOCK_CONFIG, createMockError } from '../config';
 import { mockUsers } from './users.mock';
+import { mockRoles } from './roles.mock';
 
 /**
  * Mock current session storage
@@ -29,18 +30,16 @@ const getDemoUser = (email: string): UserInLogin | null => {
   // Find corresponding user in mock users
   const user = mockUsers.find(u => u.email === email);
   if (!user) {
-    // Create a basic user if not found
+    // Create a basic user if not found - find the appropriate role from mockRoles
+    const roleId = `role-${demoCredential.role === 'admin-organization' ? 'admin-org' : demoCredential.role}`;
+    const role = mockRoles.find(r => r.id === roleId || r.name === demoCredential.role);
+
     return {
       id: email === 'superadmin@kuilinga.com' ? '1' : '2',
       email,
       full_name: email.split('@')[0].replace(/[.-]/g, ' ').replace(/\b\w/g, l => l.toUpperCase()),
       is_superuser: demoCredential.role === 'super-admin',
-      roles: [{
-        id: demoCredential.role,
-        name: demoCredential.role,
-        description: `${demoCredential.role} role`,
-        permissions: [],
-      }],
+      roles: role ? [role] : [],
     };
   }
 
@@ -57,19 +56,31 @@ const getDemoUser = (email: string): UserInLogin | null => {
  * POST /api/v1/auth/login
  */
 export const loginHandler = (request: any): Token => {
-  const { email, password } = request.body;
+  // Parse form data (URLSearchParams) or JSON body
+  let email: string;
+  let password: string;
+
+  if (request.body instanceof URLSearchParams) {
+    // OAuth2 password flow uses form data with 'username' field
+    email = request.body.get('username') || '';
+    password = request.body.get('password') || '';
+  } else {
+    // JSON body
+    email = request.body?.email || '';
+    password = request.body?.password || '';
+  }
 
   // Check if credentials match any demo account
   const validCredential = MOCK_CONFIG.demoCredentials.find(
     cred => cred.email === email && cred.password === password
   );
 
-  // Also accept any credentials in mock mode (for flexibility)
-  if (!validCredential && !email) {
+  // Validate required fields
+  if (!email) {
     throw createMockError(422, {
       detail: [
         {
-          loc: ['body', 'email'],
+          loc: ['body', 'username'],
           msg: 'field required',
           type: 'value_error.missing',
         },
@@ -77,7 +88,26 @@ export const loginHandler = (request: any): Token => {
     });
   }
 
-  const user = getDemoUser(email) || getDemoUser('admin@kuilinga.com');
+  if (!password) {
+    throw createMockError(422, {
+      detail: [
+        {
+          loc: ['body', 'password'],
+          msg: 'field required',
+          type: 'value_error.missing',
+        },
+      ],
+    });
+  }
+
+  // Check if credentials are valid
+  if (!validCredential) {
+    throw createMockError(401, {
+      detail: 'Incorrect email or password',
+    });
+  }
+
+  const user = getDemoUser(email);
 
   if (!user) {
     throw createMockError(401, {

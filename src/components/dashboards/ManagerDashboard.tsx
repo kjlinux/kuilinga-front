@@ -177,7 +177,11 @@ const ManagerDashboard = () => {
             <tbody>
               {data.real_time_attendances.map((att) => (
                 <tr key={att.id} className="border-b">
-                  <td className="p-2">{att.employee?.full_name ?? "N/A"}</td>
+                  <td className="p-2">
+                    {att.employee
+                      ? `${att.employee.first_name} ${att.employee.last_name}`
+                      : "N/A"}
+                  </td>
                   <td className="p-2">
                     {new Date(att.timestamp).toLocaleTimeString()}
                   </td>

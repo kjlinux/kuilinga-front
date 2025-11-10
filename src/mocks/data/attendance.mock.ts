@@ -7,6 +7,22 @@ import { createMockError } from '../interceptor';
 import { paginate } from '../utils/pagination';
 import { randomUUID, randomISODate, randomElement } from '../utils/generators';
 import { mockEmployees } from './employees.mock';
+import { mockDevices } from './devices.mock';
+
+// Generate random GPS coordinates around Paris region
+const generateGeoLocation = (): string => {
+  // Paris region coordinates: ~48.8566° N, 2.3522° E
+  // Add random offset within ~20km radius
+  const baseLat = 48.8566;
+  const baseLon = 2.3522;
+  const latOffset = (Math.random() - 0.5) * 0.3; // ~20km range
+  const lonOffset = (Math.random() - 0.5) * 0.3; // ~20km range
+
+  const lat = (baseLat + latOffset).toFixed(6);
+  const lon = (baseLon + lonOffset).toFixed(6);
+
+  return `${lat},${lon}`;
+};
 
 // Generate attendance records for the last 30 days
 const generateAttendanceRecords = (): Attendance[] => {
@@ -34,6 +50,7 @@ const generateAttendanceRecords = (): Attendance[] => {
         device_id: randomElement(['device-1', 'device-2', 'device-3', 'device-4', 'device-6']),
         timestamp: clockIn.toISOString(),
         type: AttendanceType.In,
+        geo: generateGeoLocation(),
         created_at: clockIn.toISOString(),
       });
 
@@ -43,6 +60,7 @@ const generateAttendanceRecords = (): Attendance[] => {
         device_id: randomElement(['device-1', 'device-2', 'device-3', 'device-4', 'device-6']),
         timestamp: clockOut.toISOString(),
         type: AttendanceType.Out,
+        geo: generateGeoLocation(),
         created_at: clockOut.toISOString(),
       });
     }
@@ -56,7 +74,7 @@ export const mockAttendances = generateAttendanceRecords();
 let attendancesStore = [...mockAttendances];
 
 /**
- * GET /api/v1/attendances
+ * GET /api/v1/attendance
  */
 export const getAttendancesHandler = (request: any): PaginatedResponse<Attendance> => {
   const { page, page_size, employee_id, device_id, start_date, end_date, type } = request.query;
@@ -83,11 +101,31 @@ export const getAttendancesHandler = (request: any): PaginatedResponse<Attendanc
     filteredAttendances = filteredAttendances.filter(a => a.timestamp <= end_date);
   }
 
-  return paginate(filteredAttendances, { page: parseInt(page) || 1, page_size: parseInt(page_size) || 10 });
+  // Enrich attendances with employee and device data
+  const enrichedAttendances = filteredAttendances.map(att => {
+    const employee = mockEmployees.find(e => e.id === att.employee_id);
+    const device = mockDevices.find(d => d.id === att.device_id);
+
+    return {
+      ...att,
+      employee: employee ? {
+        id: employee.id,
+        first_name: employee.first_name,
+        last_name: employee.last_name,
+        employee_number: employee.registration_number,
+      } : undefined,
+      device: device ? {
+        id: device.id,
+        serial_number: device.serial_number,
+      } : undefined,
+    };
+  });
+
+  return paginate(enrichedAttendances, { page: parseInt(page) || 1, page_size: parseInt(page_size) || 10 });
 };
 
 /**
- * POST /api/v1/attendances
+ * POST /api/v1/attendance
  */
 export const createAttendanceHandler = (request: any): Attendance => {
   const data = request.body;
@@ -105,6 +143,7 @@ export const createAttendanceHandler = (request: any): Attendance => {
     device_id: data.device_id,
     timestamp: data.timestamp || now,
     type: data.type,
+    geo: data.geo || generateGeoLocation(),
     created_at: now,
   };
 
@@ -113,7 +152,7 @@ export const createAttendanceHandler = (request: any): Attendance => {
 };
 
 /**
- * POST /api/v1/attendances/clock
+ * POST /api/v1/attendance/clock
  */
 export const clockAttendanceHandler = (request: any): Attendance => {
   return createAttendanceHandler(request);
@@ -126,17 +165,17 @@ export const resetAttendancesStore = () => {
 export const attendanceHandlers = [
   {
     method: 'GET',
-    pattern: '/api/v1/attendances',
+    pattern: '/api/v1/attendance',
     handler: getAttendancesHandler,
   },
   {
     method: 'POST',
-    pattern: '/api/v1/attendances',
+    pattern: '/api/v1/attendance',
     handler: createAttendanceHandler,
   },
   {
     method: 'POST',
-    pattern: '/api/v1/attendances/clock',
+    pattern: '/api/v1/attendance/clock',
     handler: clockAttendanceHandler,
   },
 ];

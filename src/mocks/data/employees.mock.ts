@@ -6,6 +6,9 @@ import { Employee, PaginatedResponse } from '../../types';
 import { createMockError } from '../interceptor';
 import { paginate, filterBySearch } from '../utils/pagination';
 import { randomUUID, randomFrenchName, randomEmail, randomPhone, randomElement, randomDate } from '../utils/generators';
+import { mockDepartments } from './departments.mock';
+import { mockSites } from './sites.mock';
+import { mockOrganizations } from './organizations.mock';
 
 /**
  * Generate employee registration number
@@ -22,10 +25,10 @@ const generateRegistrationNumber = (index: number): string => {
 export const mockEmployees: Employee[] = [
   {
     id: 'emp-1',
-    first_name: 'Jean',
-    last_name: 'Dupont',
-    email: 'jean.dupont@techcorp.fr',
-    phone_number: '+33 6 12 34 56 78',
+    first_name: 'Abdoulaye',
+    last_name: 'Ouédraogo',
+    email: 'abdoulaye.ouedraogo@burkinatech.bf',
+    phone_number: '+226 70 12 34 56',
     registration_number: 'EMP20230001',
     department_id: 'dept-1',
     job_title: 'Développeur Senior',
@@ -36,10 +39,10 @@ export const mockEmployees: Employee[] = [
   },
   {
     id: 'emp-2',
-    first_name: 'Marie',
-    last_name: 'Martin',
-    email: 'marie.martin@techcorp.fr',
-    phone_number: '+33 6 23 45 67 89',
+    first_name: 'Fatoumata',
+    last_name: 'Sawadogo',
+    email: 'fatoumata.sawadogo@burkinatech.bf',
+    phone_number: '+226 70 23 45 67',
     registration_number: 'EMP20230002',
     department_id: 'dept-2',
     job_title: 'Responsable RH',
@@ -50,10 +53,10 @@ export const mockEmployees: Employee[] = [
   },
   {
     id: 'emp-3',
-    first_name: 'Pierre',
-    last_name: 'Dubois',
-    email: 'pierre.dubois@techcorp.fr',
-    phone_number: '+33 6 34 56 78 90',
+    first_name: 'Ousmane',
+    last_name: 'Compaoré',
+    email: 'ousmane.compaore@burkinatech.bf',
+    phone_number: '+226 70 34 56 78',
     registration_number: 'EMP20230003',
     department_id: 'dept-3',
     job_title: 'Commercial Senior',
@@ -64,10 +67,10 @@ export const mockEmployees: Employee[] = [
   },
   {
     id: 'emp-4',
-    first_name: 'Sophie',
-    last_name: 'Bernard',
-    email: 'sophie.bernard@techcorp.fr',
-    phone_number: '+33 6 45 67 89 01',
+    first_name: 'Aminata',
+    last_name: 'Traoré',
+    email: 'aminata.traore@burkinatech.bf',
+    phone_number: '+226 70 45 67 89',
     registration_number: 'EMP20230004',
     department_id: 'dept-4',
     job_title: 'Chef de Projet Marketing',
@@ -78,10 +81,10 @@ export const mockEmployees: Employee[] = [
   },
   {
     id: 'emp-5',
-    first_name: 'Thomas',
-    last_name: 'Petit',
-    email: 'thomas.petit@techcorp.fr',
-    phone_number: '+33 6 56 78 90 12',
+    first_name: 'Boureima',
+    last_name: 'Kaboré',
+    email: 'boureima.kabore@burkinatech.bf',
+    phone_number: '+226 70 56 78 90',
     registration_number: 'EMP20230005',
     department_id: 'dept-5',
     job_title: 'Comptable',
@@ -92,10 +95,10 @@ export const mockEmployees: Employee[] = [
   },
   {
     id: 'emp-6',
-    first_name: 'Camille',
-    last_name: 'Robert',
-    email: 'camille.robert@techcorp.fr',
-    phone_number: '+33 6 67 89 01 23',
+    first_name: 'Mariam',
+    last_name: 'Koné',
+    email: 'mariam.kone@burkinatech.bf',
+    phone_number: '+226 70 67 89 01',
     registration_number: 'EMP20230006',
     department_id: 'dept-1',
     job_title: 'Développeur Frontend',
@@ -106,10 +109,10 @@ export const mockEmployees: Employee[] = [
   },
   {
     id: 'emp-7',
-    first_name: 'Lucas',
-    last_name: 'Richard',
-    email: 'lucas.richard@techcorp.fr',
-    phone_number: '+33 6 78 90 12 34',
+    first_name: 'Seydou',
+    last_name: 'Zoungrana',
+    email: 'seydou.zoungrana@burkinatech.bf',
+    phone_number: '+226 70 78 90 12',
     registration_number: 'EMP20230007',
     department_id: 'dept-1',
     job_title: 'Développeur Backend',
@@ -120,10 +123,10 @@ export const mockEmployees: Employee[] = [
   },
   {
     id: 'emp-8',
-    first_name: 'Emma',
-    last_name: 'Durand',
-    email: 'emma.durand@techcorp.fr',
-    phone_number: '+33 6 89 01 23 45',
+    first_name: 'Awa',
+    last_name: 'Ouattara',
+    email: 'awa.ouattara@burkinatech.bf',
+    phone_number: '+226 70 89 01 23',
     registration_number: 'EMP20230008',
     department_id: 'dept-2',
     job_title: 'Assistant RH',
@@ -134,10 +137,10 @@ export const mockEmployees: Employee[] = [
   },
   {
     id: 'emp-9',
-    first_name: 'Hugo',
-    last_name: 'Simon',
-    email: 'hugo.simon@techcorp.fr',
-    phone_number: '+33 6 90 12 34 56',
+    first_name: 'Moussa',
+    last_name: 'Sankara',
+    email: 'moussa.sankara@burkinatech.bf',
+    phone_number: '+226 70 90 12 34',
     registration_number: 'EMP20230009',
     department_id: 'dept-3',
     job_title: 'Commercial Junior',
@@ -148,10 +151,10 @@ export const mockEmployees: Employee[] = [
   },
   {
     id: 'emp-10',
-    first_name: 'Chloé',
-    last_name: 'Laurent',
-    email: 'chloe.laurent@techcorp.fr',
-    phone_number: '+33 7 01 23 45 67',
+    first_name: 'Sarata',
+    last_name: 'Zongo',
+    email: 'sarata.zongo@burkinatech.bf',
+    phone_number: '+226 71 01 23 45',
     registration_number: 'EMP20230010',
     department_id: 'dept-4',
     job_title: 'Designer UX/UI',
@@ -163,10 +166,10 @@ export const mockEmployees: Employee[] = [
   // Additional employees for other departments and sites
   {
     id: 'emp-11',
-    first_name: 'Alexandre',
-    last_name: 'Moreau',
-    email: 'alexandre.moreau@techcorp.fr',
-    phone_number: '+33 7 12 34 56 78',
+    first_name: 'Ibrahim',
+    last_name: 'Diallo',
+    email: 'ibrahim.diallo@burkinatech.bf',
+    phone_number: '+226 71 12 34 56',
     registration_number: 'EMP20230011',
     department_id: 'dept-6',
     job_title: 'Chef de Projet IT',
@@ -177,10 +180,10 @@ export const mockEmployees: Employee[] = [
   },
   {
     id: 'emp-12',
-    first_name: 'Léa',
-    last_name: 'Fournier',
-    email: 'lea.fournier@techcorp.fr',
-    phone_number: '+33 7 23 45 67 89',
+    first_name: 'Aïssatou',
+    last_name: 'Barry',
+    email: 'aissatou.barry@burkinatech.bf',
+    phone_number: '+226 71 23 45 67',
     registration_number: 'EMP20230012',
     department_id: 'dept-7',
     job_title: 'Support Technique',
@@ -191,10 +194,10 @@ export const mockEmployees: Employee[] = [
   },
   {
     id: 'emp-13',
-    first_name: 'Maxime',
-    last_name: 'Girard',
-    email: 'maxime.girard@techcorp.fr',
-    phone_number: '+33 7 34 56 78 90',
+    first_name: 'Issouf',
+    last_name: 'Barro',
+    email: 'issouf.barro@burkinatech.bf',
+    phone_number: '+226 71 34 56 78',
     registration_number: 'EMP20230013',
     department_id: 'dept-8',
     job_title: 'Responsable Logistique',
@@ -205,10 +208,10 @@ export const mockEmployees: Employee[] = [
   },
   {
     id: 'emp-14',
-    first_name: 'Charlotte',
-    last_name: 'Bonnet',
-    email: 'charlotte.bonnet@techcorp.fr',
-    phone_number: '+33 7 45 67 89 01',
+    first_name: 'Rasmata',
+    last_name: 'Kinda',
+    email: 'rasmata.kinda@burkinatech.bf',
+    phone_number: '+226 71 45 67 89',
     registration_number: 'EMP20230014',
     department_id: 'dept-9',
     job_title: 'Chercheur R&D',
@@ -219,10 +222,10 @@ export const mockEmployees: Employee[] = [
   },
   {
     id: 'emp-15',
-    first_name: 'Antoine',
-    last_name: 'Roux',
-    email: 'antoine.roux@techcorp.fr',
-    phone_number: '+33 7 56 78 90 12',
+    first_name: 'Hamidou',
+    last_name: 'Tapsoba',
+    email: 'hamidou.tapsoba@burkinatech.bf',
+    phone_number: '+226 71 56 78 90',
     registration_number: 'EMP20230015',
     department_id: 'dept-10',
     job_title: 'Ingénieur Production',
@@ -233,10 +236,10 @@ export const mockEmployees: Employee[] = [
   },
   {
     id: 'emp-16',
-    first_name: 'Juliette',
-    last_name: 'Lambert',
-    email: 'juliette.lambert@techcorp.fr',
-    phone_number: '+33 7 67 89 01 23',
+    first_name: 'Rakieta',
+    last_name: 'Nacoulma',
+    email: 'rakieta.nacoulma@burkinatech.bf',
+    phone_number: '+226 71 67 89 01',
     registration_number: 'EMP20230016',
     department_id: 'dept-11',
     job_title: 'Responsable Qualité',
@@ -247,10 +250,10 @@ export const mockEmployees: Employee[] = [
   },
   {
     id: 'emp-17',
-    first_name: 'Gabriel',
-    last_name: 'Mercier',
-    email: 'gabriel.mercier@techcorp.fr',
-    phone_number: '+33 7 78 90 12 34',
+    first_name: 'Souleymane',
+    last_name: 'Ilboudo',
+    email: 'souleymane.ilboudo@burkinatech.bf',
+    phone_number: '+226 71 78 90 12',
     registration_number: 'EMP20230017',
     department_id: 'dept-12',
     job_title: 'Directeur Commercial',
@@ -261,10 +264,10 @@ export const mockEmployees: Employee[] = [
   },
   {
     id: 'emp-18',
-    first_name: 'Manon',
-    last_name: 'Lefebvre',
-    email: 'manon.lefebvre@techcorp.fr',
-    phone_number: '+33 7 89 01 23 45',
+    first_name: 'Hawa',
+    last_name: 'Kéré',
+    email: 'hawa.kere@burkinatech.bf',
+    phone_number: '+226 71 89 01 23',
     registration_number: 'EMP20230018',
     department_id: 'dept-13',
     job_title: 'Chef de Produit',
@@ -275,10 +278,10 @@ export const mockEmployees: Employee[] = [
   },
   {
     id: 'emp-19',
-    first_name: 'Raphaël',
-    last_name: 'Garnier',
-    email: 'raphael.garnier@techcorp.fr',
-    phone_number: '+33 7 90 12 34 56',
+    first_name: 'Karim',
+    last_name: 'Sana',
+    email: 'karim.sana@burkinatech.bf',
+    phone_number: '+226 71 90 12 34',
     registration_number: 'EMP20230019',
     department_id: 'dept-14',
     job_title: 'Administrateur Système',
@@ -289,10 +292,10 @@ export const mockEmployees: Employee[] = [
   },
   {
     id: 'emp-20',
-    first_name: 'Sarah',
-    last_name: 'Michel',
-    email: 'sarah.michel@techcorp.fr',
-    phone_number: '+33 6 01 23 45 67',
+    first_name: 'Zenabo',
+    last_name: 'Tao',
+    email: 'zenabo.tao@burkinatech.bf',
+    phone_number: '+226 72 01 23 45',
     registration_number: 'EMP20230020',
     department_id: 'dept-15',
     job_title: 'Assistante Administrative',
@@ -301,13 +304,13 @@ export const mockEmployees: Employee[] = [
     created_at: '2023-10-15T10:00:00Z',
     updated_at: '2024-10-30T13:45:00Z',
   },
-  // InnovateLab employees
+  // Faso Innovation employees
   {
     id: 'emp-21',
-    first_name: 'Étienne',
-    last_name: 'Leroy',
-    email: 'etienne.leroy@innovatelab.fr',
-    phone_number: '+33 6 12 34 56 78',
+    first_name: 'Amadou',
+    last_name: 'Sorgho',
+    email: 'amadou.sorgho@fasoinnovation.bf',
+    phone_number: '+226 72 12 34 56',
     registration_number: 'EMP20230021',
     department_id: 'dept-16',
     job_title: 'Directeur R&D',
@@ -318,10 +321,10 @@ export const mockEmployees: Employee[] = [
   },
   {
     id: 'emp-22',
-    first_name: 'Océane',
-    last_name: 'Thomas',
-    email: 'oceane.thomas@innovatelab.fr',
-    phone_number: '+33 6 23 45 67 89',
+    first_name: 'Safiatou',
+    last_name: 'Nikiema',
+    email: 'safiatou.nikiema@fasoinnovation.bf',
+    phone_number: '+226 72 23 45 67',
     registration_number: 'EMP20230022',
     department_id: 'dept-17',
     job_title: 'Innovation Manager',
@@ -332,10 +335,10 @@ export const mockEmployees: Employee[] = [
   },
   {
     id: 'emp-23',
-    first_name: 'Baptiste',
-    last_name: 'Rousseau',
-    email: 'baptiste.rousseau@innovatelab.fr',
-    phone_number: '+33 6 34 56 78 90',
+    first_name: 'Rasmané',
+    last_name: 'Yé',
+    email: 'rasmane.ye@fasoinnovation.bf',
+    phone_number: '+226 72 34 56 78',
     registration_number: 'EMP20230023',
     department_id: 'dept-18',
     job_title: 'Chef de Projet',
@@ -346,10 +349,10 @@ export const mockEmployees: Employee[] = [
   },
   {
     id: 'emp-24',
-    first_name: 'Clara',
-    last_name: 'Vincent',
-    email: 'clara.vincent@innovatelab.fr',
-    phone_number: '+33 6 45 67 89 01',
+    first_name: 'Maïmouna',
+    last_name: 'Kaboré',
+    email: 'maimouna.kabore@fasoinnovation.bf',
+    phone_number: '+226 72 45 67 89',
     registration_number: 'EMP20230024',
     department_id: 'dept-19',
     job_title: 'Chercheur Senior',
@@ -360,10 +363,10 @@ export const mockEmployees: Employee[] = [
   },
   {
     id: 'emp-25',
-    first_name: 'Louis',
-    last_name: 'Morel',
-    email: 'louis.morel@innovatelab.fr',
-    phone_number: '+33 6 56 78 90 12',
+    first_name: 'Yacouba',
+    last_name: 'Traoré',
+    email: 'yacouba.traore@fasoinnovation.bf',
+    phone_number: '+226 72 56 78 90',
     registration_number: 'EMP20230025',
     department_id: 'dept-20',
     job_title: 'Développeur Full Stack',
@@ -372,13 +375,13 @@ export const mockEmployees: Employee[] = [
     created_at: '2023-06-05T10:00:00Z',
     updated_at: '2024-10-22T14:00:00Z',
   },
-  // GlobalServices employees
+  // Sahel Services employees
   {
     id: 'emp-26',
-    first_name: 'Jade',
-    last_name: 'Andre',
-    email: 'jade.andre@globalservices.fr',
-    phone_number: '+33 6 67 89 01 23',
+    first_name: 'Salamata',
+    last_name: 'Ouattara',
+    email: 'salamata.ouattara@sahelservices.bf',
+    phone_number: '+226 72 67 89 01',
     registration_number: 'EMP20220026',
     department_id: 'dept-23',
     job_title: 'Consultant Senior',
@@ -389,10 +392,10 @@ export const mockEmployees: Employee[] = [
   },
   {
     id: 'emp-27',
-    first_name: 'Arthur',
-    last_name: 'Blanc',
-    email: 'arthur.blanc@globalservices.fr',
-    phone_number: '+33 6 78 90 12 34',
+    first_name: 'Zakaria',
+    last_name: 'Compaoré',
+    email: 'zakaria.compaore@sahelservices.bf',
+    phone_number: '+226 72 78 90 12',
     registration_number: 'EMP20220027',
     department_id: 'dept-24',
     job_title: 'Auditeur',
@@ -403,10 +406,10 @@ export const mockEmployees: Employee[] = [
   },
   {
     id: 'emp-28',
-    first_name: 'Alice',
-    last_name: 'Guerin',
-    email: 'alice.guerin@globalservices.fr',
-    phone_number: '+33 6 89 01 23 45',
+    first_name: 'Asseta',
+    last_name: 'Sawadogo',
+    email: 'asseta.sawadogo@sahelservices.bf',
+    phone_number: '+226 72 89 01 23',
     registration_number: 'EMP20230028',
     department_id: 'dept-25',
     job_title: 'Directrice Générale',
@@ -417,10 +420,10 @@ export const mockEmployees: Employee[] = [
   },
   {
     id: 'emp-29',
-    first_name: 'Paul',
-    last_name: 'Faure',
-    email: 'paul.faure@globalservices.fr',
-    phone_number: '+33 6 90 12 34 56',
+    first_name: 'Boubacar',
+    last_name: 'Diallo',
+    email: 'boubacar.diallo@sahelservices.bf',
+    phone_number: '+226 72 90 12 34',
     registration_number: 'EMP20230029',
     department_id: 'dept-26',
     job_title: 'Responsable Service Client',
@@ -431,10 +434,10 @@ export const mockEmployees: Employee[] = [
   },
   {
     id: 'emp-30',
-    first_name: 'Zoé',
-    last_name: 'Muller',
-    email: 'zoe.muller@globalservices.fr',
-    phone_number: '+33 7 01 23 45 67',
+    first_name: 'Bibata',
+    last_name: 'Zoungrana',
+    email: 'bibata.zoungrana@sahelservices.bf',
+    phone_number: '+226 73 01 23 45',
     registration_number: 'EMP20230030',
     department_id: 'dept-27',
     job_title: 'Support Technique',
@@ -449,6 +452,35 @@ export const mockEmployees: Employee[] = [
  * In-memory store
  */
 let employeesStore = [...mockEmployees];
+
+/**
+ * Enrich employee with related entities
+ */
+const enrichEmployee = (emp: Employee): any => {
+  const department = emp.department_id ? mockDepartments.find(d => d.id === emp.department_id) : null;
+  const site = department ? mockSites.find(s => s.id === department.site_id) : null;
+  const organization = site ? mockOrganizations.find(o => o.id === site.organization_id) : null;
+
+  return {
+    ...emp,
+    full_name: `${emp.first_name} ${emp.last_name}`,
+    department: department ? {
+      id: department.id,
+      name: department.name,
+      site_id: department.site_id,
+    } : null,
+    site: site ? {
+      id: site.id,
+      name: site.name,
+      organization_id: site.organization_id,
+    } : null,
+    organization: organization ? {
+      id: organization.id,
+      name: organization.name,
+    } : null,
+    badge_id: emp.registration_number,
+  };
+};
 
 /**
  * GET /api/v1/employees
@@ -476,7 +508,9 @@ export const getEmployeesHandler = (request: any): PaginatedResponse<Employee> =
     filteredEmployees = filteredEmployees.filter(e => e.is_active === (is_active === 'true'));
   }
 
-  return paginate(filteredEmployees, { page: parseInt(page) || 1, page_size: parseInt(page_size) || 10 });
+  const enrichedEmployees = filteredEmployees.map(enrichEmployee);
+
+  return paginate(enrichedEmployees, { page: parseInt(page) || 1, page_size: parseInt(page_size) || 10 });
 };
 
 /**
@@ -490,7 +524,7 @@ export const getEmployeeByIdHandler = (request: any): Employee => {
     throw createMockError(404, { detail: 'Employee not found' });
   }
 
-  return employee;
+  return enrichEmployee(employee);
 };
 
 /**

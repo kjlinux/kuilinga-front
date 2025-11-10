@@ -6,46 +6,103 @@ import { Role, Permission, PaginatedResponse } from '../../types';
 import { createMockError } from '../interceptor';
 import { paginate, filterBySearch } from '../utils/pagination';
 import { randomUUID } from '../utils/generators';
+import { mockPermissions } from './permissions.mock';
 
 /**
- * Initial mock roles data
+ * Helper to get permissions by IDs
+ */
+const getPermissionsByIds = (ids: string[]): Permission[] => {
+  return ids
+    .map(id => mockPermissions.find(p => p.id === id))
+    .filter((p): p is Permission => p !== undefined);
+};
+
+/**
+ * Initial mock roles data with assigned permissions
  */
 export const mockRoles: Role[] = [
   {
     id: 'role-super-admin',
     name: 'super-admin',
     description: 'Super Administrator with full system access',
-    permissions: [],
+    permissions: [...mockPermissions], // All permissions
   },
   {
     id: 'role-admin-org',
     name: 'admin-organization',
     description: 'Organization Administrator',
-    permissions: [],
+    permissions: getPermissionsByIds([
+      // Users: all
+      'perm-1', 'perm-2', 'perm-3', 'perm-4',
+      // Employees: all
+      'perm-5', 'perm-6', 'perm-7', 'perm-8',
+      // Organizations: read, update only (no create/delete)
+      'perm-9', 'perm-11',
+      // Attendance: all
+      'perm-13', 'perm-14', 'perm-15', 'perm-16',
+      // Devices: all
+      'perm-17', 'perm-18', 'perm-19', 'perm-20',
+      // Leaves: all
+      'perm-21', 'perm-22', 'perm-23', 'perm-24',
+      // Reports: all
+      'perm-25', 'perm-26', 'perm-27',
+      // Roles: all
+      'perm-28', 'perm-29', 'perm-30',
+    ]),
   },
   {
     id: 'role-rh',
     name: 'rh',
     description: 'Human Resources Manager',
-    permissions: [],
+    permissions: getPermissionsByIds([
+      // Employees: all
+      'perm-5', 'perm-6', 'perm-7', 'perm-8',
+      // Attendance: read, create, update
+      'perm-13', 'perm-14', 'perm-15',
+      // Leaves: all
+      'perm-21', 'perm-22', 'perm-23', 'perm-24',
+      // Reports: all
+      'perm-25', 'perm-26', 'perm-27',
+    ]),
   },
   {
     id: 'role-manager',
     name: 'manager',
     description: 'Team Manager',
-    permissions: [],
+    permissions: getPermissionsByIds([
+      // Employees: read only
+      'perm-5',
+      // Attendance: read only
+      'perm-13',
+      // Leaves: read, approve, reject
+      'perm-21', 'perm-23', 'perm-24',
+      // Reports: read, generate
+      'perm-25', 'perm-26',
+    ]),
   },
   {
     id: 'role-employee',
     name: 'employee',
     description: 'Standard Employee',
-    permissions: [],
+    permissions: getPermissionsByIds([
+      // Attendance: read only
+      'perm-13',
+      // Leaves: read, create
+      'perm-21', 'perm-22',
+      // Reports: read only
+      'perm-25',
+    ]),
   },
   {
     id: 'role-integrator',
     name: 'integrator',
     description: 'System Integrator',
-    permissions: [],
+    permissions: getPermissionsByIds([
+      // Devices: all
+      'perm-17', 'perm-18', 'perm-19', 'perm-20',
+      // Attendance: read, create
+      'perm-13', 'perm-14',
+    ]),
   },
 ];
 

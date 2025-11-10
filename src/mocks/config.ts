@@ -33,3 +33,16 @@ export const MOCK_CONFIG = {
   logRequests: true,
   logResponses: false,
 };
+
+/**
+ * Creates a mock error response
+ * Used by mock handlers to simulate API errors
+ */
+export function createMockError(status: number, data: any): Error {
+  const error = new Error(`Mock API Error: ${status}`) as any;
+  error.response = {
+    status,
+    data,
+  };
+  return error;
+}

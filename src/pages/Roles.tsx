@@ -1,90 +1,150 @@
-import { useState } from 'react';
-import { useQuery } from '@tanstack/react-query';
-import roleService from '../services/role.service';
-import { Role } from '../types';
-import { DataTable } from '@/components/DataTable';
-import { Button } from '@/components/ui/button';
-import { PlusCircle } from 'lucide-react';
-import RoleDialog from '@/components/RoleDialog';
-import { ColumnDef } from '@tanstack/react-table';
+"use client"
+
+import { useState } from "react"
+import { Plus } from "lucide-react"
+import { toast } from "sonner"
+import DataTable from "../components/DataTable"
+import useDataTable from "../hooks/useDataTable"
+import roleService from "../services/role.service"
+import type { Role, RoleCreate, RoleUpdate } from "../types"
+import RoleDialog from "../components/RoleDialog"
+import ConfirmationDialog from "../components/ConfirmationDialog"
 
 const Roles = () => {
-  const [dialogOpen, setDialogOpen] = useState(false);
-  const [selectedRole, setSelectedRole] = useState<Role | null>(null);
+  const [isDialogOpen, setIsDialogOpen] = useState(false)
+  const [isConfirmOpen, setIsConfirmOpen] = useState(false)
+  const [selectedRole, setSelectedRole] = useState<Role | null>(null)
+  const [roleToDelete, setRoleToDelete] = useState<Role | null>(null)
 
-  const { data: roles, isLoading } = useQuery({
-    queryKey: ['roles'],
-    queryFn: () => roleService.getRoles(),
-  });
+  const {
+    data,
+    isLoading,
+    pagination,
+    handlePageChange,
+    handleSearchChange,
+    refresh,
+  } = useDataTable<Role>({
+    fetchData: roleService.getRoles,
+  })
 
-  const columns: ColumnDef<Role>[] = [
+  const handleOpenDialog = (role: Role | null = null) => {
+    setSelectedRole(role)
+    setIsDialogOpen(true)
+  }
+
+  const handleCloseDialog = () => {
+    setSelectedRole(null)
+    setIsDialogOpen(false)
+  }
+
+  const handleConfirm = async (formData: RoleCreate | RoleUpdate) => {
+    const isEditing = !!selectedRole
+    const action = isEditing
+      ? roleService.updateRole(selectedRole.id, formData as RoleUpdate)
+      : roleService.createRole(formData as RoleCreate)
+
+    toast.promise(action, {
+      loading: "Sauvegarde du rôle en cours...",
+      success: `Rôle ${isEditing ? "mis à jour" : "créé"} avec succès !`,
+      error: "Erreur lors de la sauvegarde du rôle.",
+    })
+
+    try {
+      await action
+      refresh()
+      handleCloseDialog()
+    } catch (error) {
+      console.error("Erreur lors de la sauvegarde du rôle:", error)
+    }
+  }
+
+  const handleDeleteRequest = (role: Role) => {
+    setRoleToDelete(role)
+    setIsConfirmOpen(true)
+  }
+
+  const handleConfirmDelete = async () => {
+    if (!roleToDelete) return
+
+    const action = roleService.deleteRole(roleToDelete.id)
+
+    toast.promise(action, {
+      loading: "Suppression du rôle en cours...",
+      success: "Rôle supprimé avec succès !",
+      error: "Erreur lors de la suppression du rôle.",
+    })
+
+    try {
+      await action
+      refresh()
+      setIsConfirmOpen(false)
+      setRoleToDelete(null)
+    } catch (error) {
+      console.error("Erreur lors de la suppression:", error)
+    }
+  }
+
+  const columns = [
+    { accessorKey: "name", header: "Nom" },
+    { accessorKey: "description", header: "Description" },
     {
-      accessorKey: 'name',
-      header: 'Name',
-    },
-    {
-      accessorKey: 'description',
-      header: 'Description',
-    },
-    {
-      accessorKey: 'permissions',
-      header: 'Permissions',
-      cell: ({ row }) => {
+      accessorKey: "permissions",
+      header: "Permissions",
+      cell: ({ row }: any) => {
         const permissions = row.original.permissions;
-        return <span>{permissions.map(p => p.name).join(', ')}</span>;
-      },
+        return <span>{permissions?.map((p: any) => p.name).join(", ") || "Aucune"}</span>;
+      }
     },
-    {
-        id: 'actions',
-        cell: ({ row }) => {
-            const role = row.original;
-            return (
-                <Button
-                    variant="ghost"
-                    onClick={() => {
-                        setSelectedRole(role);
-                        setDialogOpen(true);
-                    }}
-                >
-                    Edit
-                </Button>
-            );
-        },
-    },
-  ];
+  ]
 
   return (
-    <div className="p-4">
-      <div className="flex justify-between items-center mb-4">
-        <h1 className="text-2xl font-bold">Roles</h1>
-        <Button onClick={() => setDialogOpen(true)}>
-          <PlusCircle className="mr-2" />
-          Add Role
-        </Button>
+    <div className="space-y-6">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+        <div>
+          <h1 className="text-3xl font-bold text-secondary mb-2">
+            Gestion des rôles
+          </h1>
+          <p className="text-accent">Gérez les rôles et leurs permissions</p>
+        </div>
+
+        <div className="flex items-center gap-2">
+          <button
+            onClick={() => handleOpenDialog()}
+            className="btn-primary flex items-center gap-2"
+          >
+            <Plus className="w-4 h-4" />
+            <span className="hidden sm:inline">Nouveau rôle</span>
+          </button>
+        </div>
       </div>
+
       <DataTable
+        data={data}
         columns={columns}
-        data={roles?.items || []}
         isLoading={isLoading}
-        error={null}
-        onRetry={() => {}}
-        pagination={{
-          pageIndex: roles?.skip ? roles.skip / (roles.limit || 1) : 0,
-          pageSize: roles?.limit || 10,
-          pageCount: roles?.total ? Math.ceil(roles.total / (roles.limit || 1)) : 1,
-        }}
-        onPageChange={() => {}}
+        pagination={pagination}
+        onPageChange={handlePageChange}
+        onSearchChange={handleSearchChange}
+        onEdit={handleOpenDialog}
+        onDelete={handleDeleteRequest}
       />
+
       <RoleDialog
-        open={dialogOpen}
-        onClose={() => {
-            setDialogOpen(false);
-            setSelectedRole(null);
-        }}
+        isOpen={isDialogOpen}
+        onClose={handleCloseDialog}
+        onConfirm={handleConfirm}
         role={selectedRole}
       />
-    </div>
-  );
-};
 
-export default Roles;
+      <ConfirmationDialog
+        isOpen={isConfirmOpen}
+        onClose={() => setIsConfirmOpen(false)}
+        onConfirm={handleConfirmDelete}
+        title="Confirmer la suppression"
+        description={`Êtes-vous sûr de vouloir supprimer le rôle "${roleToDelete?.name}" ? Cette action est irréversible.`}
+      />
+    </div>
+  )
+}
+
+export default Roles

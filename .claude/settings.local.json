@@ -6,7 +6,14 @@
       "Bash(dir:*)",
       "Bash(npm run build:*)",
       "Bash(npx tsc:*)",
-      "Bash(python:*)"
+      "Bash(python:*)",
+      "Bash(pnpm run dev)",
+      "Bash(git checkout:*)",
+      "Bash(git add:*)",
+      "Bash(git commit:*)",
+      "Bash(git push:*)",
+      "Bash(npm run dev:*)",
+      "Bash(timeout /t 5 /nobreak)"
     ],
     "deny": [],
     "ask": []

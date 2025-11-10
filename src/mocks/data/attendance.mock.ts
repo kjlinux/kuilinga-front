@@ -6,6 +6,9 @@ import { Attendance, AttendanceType, PaginatedResponse } from '../../types';
 import { createMockError } from '../interceptor';
 import { paginate, pageToSkipLimit } from '../utils/pagination';
 import { randomUUID, randomElement } from '../utils/generators';
+import { mockEmployees } from './employees.mock';
+import { mockDevices } from './devices.mock';
+
 
 /**
  * Internal attendance structure (flat for easier management)
@@ -38,7 +41,7 @@ const generateGeoLocation = (): string => {
 // Generate attendance records for the last 30 days
 const generateAttendanceRecords = (): AttendanceInternal[] => {
   // Lazy import to avoid circular dependency
-  const { mockEmployees } = require('./employees.mock');
+  // const { mockEmployees } = require('./employees.mock');
 
   const records: AttendanceInternal[] = [];
   const now = new Date();
@@ -126,8 +129,8 @@ export const getAttendancesHandler = (request: any): PaginatedResponse<Attendanc
  */
 const enrichAttendance = (att: AttendanceInternal): Attendance => {
   // Lazy imports to avoid circular dependencies
-  const { mockEmployees } = require('./employees.mock');
-  const { mockDevices } = require('./devices.mock');
+  // const { mockEmployees } = require('./employees.mock');
+  // const { mockDevices } = require('./devices.mock');
 
   const employee = mockEmployees.find((e: any) => e.id === att.employee_id);
   const device = mockDevices.find((d: any) => d.id === att.device_id);

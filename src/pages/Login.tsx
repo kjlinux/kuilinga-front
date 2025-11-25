@@ -28,6 +28,8 @@ const Login = () => {
 
     try {
       await login(email, password)
+      // Redirection immédiate vers le dashboard après connexion réussie
+      navigate("/dashboard")
     } catch (err) {
       setError((err as Error).message || "Identifiants incorrects")
     } finally {

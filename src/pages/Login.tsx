@@ -12,8 +12,9 @@ const Login = () => {
 
   const handleSubmit = (e: FormEvent) => {
     e.preventDefault()
+    e.stopPropagation()
     // Redirection directe vers le dashboard sans authentification
-    navigate("/dashboard")
+    navigate("/dashboard", { replace: true })
   }
 
   return (

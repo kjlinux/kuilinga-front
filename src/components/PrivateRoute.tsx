@@ -1,21 +1,10 @@
 "use client"
 
-import { Navigate, Outlet } from "react-router-dom"
-import { useAuth } from "../hooks/useAuth"
-import LoadingSpinner from "./LoadingSpinner"
+import { Outlet } from "react-router-dom"
 
 const PrivateRoute = () => {
-  const { isAuthenticated, isLoading } = useAuth()
-
-  if (isLoading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-background">
-        <LoadingSpinner size="large" />
-      </div>
-    )
-  }
-
-  return isAuthenticated ? <Outlet /> : <Navigate to="/login" replace />
+  // Désactivation temporaire de la protection d'authentification
+  return <Outlet />
 }
 
 export default PrivateRoute

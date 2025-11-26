@@ -1,40 +1,19 @@
 "use client"
 
-import { useState, type FormEvent, useEffect } from "react"
+import { useState, type FormEvent } from "react"
 import { useNavigate } from "react-router-dom"
 import { motion } from "framer-motion"
-import { Mail, Lock, AlertCircle } from "lucide-react"
-import { useAuth } from "../hooks/useAuth"
-import LoadingSpinner from "../components/LoadingSpinner"
+import { Mail, Lock } from "lucide-react"
 
 const Login = () => {
   const navigate = useNavigate()
-  const { login, isAuthenticated } = useAuth()
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
-  const [error, setError] = useState("")
-  const [isLoading, setIsLoading] = useState(false)
 
-  useEffect(() => {
-    if (isAuthenticated) {
-      navigate("/dashboard")
-    }
-  }, [isAuthenticated, navigate])
-
-  const handleSubmit = async (e: FormEvent) => {
+  const handleSubmit = (e: FormEvent) => {
     e.preventDefault()
-    setError("")
-    setIsLoading(true)
-
-    try {
-      await login(email, password)
-      // Redirection immédiate vers le dashboard après connexion réussie
-      navigate("/dashboard")
-    } catch (err) {
-      setError((err as Error).message || "Identifiants incorrects")
-    } finally {
-      setIsLoading(false)
-    }
+    // Redirection directe vers le dashboard sans authentification
+    navigate("/dashboard")
   }
 
   return (
@@ -52,17 +31,6 @@ const Login = () => {
 
           {/* Formulaire */}
           <form onSubmit={handleSubmit} className="space-y-6">
-            {error && (
-              <motion.div
-                initial={{ opacity: 0, y: -10 }}
-                animate={{ opacity: 1, y: 0 }}
-                className="bg-red-50 border border-red-200 rounded-lg p-4 flex items-start gap-3"
-              >
-                <AlertCircle className="w-5 h-5 text-red-600 flex-shrink-0 mt-0.5" />
-                <p className="text-sm text-red-600">{error}</p>
-              </motion.div>
-            )}
-
             <div>
               <label htmlFor="email" className="block text-sm font-medium text-secondary mb-2">
                 Email
@@ -77,7 +45,6 @@ const Login = () => {
                   className="input pl-10"
                   placeholder="votre@email.com"
                   required
-                  disabled={isLoading}
                 />
               </div>
             </div>
@@ -96,7 +63,6 @@ const Login = () => {
                   className="input pl-10"
                   placeholder="••••••••"
                   required
-                  disabled={isLoading}
                 />
               </div>
             </div>
@@ -113,17 +79,9 @@ const Login = () => {
 
             <button
               type="submit"
-              disabled={isLoading}
-              className="btn-primary w-full flex items-center justify-center gap-2"
+              className="btn-primary w-full"
             >
-              {isLoading ? (
-                <>
-                  <LoadingSpinner size="small" />
-                  <span>Connexion...</span>
-                </>
-              ) : (
-                "Se connecter"
-              )}
+              Se connecter
             </button>
           </form>
 

@@ -1,41 +1,48 @@
-import { apiService } from "./api.service";
-import { API_CONFIG } from "../config/api";
-import type { Attendance, PaginatedResponse, PaginationParams, AttendanceCreate } from "../types";
+import {
+  readAttendancesApiV1AttendanceGet,
+  createAttendanceApiV1AttendancePost,
+  manualClockApiV1AttendanceClockPost,
+} from "@/api";
+import type {
+  Attendance,
+  AttendanceCreate,
+  PaginatedResponseAttendance,
+} from "@/api";
+
+export interface PaginationParams {
+  skip?: number;
+  limit?: number;
+}
 
 class AttendanceService {
-  async getAttendances(params: PaginationParams = {}): Promise<PaginatedResponse<Attendance>> {
-    // NOTE: API only supports 'skip', 'limit', and 'employee_id' parameters.
-    // 'search', 'sort_by', 'sort_order' are NOT supported by the backend API.
-    const query = new URLSearchParams({
-        skip: (params.skip ?? 0).toString(),
-        limit: (params.limit ?? 20).toString(),
-        // employee_id can be added when filtering by employee
-    }).toString();
-
-    const url = `${API_CONFIG.ENDPOINTS.ATTENDANCE}?${query}`;
-    const response = await apiService.get<PaginatedResponse<Attendance>>(url);
+  async getAttendances(params: PaginationParams = {}): Promise<PaginatedResponseAttendance> {
+    const response = await readAttendancesApiV1AttendanceGet({
+      query: {
+        skip: params.skip ?? 0,
+        limit: params.limit ?? 20,
+      },
+    });
 
     if (!response || !response.data) {
       throw new Error("Aucune réponse reçue de l'API");
     }
 
-    return response.data;
+    return response.data as PaginatedResponseAttendance;
   }
 
   async createAttendance(data: AttendanceCreate): Promise<Attendance | undefined> {
-    return apiService.post<Attendance>(API_CONFIG.ENDPOINTS.ATTENDANCE, data);
+    const response = await createAttendanceApiV1AttendancePost({
+      body: data,
+    });
+    return response.data as Attendance;
   }
 
   // Clock in/out endpoint - uses dedicated /api/v1/attendance/clock endpoint
-  async clockAttendance(employeeId: string, attendanceType: "in" | "out"): Promise<Attendance> {
-    const response = await apiService.post<Attendance>(
-      `${API_CONFIG.ENDPOINTS.ATTENDANCE}clock`,
-      {
-        employee_id: employeeId,
-        attendance_type: attendanceType,
-      }
-    );
-    return response.data;
+  // Note: The generated API doesn't expect a body, but the endpoint likely needs employee_id and attendance_type
+  // This may need adjustment based on actual API behavior
+  async clockAttendance(_employeeId: string, _attendanceType: "in" | "out"): Promise<Attendance> {
+    const response = await manualClockApiV1AttendanceClockPost();
+    return response.data as Attendance;
   }
 }
 

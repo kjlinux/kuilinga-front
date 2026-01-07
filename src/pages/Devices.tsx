@@ -6,7 +6,7 @@ import { toast } from "sonner"
 import DataTable from "../components/DataTable"
 import useDataTable from "../hooks/useDataTable"
 import deviceService from "../services/device.service"
-import type { Device, DeviceCreate, DeviceUpdate, DeviceStatus } from "../types"
+import type { Device, DeviceCreate, DeviceUpdate, DeviceStatus } from "@/api"
 import DeviceDialog from "../components/DeviceDialog"
 import ConfirmationDialog from "../components/ConfirmationDialog"
 
@@ -133,13 +133,13 @@ const Devices = () => {
       <DataTable
         data={data.map((d) => ({
           ...d,
-          status: getStatusBadge(d.status),
+          status: getStatusBadge(d.status ?? 'offline'),
           organization: d.organization?.name,
           site: d.site?.name,
           last_attendance_timestamp: d.last_attendance_timestamp
             ? new Date(d.last_attendance_timestamp).toLocaleString()
             : "N/A",
-        }))}
+        })) as unknown as Device[]}
         columns={columns}
         isLoading={isLoading}
         pagination={pagination}

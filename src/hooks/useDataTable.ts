@@ -1,5 +1,20 @@
 import { useState, useEffect, useCallback } from "react"
-import type { PaginatedResponse, PaginationParams } from "../types"
+
+// Generic interface for paginated responses
+// OpenAPI generates specific types like PaginatedResponseEmployee, PaginatedResponseOrganization, etc.
+// This interface provides a common shape for the hook to work with any entity
+export interface PaginatedResponse<T> {
+  items: T[];
+  total: number;
+  skip: number;
+  limit: number;
+}
+
+export interface PaginationParams {
+  skip?: number;
+  limit?: number;
+  search?: string;
+}
 
 interface UseDataTableProps<T> {
   fetchData: (params: PaginationParams) => Promise<PaginatedResponse<T>>
@@ -21,7 +36,7 @@ const useDataTable = <T>({ fetchData }: UseDataTableProps<T>) => {
     setError(null)
     try {
       const response = await fetchData(pagination)
-      
+
       if (!response) {
         throw new Error("Aucune réponse reçue")
       }

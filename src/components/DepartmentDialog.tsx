@@ -8,7 +8,7 @@ import {
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import { Department, DepartmentCreate, DepartmentUpdate, Site, Employee } from "../types"
+import type { Department, DepartmentCreate, DepartmentUpdate, Site, Employee } from "@/api"
 import { useEffect, useState } from "react"
 import siteService from "@/services/site.service"
 import employeeService from "@/services/employee.service"
@@ -27,7 +27,7 @@ const DepartmentDialog = ({
   onConfirm,
   department,
 }: DepartmentDialogProps) => {
-  const [formData, setFormData] = useState<Partial<DepartmentCreate | DepartmentUpdate>>({})
+  const [formData, setFormData] = useState<Partial<DepartmentCreate & DepartmentUpdate> & { site_id?: string }>({})
   const [sites, setSites] = useState<Site[]>([])
   const [managers, setManagers] = useState<Employee[]>([])
   const [errors, setErrors] = useState<Record<string, string>>({})
@@ -39,7 +39,7 @@ const DepartmentDialog = ({
 
   useEffect(() => {
     if (department) {
-      setFormData(department)
+      setFormData({ ...department, site_id: department.site?.id })
     } else {
       setFormData({})
     }
@@ -57,7 +57,7 @@ const DepartmentDialog = ({
   const validate = () => {
     const newErrors: Record<string, string> = {}
     if (!formData.name) newErrors.name = "Le nom est requis"
-    if (!formData.site_id) newErrors.site_id = "Le site est requis"
+    if (!department && !formData.site_id) newErrors.site_id = "Le site est requis"
     setErrors(newErrors)
     return Object.keys(newErrors).length === 0
   }
@@ -82,7 +82,7 @@ const DepartmentDialog = ({
           </div>
           <div className="space-y-2">
             <Label htmlFor="site_id">Site</Label>
-            <Select onValueChange={handleSelectChange("site_id")} value={formData.site_id}>
+            <Select onValueChange={handleSelectChange("site_id")} value={formData.site_id ?? undefined}>
               <SelectTrigger>
                 <SelectValue placeholder="Sélectionner un site" />
               </SelectTrigger>
@@ -96,7 +96,7 @@ const DepartmentDialog = ({
           </div>
           <div className="space-y-2">
             <Label htmlFor="manager_id">Manager</Label>
-            <Select onValueChange={handleSelectChange("manager_id")} value={formData.manager_id}>
+            <Select onValueChange={handleSelectChange("manager_id")} value={formData.manager_id ?? undefined}>
               <SelectTrigger>
                 <SelectValue placeholder="Sélectionner un manager" />
               </SelectTrigger>

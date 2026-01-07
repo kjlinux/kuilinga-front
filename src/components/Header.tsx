@@ -1,9 +1,8 @@
 import type React from "react"
 import { useState, useRef, useEffect } from "react"
 import { Link } from "react-router-dom"
-import { Menu, Bell, User, LogOut, SettingsIcon } from "lucide-react"
+import { Menu, User, LogOut, SettingsIcon } from "lucide-react"
 import { useAuth } from "../hooks/useAuth"
-import { useNotifications } from "../hooks/useNotification"
 import { motion, AnimatePresence } from "framer-motion"
 
 interface HeaderProps {
@@ -12,18 +11,12 @@ interface HeaderProps {
 
 const Header: React.FC<HeaderProps> = ({ onMenuClick }) => {
   const { user, logout } = useAuth()
-  const { notifications, unreadCount, markAsRead } = useNotifications()
-  const [showNotifications, setShowNotifications] = useState(false)
   const [showProfile, setShowProfile] = useState(false)
-  const notifRef = useRef<HTMLDivElement>(null)
   const profileRef = useRef<HTMLDivElement>(null)
 
-  // Close dropdowns when clicking outside
+  // Close dropdown when clicking outside
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
-      if (notifRef.current && !notifRef.current.contains(event.target as Node)) {
-        setShowNotifications(false)
-      }
       if (profileRef.current && !profileRef.current.contains(event.target as Node)) {
         setShowProfile(false)
       }
@@ -64,103 +57,15 @@ const Header: React.FC<HeaderProps> = ({ onMenuClick }) => {
 
         {/* Actions */}
         <div className="flex items-center gap-2 md:gap-4">
-          {/* Notifications */}
-          <div className="relative" ref={notifRef}>
-            <button
-              onClick={() => setShowNotifications(!showNotifications)}
-              className="relative p-2 rounded-lg hover:bg-gray-100 transition-colors"
-              aria-label="Notifications"
-            >
-              <Bell className="w-6 h-6 text-secondary" />
-              {unreadCount > 0 && (
-                <span className="absolute top-1 right-1 w-5 h-5 bg-red-500 text-white text-xs rounded-full flex items-center justify-center">
-                  {unreadCount > 9 ? "9+" : unreadCount}
-                </span>
-              )}
-            </button>
-
-            <AnimatePresence>
-              {showNotifications && (
-                <motion.div
-                  initial={{ opacity: 0, y: -10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, y: -10 }}
-                  className="absolute right-0 mt-2 w-80 bg-white rounded-lg shadow-xl border border-gray-200 max-h-96 overflow-y-auto"
-                >
-                  <div className="p-4 border-b border-gray-200">
-                    <h3 className="font-semibold text-secondary">Notifications</h3>
-                  </div>
-
-                  {notifications.length === 0 ? (
-                    <div className="p-4 text-center text-accent">No notifications</div>
-                  ) : (
-                    <div className="divide-y divide-gray-200">
-                      {notifications.slice(0, 5).map((notif) => (
-                        <div
-                          key={notif.id}
-                          className={`p-4 hover:bg-gray-50 cursor-pointer transition-colors ${
-                            !notif.lu ? "bg-blue-50" : ""
-                          }`}
-                          onClick={() => markAsRead(notif.id)}
-                        >
-                          <div className="flex items-start gap-3">
-                            <div
-                              className={`w-2 h-2 rounded-full mt-2 ${
-                                notif.type === "error"
-                                  ? "bg-red-500"
-                                  : notif.type === "warning"
-                                    ? "bg-yellow-500"
-                                    : notif.type === "success"
-                                      ? "bg-green-500"
-                                      : "bg-blue-500"
-                              }`}
-                            />
-                            <div className="flex-1">
-                              <p className="font-medium text-sm text-secondary">{notif.titre}</p>
-                              <p className="text-xs text-accent mt-1">{notif.message}</p>
-                              <p className="text-xs text-accent mt-1">
-                                {new Date(notif.timestamp).toLocaleString("fr-FR")}
-                              </p>
-                            </div>
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  )}
-
-                  {notifications.length > 0 && (
-                    <div className="p-3 border-t border-gray-200">
-                      <Link
-                        to="/notifications"
-                        className="text-sm text-primary hover:underline block text-center"
-                        onClick={() => setShowNotifications(false)}
-                      >
-                        View all notifications
-                      </Link>
-                    </div>
-                  )}
-                </motion.div>
-              )}
-            </AnimatePresence>
-          </div>
-
           {/* User profile */}
           <div className="relative" ref={profileRef}>
             <button
               onClick={() => setShowProfile(!showProfile)}
               className="flex items-center gap-2 p-2 rounded-lg hover:bg-gray-100 transition-colors"
             >
-              {user?.photo ? (
-                <img
-                  src={user.photo}
-                  alt={user.full_name ?? ""}
-                  className="w-8 h-8 rounded-full object-cover"
-                />
-              ) : (
-                <div className="w-8 h-8 bg-primary rounded-full flex items-center justify-center">
-                  <User className="w-5 h-5 text-white" />
-                </div>
-              )}
+              <div className="w-8 h-8 bg-primary rounded-full flex items-center justify-center">
+                <User className="w-5 h-5 text-white" />
+              </div>
               <div className="hidden md:block text-left">
                 <p className="text-sm font-medium text-secondary">
                   {user?.full_name}
@@ -195,6 +100,7 @@ const Header: React.FC<HeaderProps> = ({ onMenuClick }) => {
                     </Link>
 
                     <button
+                      type="button"
                       onClick={handleLogout}
                       className="w-full flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-red-50 transition-colors text-red-600"
                     >

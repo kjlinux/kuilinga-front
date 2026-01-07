@@ -1,4 +1,4 @@
-import { MultiOrgConsolidatedResponse } from "@/types";
+import type { MultiOrgConsolidatedResponse } from "@/api";
 import {
   Table,
   TableBody,

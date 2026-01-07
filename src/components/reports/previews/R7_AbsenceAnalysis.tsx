@@ -1,4 +1,4 @@
-import { DepartmentLeavesResponse } from "@/types"; // Re-using this type as the structure is identical
+import type { DepartmentLeavesResponse } from "@/api"; // Re-using this type as the structure is identical
 import {
   Table,
   TableBody,
@@ -44,7 +44,7 @@ export const R7AbsenceAnalysis = ({ data }: R7AbsenceAnalysisProps) => {
               nameKey="name"
               label={({ name, percent }) => `${name} (${(percent * 100).toFixed(0)}%)`}
             >
-              {chartData.map((entry, index) => (
+              {chartData.map((_, index) => (
                 <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
               ))}
             </Pie>

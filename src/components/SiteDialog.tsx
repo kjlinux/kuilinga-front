@@ -8,7 +8,7 @@ import {
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import { Site, SiteCreate, SiteUpdate, Organization } from "../types"
+import type { Site, SiteCreate, SiteUpdate, Organization } from "@/api"
 import { useEffect, useState } from "react"
 import organizationService from "@/services/organization.service"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
@@ -26,7 +26,7 @@ const SiteDialog = ({
   onConfirm,
   site,
 }: SiteDialogProps) => {
-  const [formData, setFormData] = useState<Partial<SiteCreate | SiteUpdate>>({})
+  const [formData, setFormData] = useState<Partial<SiteCreate & SiteUpdate> & { organization_id?: string }>({})
   const [organizations, setOrganizations] = useState<Organization[]>([])
   const [errors, setErrors] = useState<Record<string, string>>({})
 
@@ -36,7 +36,7 @@ const SiteDialog = ({
 
   useEffect(() => {
     if (site) {
-      setFormData(site)
+      setFormData({ ...site, organization_id: site.organization?.id })
     } else {
       setFormData({})
     }
@@ -54,7 +54,7 @@ const SiteDialog = ({
   const validate = () => {
     const newErrors: Record<string, string> = {}
     if (!formData.name) newErrors.name = "Le nom est requis"
-    if (!formData.organization_id) newErrors.organization_id = "L'organisation est requise"
+    if (!site && !formData.organization_id) newErrors.organization_id = "L'organisation est requise"
     setErrors(newErrors)
     return Object.keys(newErrors).length === 0
   }
@@ -88,7 +88,7 @@ const SiteDialog = ({
           {!site && (
             <div className="space-y-2">
               <Label htmlFor="organization_id">Organisation</Label>
-              <Select onValueChange={handleSelectChange("organization_id")} value={formData.organization_id}>
+              <Select onValueChange={handleSelectChange("organization_id")} value={formData.organization_id ?? undefined}>
                 <SelectTrigger>
                   <SelectValue placeholder="Sélectionner une organisation" />
                 </SelectTrigger>

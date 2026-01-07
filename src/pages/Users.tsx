@@ -1,21 +1,23 @@
 import { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import userService from '../services/user.service';
-import { User } from '../types';
+import type { User } from '@/api';
 import { DataTable } from '@/components/DataTable';
 import { Button } from '@/components/ui/button';
 import { PlusCircle } from 'lucide-react';
 import UserDialog from '@/components/UserDialog';
-import { ColumnDef } from '@tanstack/react-table';
+import type { ColumnDef } from '@tanstack/react-table';
 
 const Users = () => {
   const [dialogOpen, setDialogOpen] = useState(false);
   const [selectedUser, setSelectedUser] = useState<User | null>(null);
 
-  const { data: users, isLoading } = useQuery({
+  const { data: usersResponse, isLoading } = useQuery({
     queryKey: ['users'],
     queryFn: () => userService.getUsers(),
   });
+
+  const users = usersResponse?.data;
 
   const columns: ColumnDef<User>[] = [
     {
@@ -31,7 +33,7 @@ const Users = () => {
       header: 'Roles',
       cell: ({ row }) => {
         const roles = row.original.roles;
-        return <span>{roles.map(role => role.name).join(', ')}</span>;
+        return <span>{roles?.map((role: { name: string }) => role.name).join(', ') ?? ''}</span>;
       },
     },
     {

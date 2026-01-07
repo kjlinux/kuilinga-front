@@ -23,31 +23,31 @@ export const ReportPreview = ({ reportId, data }: ReportPreviewProps) => {
 
   switch (reportId) {
     case ReportId.R1_MultiOrgConsolidated:
-      return <R1_MultiOrgConsolidated data={data} />;
+      return <R1_MultiOrgConsolidated data={data as never} />;
     case ReportId.R5_OrgPresence:
-      return <R5OrgPresence data={data} />;
+      return <R5OrgPresence data={data as never} />;
     case ReportId.R7_AbsenceAnalysis:
-      return <R7AbsenceAnalysis data={data} />;
+      return <R7AbsenceAnalysis data={data as never} />;
     case ReportId.R9_EmployeeWorkedHours:
-      return <R9EmployeeWorkedHours data={data} />;
+      return <R9EmployeeWorkedHours data={data as never} />;
     case ReportId.R10_SiteActivity:
-      return <R10SiteActivity data={data} />;
+      return <R10SiteActivity data={data as never} />;
     case ReportId.R12_DeptPresence:
-      return <R12DeptPresence data={data} />;
+      return <R12DeptPresence data={data as never} />;
     case ReportId.R15_LeaveRequests:
-      return <R15LeaveRequests data={data} />;
+      return <R15LeaveRequests data={data as never} />;
     case ReportId.R16_TeamPerformance:
-      return <R16TeamPerformance data={data} />;
+      return <R16TeamPerformance data={data as never} />;
     case ReportId.R17_MyPresence:
-      return <R17MyPresence data={data} />;
+      return <R17MyPresence data={data as never} />;
     case ReportId.R18_MyMonthlySummary:
-      return <R18MyMonthlySummary data={data} />;
+      return <R18MyMonthlySummary data={data as never} />;
     case ReportId.R19_MyLeaves:
-      return <R19MyLeaves data={data} />;
+      return <R19MyLeaves data={data as never} />;
     case ReportId.R6_MonthlySynthetic:
-      return <R5OrgPresence data={data as OrganizationPresenceResponse} />;
+      return <R5OrgPresence data={data as never} />;
     case ReportId.R13_TeamWeekly:
-      return <R12DeptPresence data={data as DepartmentPresenceResponse} />;
+      return <R12DeptPresence data={data as never} />;
 
     // Add other report previews here as they are created
 

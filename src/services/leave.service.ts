@@ -1,38 +1,59 @@
-import { apiService } from "./api.service";
-import { API_CONFIG } from "../config/api";
-import type { Leave, PaginatedResponse, PaginationParams, LeaveCreate, LeaveUpdate } from "../types";
+import {
+  readLeavesApiV1LeavesGet,
+  readLeaveApiV1LeavesLeaveIdGet,
+  createLeaveApiV1LeavesPost,
+  updateLeaveApiV1LeavesLeaveIdPut,
+  deleteLeaveApiV1LeavesLeaveIdDelete,
+} from "@/api";
+import type {
+  Leave,
+  LeaveCreate,
+  LeaveUpdate,
+  PaginatedResponseLeave,
+} from "@/api";
+
+export interface PaginationParams {
+  skip?: number;
+  limit?: number;
+}
 
 class LeaveService {
-  async getLeaves(params: PaginationParams = {}): Promise<PaginatedResponse<Leave>> {
-    // NOTE: API only supports 'skip' and 'limit' parameters.
-    // 'search', 'sort_by', 'sort_order' are NOT supported by the backend API.
-    const query = new URLSearchParams({
-        skip: (params.skip ?? 0).toString(),
-        limit: (params.limit ?? 10).toString(),
-    }).toString();
-
-    const url = `${API_CONFIG.ENDPOINTS.LEAVES}?${query}`;
-    const response = await apiService.get<PaginatedResponse<Leave>>(url);
-    return response.data;
+  async getLeaves(params: PaginationParams = {}): Promise<PaginatedResponseLeave> {
+    const response = await readLeavesApiV1LeavesGet({
+      query: {
+        skip: params.skip ?? 0,
+        limit: params.limit ?? 10,
+      },
+    });
+    return response.data as PaginatedResponseLeave;
   }
 
   async getLeave(id: string): Promise<Leave> {
-    const response = await apiService.get<Leave>(`${API_CONFIG.ENDPOINTS.LEAVES}/${id}`);
-    return response.data;
+    const response = await readLeaveApiV1LeavesLeaveIdGet({
+      path: { leave_id: id },
+    });
+    return response.data as Leave;
   }
 
   async createLeave(data: LeaveCreate): Promise<Leave> {
-    const response = await apiService.post<Leave>(API_CONFIG.ENDPOINTS.LEAVES, data);
-    return response.data;
+    const response = await createLeaveApiV1LeavesPost({
+      body: data,
+    });
+    return response.data as Leave;
   }
 
   async updateLeave(id: string, data: LeaveUpdate): Promise<Leave> {
-    const response = await apiService.put<Leave>(`${API_CONFIG.ENDPOINTS.LEAVES}/${id}`, data);
-    return response.data;
+    const response = await updateLeaveApiV1LeavesLeaveIdPut({
+      path: { leave_id: id },
+      body: data,
+    });
+    return response.data as Leave;
   }
 
   async deleteLeave(id: string): Promise<void> {
-    await apiService.delete<void>(`${API_CONFIG.ENDPOINTS.LEAVES}/${id}`);
+    await deleteLeaveApiV1LeavesLeaveIdDelete({
+      path: { leave_id: id },
+    });
   }
 }
 

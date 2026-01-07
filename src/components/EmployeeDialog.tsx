@@ -8,7 +8,7 @@ import {
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import { Employee, EmployeeCreate, EmployeeUpdate, Organization, Site, Department } from "../types"
+import type { Employee, EmployeeCreate, EmployeeUpdate, Organization, Site, Department } from "@/api"
 import { useEffect, useState } from "react"
 import organizationService from "@/services/organization.service"
 import siteService from "@/services/site.service"
@@ -28,7 +28,7 @@ const EmployeeDialog = ({
   onConfirm,
   employee,
 }: EmployeeDialogProps) => {
-  const [formData, setFormData] = useState<Partial<EmployeeCreate | EmployeeUpdate>>({})
+  const [formData, setFormData] = useState<Partial<EmployeeCreate & EmployeeUpdate> & { organization_id?: string }>({})
   const [organizations, setOrganizations] = useState<Organization[]>([])
   const [sites, setSites] = useState<Site[]>([])
   const [departments, setDepartments] = useState<Department[]>([])
@@ -42,7 +42,7 @@ const EmployeeDialog = ({
 
   useEffect(() => {
     if (employee) {
-      setFormData(employee)
+      setFormData({ ...employee, organization_id: employee.organization?.id, site_id: employee.site?.id, department_id: employee.department?.id })
     } else {
       setFormData({})
     }
@@ -62,7 +62,7 @@ const EmployeeDialog = ({
     if (!formData.first_name) newErrors.first_name = "Le prénom est requis"
     if (!formData.last_name) newErrors.last_name = "Le nom est requis"
     if (!formData.email) newErrors.email = "L'email est requis"
-    if (!formData.organization_id) newErrors.organization_id = "L'organisation est requise"
+    if (!employee && !formData.organization_id) newErrors.organization_id = "L'organisation est requise"
     setErrors(newErrors)
     return Object.keys(newErrors).length === 0
   }
@@ -120,7 +120,7 @@ const EmployeeDialog = ({
           {!employee && (
             <div className="space-y-2">
               <Label htmlFor="organization_id">Organisation</Label>
-              <Select onValueChange={handleSelectChange("organization_id")} value={formData.organization_id}>
+              <Select onValueChange={handleSelectChange("organization_id")} value={formData.organization_id ?? undefined}>
                 <SelectTrigger>
                   <SelectValue placeholder="Sélectionner une organisation" />
                 </SelectTrigger>
@@ -135,7 +135,7 @@ const EmployeeDialog = ({
           )}
           <div className="space-y-2">
             <Label htmlFor="site_id">Site</Label>
-            <Select onValueChange={handleSelectChange("site_id")} value={formData.site_id}>
+            <Select onValueChange={handleSelectChange("site_id")} value={formData.site_id ?? undefined}>
               <SelectTrigger>
                 <SelectValue placeholder="Sélectionner un site" />
               </SelectTrigger>
@@ -148,7 +148,7 @@ const EmployeeDialog = ({
           </div>
           <div className="space-y-2">
             <Label htmlFor="department_id">Département</Label>
-            <Select onValueChange={handleSelectChange("department_id")} value={formData.department_id}>
+            <Select onValueChange={handleSelectChange("department_id")} value={formData.department_id ?? undefined}>
               <SelectTrigger>
                 <SelectValue placeholder="Sélectionner un département" />
               </SelectTrigger>

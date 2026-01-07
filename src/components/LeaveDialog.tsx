@@ -8,7 +8,11 @@ import {
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import { Leave, LeaveCreate, LeaveUpdate, Employee, LeaveType, LeaveStatus } from "../types"
+import type { Leave, LeaveCreate, LeaveUpdate, Employee, LeaveType, LeaveStatus } from "@/api"
+
+// Define arrays for the type values since they are string unions, not enums
+const LEAVE_TYPES: LeaveType[] = ['annual', 'sick', 'maternity', 'paternity', 'unpaid', 'other']
+const LEAVE_STATUSES: LeaveStatus[] = ['pending', 'approved', 'rejected', 'cancelled']
 import { useEffect, useState } from "react"
 import employeeService from "@/services/employee.service"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
@@ -21,13 +25,23 @@ interface LeaveDialogProps {
   leave: Leave | null
 }
 
+interface LeaveFormData {
+  employee_id?: string
+  leave_type?: LeaveType
+  start_date?: string
+  end_date?: string
+  reason?: string
+  notes?: string | null
+  status?: LeaveStatus
+}
+
 const LeaveDialog = ({
   isOpen,
   onClose,
   onConfirm,
   leave,
 }: LeaveDialogProps) => {
-  const [formData, setFormData] = useState<Partial<LeaveCreate | LeaveUpdate>>({})
+  const [formData, setFormData] = useState<LeaveFormData>({})
   const [employees, setEmployees] = useState<Employee[]>([])
   const [errors, setErrors] = useState<Record<string, string>>({})
 
@@ -37,7 +51,15 @@ const LeaveDialog = ({
 
   useEffect(() => {
     if (leave) {
-      setFormData(leave)
+      setFormData({
+        employee_id: leave.employee?.id,
+        leave_type: leave.leave_type,
+        start_date: leave.start_date,
+        end_date: leave.end_date,
+        reason: leave.reason,
+        notes: leave.notes,
+        status: leave.status,
+      })
     } else {
       setFormData({})
     }
@@ -54,7 +76,7 @@ const LeaveDialog = ({
 
   const validate = () => {
     const newErrors: Record<string, string> = {}
-    if (!formData.employee_id) newErrors.employee_id = "L'employé est requis"
+    if (!leave && !formData.employee_id) newErrors.employee_id = "L'employé est requis"
     if (!formData.leave_type) newErrors.leave_type = "Le type est requis"
     if (!formData.start_date) newErrors.start_date = "La date de début est requise"
     if (!formData.end_date) newErrors.end_date = "La date de fin est requise"
@@ -99,7 +121,7 @@ const LeaveDialog = ({
                 <SelectValue placeholder="Sélectionner un type" />
               </SelectTrigger>
               <SelectContent>
-                {Object.values(LeaveType).map(type => (
+                {LEAVE_TYPES.map(type => (
                   <SelectItem key={type} value={type}>{type}</SelectItem>
                 ))}
               </SelectContent>
@@ -131,7 +153,7 @@ const LeaveDialog = ({
                   <SelectValue placeholder="Sélectionner un statut" />
                 </SelectTrigger>
                 <SelectContent>
-                  {Object.values(LeaveStatus).map(status => (
+                  {LEAVE_STATUSES.map(status => (
                     <SelectItem key={status} value={status}>{status}</SelectItem>
                   ))}
                 </SelectContent>

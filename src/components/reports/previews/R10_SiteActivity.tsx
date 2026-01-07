@@ -1,4 +1,4 @@
-import { SiteActivityResponse } from "@/types";
+import type { SiteActivityResponse } from "@/api";
 import {
   Table,
   TableBody,

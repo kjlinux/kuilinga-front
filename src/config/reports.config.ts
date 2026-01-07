@@ -1,4 +1,11 @@
-import { UserRole } from "@/types";
+// User roles enum - mirrors backend role names
+export enum UserRole {
+  SuperAdmin = "super-admin",
+  AdminOrganization = "admin-organization",
+  RH = "rh",
+  Manager = "manager",
+  Employee = "employee",
+}
 
 export enum ReportId {
   // Super Admin / Admin Organisation

@@ -6,7 +6,7 @@ import { toast } from "sonner"
 import DataTable from "../components/DataTable"
 import useDataTable from "../hooks/useDataTable"
 import siteService from "../services/site.service"
-import type { Site, SiteCreate, SiteUpdate } from "../types"
+import type { Site, SiteCreate, SiteUpdate } from "@/api"
 import SiteDialog from "../components/SiteDialog"
 import ConfirmationDialog from "../components/ConfirmationDialog"
 
@@ -116,7 +116,7 @@ const Sites = () => {
       </div>
 
       <DataTable
-        data={data.map((s) => ({ ...s, organization: s.organization?.name }))}
+        data={data.map((s) => ({ ...s, organization: s.organization?.name })) as unknown as Site[]}
         columns={columns}
         isLoading={isLoading}
         pagination={pagination}

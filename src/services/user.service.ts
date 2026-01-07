@@ -1,30 +1,60 @@
-import { apiService } from './api.service';
-import { API_CONFIG } from '../config/api';
-import { User, UserCreate, UserUpdate, PaginatedResponse } from '../types';
+import {
+  readUsersApiV1UsersGet,
+  readUserApiV1UsersUserIdGet,
+  createUserApiV1UsersPost,
+  updateUserApiV1UsersUserIdPut,
+  deleteUserApiV1UsersUserIdDelete,
+  assignRoleToUserApiV1UsersUserIdRolesRoleIdPost,
+} from "@/api";
+import type {
+  User,
+  UserCreate,
+  UserUpdate,
+  PaginatedResponseUser,
+} from "@/api";
 
 const userService = {
-  getUsers: (skip = 0, limit = 100) => {
-    return apiService.get<PaginatedResponse<User>>(`${API_CONFIG.ENDPOINTS.USERS}?skip=${skip}&limit=${limit}`);
+  getUsers: async (skip = 0, limit = 100) => {
+    const response = await readUsersApiV1UsersGet({
+      query: { skip, limit },
+    });
+    return { data: response.data as PaginatedResponseUser };
   },
 
-  getUserById: (userId: string) => {
-    return apiService.get<User>(`${API_CONFIG.ENDPOINTS.USERS}/${userId}`);
+  getUserById: async (userId: string) => {
+    const response = await readUserApiV1UsersUserIdGet({
+      path: { user_id: userId },
+    });
+    return { data: response.data as User };
   },
 
-  createUser: (userData: UserCreate) => {
-    return apiService.post<User>(API_CONFIG.ENDPOINTS.USERS, userData);
+  createUser: async (userData: UserCreate) => {
+    const response = await createUserApiV1UsersPost({
+      body: userData,
+    });
+    return { data: response.data as User };
   },
 
-  updateUser: (userId: string, userData: UserUpdate) => {
-    return apiService.put<User>(`${API_CONFIG.ENDPOINTS.USERS}/${userId}`, userData);
+  updateUser: async (userId: string, userData: UserUpdate) => {
+    const response = await updateUserApiV1UsersUserIdPut({
+      path: { user_id: userId },
+      body: userData,
+    });
+    return { data: response.data as User };
   },
 
-  deleteUser: (userId: string) => {
-    return apiService.delete<User>(`${API_CONFIG.ENDPOINTS.USERS}/${userId}`);
+  deleteUser: async (userId: string) => {
+    const response = await deleteUserApiV1UsersUserIdDelete({
+      path: { user_id: userId },
+    });
+    return { data: response.data as User };
   },
 
-  assignRoleToUser: (userId: string, roleId: string) => {
-    return apiService.post<User>(`${API_CONFIG.ENDPOINTS.USERS}/${userId}/roles/${roleId}`);
+  assignRoleToUser: async (userId: string, roleId: string) => {
+    const response = await assignRoleToUserApiV1UsersUserIdRolesRoleIdPost({
+      path: { user_id: userId, role_id: roleId },
+    });
+    return { data: response.data as User };
   },
 };
 

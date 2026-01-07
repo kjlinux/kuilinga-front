@@ -1,4 +1,4 @@
-import { EmployeeMonthlySummaryResponse } from "@/types";
+import type { EmployeeMonthlySummaryResponse } from "@/api";
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 
 interface R18MyMonthlySummaryProps {
@@ -6,7 +6,7 @@ interface R18MyMonthlySummaryProps {
 }
 
 export const R18MyMonthlySummary = ({ data }: R18MyMonthlySummaryProps) => {
-  const chartData = data.daily_data.map((d: { date: string; total_hours?: number }) => ({
+  const chartData = (data.daily_data as Array<{ date: string; total_hours?: number }>).map((d) => ({
     date: d.date,
     heures: d.total_hours || 0,
   }));
@@ -24,7 +24,7 @@ export const R18MyMonthlySummary = ({ data }: R18MyMonthlySummaryProps) => {
         {Object.entries(data.summary).map(([key, value]) => (
           <div key={key} className="p-4 bg-gray-100 dark:bg-gray-800 rounded-lg">
             <p className="text-sm text-muted-foreground">{key.replace(/_/g, ' ')}</p>
-            <p className="text-2xl font-bold">{value}</p>
+            <p className="text-2xl font-bold">{String(value)}</p>
           </div>
         ))}
       </div>

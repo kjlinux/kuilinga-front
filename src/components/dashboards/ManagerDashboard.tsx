@@ -1,7 +1,7 @@
 "use client"
 
 import { useEffect, useState } from "react"
-import type { ManagerDashboard as ManagerDashboardType } from "../../types"
+import type { ManagerDashboard as ManagerDashboardType } from "@/api"
 import dashboardService from "../../services/dashboard.service"
 import { useAuth } from "../../hooks/useAuth"
 import {
@@ -147,7 +147,7 @@ const ManagerDashboard = () => {
                 nameKey="name"
                 label
               >
-                {patData.map((entry, index) => (
+                {patData.map((_, index) => (
                   <Cell
                     key={`cell-${index}`}
                     fill={COLORS[index % COLORS.length]}
@@ -177,7 +177,7 @@ const ManagerDashboard = () => {
             <tbody>
               {data.real_time_attendances.map((att) => (
                 <tr key={att.id} className="border-b">
-                  <td className="p-2">{att.employee?.full_name ?? "N/A"}</td>
+                  <td className="p-2">{att.employee ? `${att.employee.first_name} ${att.employee.last_name}` : "N/A"}</td>
                   <td className="p-2">
                     {new Date(att.timestamp).toLocaleTimeString()}
                   </td>

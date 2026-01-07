@@ -1,4 +1,4 @@
-import { EmployeeLeavesReportResponse } from "@/types";
+import type { EmployeeLeavesReportResponse } from "@/api";
 import {
   Table,
   TableBody,
@@ -39,7 +39,7 @@ export const R19MyLeaves = ({ data }: R19MyLeavesProps) => {
               nameKey="name"
               label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}
             >
-              {chartData.map((entry, index) => (
+              {chartData.map((_, index) => (
                 <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
               ))}
             </Pie>

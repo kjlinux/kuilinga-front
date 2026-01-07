@@ -18,7 +18,7 @@ import { Button } from '@/components/ui/button';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
-import { Role, RoleCreate, RoleUpdate, Permission } from '@/types';
+import type { Role, RoleCreate, RoleUpdate, Permission } from '@/api';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import roleService from '@/services/role.service';
 import permissionService from '@/services/permission.service';
@@ -44,7 +44,7 @@ const RoleDialog = ({ open, onClose, role }: RoleDialogProps) => {
     defaultValues: {
       name: role?.name || '',
       description: role?.description || '',
-      permission_ids: role?.permissions.map(p => p.id) || [],
+      permission_ids: role?.permissions?.map(p => p.id) || [],
     },
   });
 
@@ -79,10 +79,10 @@ const RoleDialog = ({ open, onClose, role }: RoleDialogProps) => {
     if (role) {
       updateRoleMutation.mutate(roleData);
     } else {
-      const newRole = await createRoleMutation.mutateAsync(roleData);
-      if (newRole && permission_ids) {
+      const result = await createRoleMutation.mutateAsync(roleData);
+      if (result?.data && permission_ids) {
         permission_ids.forEach(permissionId => {
-          assignPermissionMutation.mutate({ roleId: newRole.id, permissionId });
+          assignPermissionMutation.mutate({ roleId: result.data.id, permissionId });
         });
       }
     }
@@ -135,7 +135,7 @@ const RoleDialog = ({ open, onClose, role }: RoleDialogProps) => {
                   <div className="mb-4">
                     <FormLabel className="text-base">Permissions</FormLabel>
                   </div>
-                  {permissions?.items.map((permission: Permission) => (
+                  {permissions?.data?.items?.map((permission: Permission) => (
                     <FormField
                       key={permission.id}
                       control={form.control}

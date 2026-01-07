@@ -1,7 +1,7 @@
 "use client"
 
 import { useEffect, useState } from "react"
-import type { EmployeeDashboard as EmployeeDashboardType } from "../../types"
+import type { EmployeeDashboard as EmployeeDashboardType } from "@/api"
 import dashboardService from "../../services/dashboard.service"
 import { useAuth } from "../../hooks/useAuth"
 import {
@@ -96,7 +96,7 @@ const EmployeeDashboard = () => {
                 nameKey="name"
                 label
               >
-                {leaveData.map((entry, index) => (
+                {leaveData.map((_, index) => (
                   <Cell
                     key={`cell-${index}`}
                     fill={COLORS[index % COLORS.length]}

@@ -1,27 +1,41 @@
-import { apiService } from "./api.service";
+import { client } from "@/api/config";
 
 class ReportService {
   async generateReportPreview(endpoint: string, filters: Record<string, unknown>): Promise<Record<string, unknown>> {
-    const response = await apiService.post<Record<string, unknown>>(endpoint, filters);
-    return response.data;
+    const response = await client.post({
+      url: endpoint,
+      body: filters,
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    });
+    return response.data as Record<string, unknown>;
   }
 
   async downloadReport(endpoint: string, filters: Record<string, unknown>): Promise<void> {
-    const response = await apiService.post<Blob>(endpoint, filters, {
+    const response = await client.post({
+      url: endpoint,
+      body: filters,
       responseType: 'blob',
+      headers: {
+        'Content-Type': 'application/json',
+      },
     });
 
-    // Extract filename from content-disposition header
-    const contentDisposition = response.headers['content-disposition'];
+    // Extract filename from content-disposition header if available
     let filename = `report.${filters.format || 'pdf'}`;
-    if (contentDisposition) {
-      const filenameMatch = contentDisposition.match(/filename="?(.+)"?/);
-      if (filenameMatch && filenameMatch.length > 1) {
-        filename = filenameMatch[1];
+    const headers = (response as { headers?: Record<string, string> }).headers;
+    if (headers) {
+      const contentDisposition = headers['content-disposition'];
+      if (contentDisposition) {
+        const filenameMatch = contentDisposition.match(/filename="?(.+)"?/);
+        if (filenameMatch && filenameMatch.length > 1) {
+          filename = filenameMatch[1];
+        }
       }
     }
 
-    this.downloadFile(response.data, filename);
+    this.downloadFile(response.data as Blob, filename);
   }
 
   private downloadFile(blob: Blob, filename: string) {

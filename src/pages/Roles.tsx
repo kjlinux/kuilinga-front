@@ -1,21 +1,23 @@
 import { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import roleService from '../services/role.service';
-import { Role } from '../types';
+import type { Role } from '@/api';
 import { DataTable } from '@/components/DataTable';
 import { Button } from '@/components/ui/button';
 import { PlusCircle } from 'lucide-react';
 import RoleDialog from '@/components/RoleDialog';
-import { ColumnDef } from '@tanstack/react-table';
+import type { ColumnDef } from '@tanstack/react-table';
 
 const Roles = () => {
   const [dialogOpen, setDialogOpen] = useState(false);
   const [selectedRole, setSelectedRole] = useState<Role | null>(null);
 
-  const { data: roles, isLoading } = useQuery({
+  const { data: rolesResponse, isLoading } = useQuery({
     queryKey: ['roles'],
     queryFn: () => roleService.getRoles(),
   });
+
+  const roles = rolesResponse?.data;
 
   const columns: ColumnDef<Role>[] = [
     {
@@ -31,7 +33,7 @@ const Roles = () => {
       header: 'Permissions',
       cell: ({ row }) => {
         const permissions = row.original.permissions;
-        return <span>{permissions.map(p => p.name).join(', ')}</span>;
+        return <span>{permissions?.map((p: { name: string }) => p.name).join(', ') ?? ''}</span>;
       },
     },
     {

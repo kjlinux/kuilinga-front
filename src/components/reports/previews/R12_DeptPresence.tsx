@@ -1,4 +1,4 @@
-import { DepartmentPresenceResponse } from "@/types";
+import type { DepartmentPresenceResponse } from "@/api";
 import {
   Table,
   TableBody,

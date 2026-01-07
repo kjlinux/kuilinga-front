@@ -1,7 +1,7 @@
 "use client"
 
 import { useEffect, useState } from "react"
-import type { IntegratorDashboard as IntegratorDashboardType } from "../../types"
+import type { IntegratorDashboard as IntegratorDashboardType } from "@/api"
 import dashboardService from "../../services/dashboard.service"
 import { useAuth } from "../../hooks/useAuth"
 import {
@@ -88,7 +88,7 @@ const IntegratorDashboard = () => {
                 nameKey="status"
                 label
               >
-                {data.device_status_ratio.map((entry, index) => (
+                {data.device_status_ratio.map((_, index) => (
                   <Cell
                     key={`cell-${index}`}
                     fill={COLORS[index % COLORS.length]}

@@ -18,7 +18,7 @@ import { Button } from '@/components/ui/button';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
-import { User, UserCreate, UserUpdate, Role } from '@/types';
+import type { User, UserCreate, UserUpdate, Role } from '@/api';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import userService from '@/services/user.service';
 import roleService from '@/services/role.service';
@@ -53,7 +53,7 @@ const UserDialog = ({ open, onClose, user }: UserDialogProps) => {
       full_name: user?.full_name || '',
       email: user?.email || '',
       password: '',
-      role_id: user?.roles[0]?.id || '',
+      role_id: user?.roles?.[0]?.id || '',
       is_active: user?.is_active || true,
     },
   });
@@ -88,9 +88,9 @@ const UserDialog = ({ open, onClose, user }: UserDialogProps) => {
     if (user) {
       updateUserMutation.mutate(values);
     } else {
-      const newUser = await createUserMutation.mutateAsync(values);
-      if (newUser && values.role_id) {
-        assignRoleMutation.mutate({ userId: newUser.id, roleId: values.role_id });
+      const result = await createUserMutation.mutateAsync(values);
+      if (result?.data && values.role_id) {
+        assignRoleMutation.mutate({ userId: result.data.id, roleId: values.role_id });
       }
     }
   };
@@ -165,7 +165,7 @@ const UserDialog = ({ open, onClose, user }: UserDialogProps) => {
                       </SelectTrigger>
                     </FormControl>
                     <SelectContent>
-                      {roles?.items.map((role: Role) => (
+                      {roles?.data?.items?.map((role: Role) => (
                         <SelectItem key={role.id} value={role.id}>
                           {role.name}
                         </SelectItem>

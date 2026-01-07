@@ -1,7 +1,7 @@
 "use client"
 
 import { useEffect, useState } from "react"
-import type { AdminDashboard as AdminDashboardType } from "../../types"
+import type { AdminDashboard as AdminDashboardType } from "@/api"
 import dashboardService from "../../services/dashboard.service"
 import {
   BarChart,
@@ -115,7 +115,7 @@ const AdminDashboard = () => {
                 nameKey="plan"
                 label
               >
-                {data.plan_distribution.map((entry, index) => (
+                {data.plan_distribution.map((_, index) => (
                   <Cell
                     key={`cell-${index}`}
                     fill={COLORS[index % COLORS.length]}
@@ -143,7 +143,7 @@ const AdminDashboard = () => {
                 nameKey="status"
                 label
               >
-                {data.device_status_ratio.map((entry, index) => (
+                {data.device_status_ratio.map((_, index) => (
                   <Cell
                     key={`cell-${index}`}
                     fill={COLORS[index % COLORS.length]}

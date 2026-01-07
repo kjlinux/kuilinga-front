@@ -6,7 +6,7 @@ import { Save, User, Bell, Lock, Globe } from "lucide-react"
 import { useAuth } from "../hooks/useAuth"
 import { useMutation, useQueryClient } from "@tanstack/react-query"
 import userService from "@/services/user.service"
-import { UserUpdate } from "@/types"
+import type { UserUpdate } from "@/api"
 import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import * as z from "zod"
@@ -51,14 +51,12 @@ const Settings = () => {
     },
   });
 
-  const updateUserMutation = useMutation(
-    (data: UserUpdate) => userService.updateUser(user!.id, data),
-    {
-      onSuccess: () => {
-        queryClient.invalidateQueries('me');
-      },
-    }
-  );
+  const updateUserMutation = useMutation({
+    mutationFn: (data: UserUpdate) => userService.updateUser(user!.id, data),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['me'] });
+    },
+  });
 
   const onProfileSubmit = (values: z.infer<typeof profileSchema>) => {
     updateUserMutation.mutate(values);
@@ -113,17 +111,9 @@ const Settings = () => {
                 <h2 className="text-xl font-semibold text-secondary">Informations du profil</h2>
 
                 <div className="flex items-center gap-4">
-                  {user?.photo ? (
-                    <img
-                      src={user.photo || "/placeholder.svg"}
-                      alt="Photo de profil"
-                      className="w-20 h-20 rounded-full object-cover"
-                    />
-                  ) : (
-                    <div className="w-20 h-20 bg-primary rounded-full flex items-center justify-center">
-                      <User className="w-10 h-10 text-white" />
-                    </div>
-                  )}
+                  <div className="w-20 h-20 bg-primary rounded-full flex items-center justify-center">
+                    <User className="w-10 h-10 text-white" />
+                  </div>
                   <Button variant="outline" onClick={() => document.getElementById('fileInput')?.click()}>Changer la photo</Button>
                   <input type="file" id="fileInput" style={{ display: 'none' }} />
                 </div>

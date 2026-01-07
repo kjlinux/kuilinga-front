@@ -6,7 +6,7 @@ import { toast } from "sonner"
 import DataTable from "../components/DataTable"
 import useDataTable from "../hooks/useDataTable"
 import leaveService from "../services/leave.service"
-import type { Leave, LeaveCreate, LeaveUpdate, LeaveStatus } from "../types"
+import type { Leave, LeaveCreate, LeaveUpdate, LeaveStatus } from "@/api"
 import LeaveDialog from "../components/LeaveDialog"
 import ConfirmationDialog from "../components/ConfirmationDialog"
 
@@ -147,7 +147,7 @@ const Leaves = () => {
           duration: `${l.duration} jours`,
           status: getStatusBadge(l.status),
           approver: l.approver?.full_name,
-        }))}
+        })) as unknown as Leave[]}
         columns={columns}
         isLoading={isLoading}
         pagination={pagination}

@@ -5,7 +5,7 @@ import { Plus } from "lucide-react"
 import DataTable from "../components/DataTable"
 import useDataTable from "../hooks/useDataTable"
 import organizationService from "../services/organization.service"
-import type { Organization, OrganizationCreate, OrganizationUpdate } from "../types"
+import type { Organization, OrganizationCreate, OrganizationUpdate } from "@/api"
 import OrganizationDialog from "../components/OrganizationDialog"
 
 const Organizations = () => {
@@ -90,7 +90,7 @@ const Organizations = () => {
       </div>
 
       <DataTable
-        data={data.map(o => ({...o, is_active: o.is_active ? "Active" : "Inactive"}))}
+        data={data.map(o => ({...o, is_active: o.is_active ? "Active" : "Inactive"})) as unknown as Organization[]}
         columns={columns}
         isLoading={isLoading}
         pagination={pagination}

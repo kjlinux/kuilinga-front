@@ -8,7 +8,7 @@ import {
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import { Device, DeviceCreate, DeviceUpdate, Site, Organization } from "../types"
+import type { Device, DeviceCreate, DeviceUpdate, Site, Organization } from "@/api"
 import { useEffect, useState } from "react"
 import siteService from "@/services/site.service"
 import organizationService from "@/services/organization.service"
@@ -27,7 +27,7 @@ const DeviceDialog = ({
   onConfirm,
   device,
 }: DeviceDialogProps) => {
-  const [formData, setFormData] = useState<Partial<DeviceCreate | DeviceUpdate>>({})
+  const [formData, setFormData] = useState<Partial<DeviceCreate & DeviceUpdate> & { organization_id?: string }>({})
   const [sites, setSites] = useState<Site[]>([])
   const [organizations, setOrganizations] = useState<Organization[]>([])
   const [errors, setErrors] = useState<Record<string, string>>({})
@@ -39,7 +39,7 @@ const DeviceDialog = ({
 
   useEffect(() => {
     if (device) {
-      setFormData(device)
+      setFormData({ ...device, organization_id: device.organization?.id, site_id: device.site?.id })
     } else {
       setFormData({})
     }
@@ -57,7 +57,7 @@ const DeviceDialog = ({
   const validate = () => {
     const newErrors: Record<string, string> = {}
     if (!formData.serial_number) newErrors.serial_number = "Le numéro de série est requis"
-    if (!formData.organization_id) newErrors.organization_id = "L'organisation est requise"
+    if (!device && !formData.organization_id) newErrors.organization_id = "L'organisation est requise"
     setErrors(newErrors)
     return Object.keys(newErrors).length === 0
   }
@@ -87,7 +87,7 @@ const DeviceDialog = ({
           {!device && (
             <div className="space-y-2">
               <Label htmlFor="organization_id">Organisation</Label>
-              <Select onValueChange={handleSelectChange("organization_id")} value={formData.organization_id}>
+              <Select onValueChange={handleSelectChange("organization_id")} value={formData.organization_id ?? undefined}>
                 <SelectTrigger>
                   <SelectValue placeholder="Sélectionner une organisation" />
                 </SelectTrigger>
@@ -102,7 +102,7 @@ const DeviceDialog = ({
           )}
           <div className="space-y-2">
             <Label htmlFor="site_id">Site</Label>
-            <Select onValueChange={handleSelectChange("site_id")} value={formData.site_id}>
+            <Select onValueChange={handleSelectChange("site_id")} value={formData.site_id ?? undefined}>
               <SelectTrigger>
                 <SelectValue placeholder="Sélectionner un site" />
               </SelectTrigger>

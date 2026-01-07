@@ -3,9 +3,8 @@
 import type React from "react"
 import { useState, useEffect, type ReactNode } from "react"
 import { useNavigate } from "react-router-dom"
-import type { User } from "../types"
+import type { User } from "@/api"
 import authService from "../services/auth.service"
-import { apiService } from "../services/api.service"
 import { useToast } from "../hooks/useToast"
 import { AuthContext } from "./definitions/AuthContext"
 
@@ -27,32 +26,6 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const [isLoading, setIsLoading] = useState(true)
   const navigate = useNavigate()
   const { toast } = useToast()
-
-  // Configure API service to use React Router for navigation
-  useEffect(() => {
-    const handleUnauthorized = () => {
-      setUser(null)
-      toast({
-        title: "Session expirée",
-        description: "Votre session a expiré. Veuillez vous reconnecter.",
-        type: "warning",
-        duration: 4000,
-      })
-      navigate("/login", { replace: true })
-    }
-
-    const handleTokenRefreshed = () => {
-      toast({
-        title: "Session actualisée",
-        description: "Votre session a été automatiquement renouvelée.",
-        type: "info",
-        duration: 2000,
-      })
-    }
-
-    apiService.setUnauthorizedCallback(handleUnauthorized)
-    apiService.setTokenRefreshedCallback(handleTokenRefreshed)
-  }, [navigate, toast])
 
   // Listen to localStorage changes for multi-tab synchronization
   useEffect(() => {

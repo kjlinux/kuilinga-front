@@ -1,12 +1,12 @@
 "use client"
 
 import { useState } from "react"
-import { Plus, Upload } from "lucide-react"
+import { Plus } from "lucide-react"
 import { toast } from "sonner"
 import DataTable from "../components/DataTable"
 import useDataTable from "../hooks/useDataTable"
 import employeeService from "../services/employee.service"
-import type { Employee, EmployeeCreate, EmployeeUpdate } from "../types"
+import type { Employee, EmployeeCreate, EmployeeUpdate } from "@/api"
 import EmployeeDialog from "../components/EmployeeDialog"
 import ConfirmationDialog from "../components/ConfirmationDialog"
 
@@ -114,19 +114,13 @@ const Employees = () => {
           <p className="text-accent">Gérez les employés et leurs informations</p>
         </div>
 
-        <div className="flex items-center gap-2">
-          <button className="btn-outline flex items-center gap-2">
-            <Upload className="w-4 h-4" />
-            <span className="hidden sm:inline">Importer</span>
-          </button>
-          <button
+        <button
             onClick={() => handleOpenDialog()}
             className="btn-primary flex items-center gap-2"
           >
             <Plus className="w-4 h-4" />
             <span className="hidden sm:inline">Nouvel employé</span>
           </button>
-        </div>
       </div>
 
       <DataTable
@@ -134,7 +128,7 @@ const Employees = () => {
           ...e,
           department: e.department?.name,
           site: e.site?.name,
-        }))}
+        })) as unknown as Employee[]}
         columns={columns}
         isLoading={isLoading}
         pagination={pagination}
@@ -156,7 +150,7 @@ const Employees = () => {
         onClose={() => setIsConfirmOpen(false)}
         onConfirm={handleConfirmDelete}
         title="Confirmer la suppression"
-        description={`Êtes-vous sûr de vouloir supprimer l'employé "${employeeToDelete?.full_name}" ? Cette action est irréversible.`}
+        description={`Êtes-vous sûr de vouloir supprimer l'employé "${employeeToDelete?.first_name} ${employeeToDelete?.last_name}" ? Cette action est irréversible.`}
       />
     </div>
   )

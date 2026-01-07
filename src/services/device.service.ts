@@ -1,38 +1,59 @@
-import { apiService } from "./api.service";
-import { API_CONFIG } from "../config/api";
-import type { Device, PaginatedResponse, PaginationParams, DeviceCreate, DeviceUpdate } from "../types";
+import {
+  readDevicesApiV1DevicesGet,
+  readDeviceApiV1DevicesDeviceIdGet,
+  createDeviceApiV1DevicesPost,
+  updateDeviceApiV1DevicesDeviceIdPut,
+  deleteDeviceApiV1DevicesDeviceIdDelete,
+} from "@/api";
+import type {
+  Device,
+  DeviceCreate,
+  DeviceUpdate,
+  PaginatedResponseDevice,
+} from "@/api";
+
+export interface PaginationParams {
+  skip?: number;
+  limit?: number;
+}
 
 class DeviceService {
-  async getDevices(params: PaginationParams = {}): Promise<PaginatedResponse<Device>> {
-    // NOTE: API only supports 'skip' and 'limit' parameters.
-    // 'search', 'sort_by', 'sort_order' are NOT supported by the backend API.
-    const query = new URLSearchParams({
-        skip: (params.skip ?? 0).toString(),
-        limit: (params.limit ?? 10).toString(),
-    }).toString();
-
-    const url = `${API_CONFIG.ENDPOINTS.DEVICES}?${query}`;
-    const response = await apiService.get<PaginatedResponse<Device>>(url);
-    return response.data;
+  async getDevices(params: PaginationParams = {}): Promise<PaginatedResponseDevice> {
+    const response = await readDevicesApiV1DevicesGet({
+      query: {
+        skip: params.skip ?? 0,
+        limit: params.limit ?? 10,
+      },
+    });
+    return response.data as PaginatedResponseDevice;
   }
 
   async getDevice(id: string): Promise<Device> {
-    const response = await apiService.get<Device>(`${API_CONFIG.ENDPOINTS.DEVICES}/${id}`);
-    return response.data;
+    const response = await readDeviceApiV1DevicesDeviceIdGet({
+      path: { device_id: id },
+    });
+    return response.data as Device;
   }
 
   async createDevice(data: DeviceCreate): Promise<Device> {
-    const response = await apiService.post<Device>(API_CONFIG.ENDPOINTS.DEVICES, data);
-    return response.data;
+    const response = await createDeviceApiV1DevicesPost({
+      body: data,
+    });
+    return response.data as Device;
   }
 
   async updateDevice(id: string, data: DeviceUpdate): Promise<Device> {
-    const response = await apiService.put<Device>(`${API_CONFIG.ENDPOINTS.DEVICES}/${id}`, data);
-    return response.data;
+    const response = await updateDeviceApiV1DevicesDeviceIdPut({
+      path: { device_id: id },
+      body: data,
+    });
+    return response.data as Device;
   }
 
   async deleteDevice(id: string): Promise<void> {
-    await apiService.delete<void>(`${API_CONFIG.ENDPOINTS.DEVICES}/${id}`);
+    await deleteDeviceApiV1DevicesDeviceIdDelete({
+      path: { device_id: id },
+    });
   }
 }
 

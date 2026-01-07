@@ -5,7 +5,7 @@ import { Label } from "@/components/ui/label";
 import { useEffect, useState, useCallback } from "react";
 import { DateRange } from "react-day-picker";
 import { SelectFilter } from "./filters/SelectFilter";
-import {
+import type {
   LeaveType,
   LeaveStatus,
   Organization,
@@ -14,7 +14,12 @@ import {
   Employee,
   DeviceStatus,
   Role,
-} from "@/types";
+} from "@/api";
+
+// Define arrays for string union types since they can't be used with Object.values()
+const LEAVE_TYPES: LeaveType[] = ['annual', 'sick', 'maternity', 'paternity', 'unpaid', 'other'];
+const LEAVE_STATUSES: LeaveStatus[] = ['pending', 'approved', 'rejected', 'cancelled'];
+const DEVICE_STATUSES: DeviceStatus[] = ['online', 'offline', 'maintenance'];
 import filterService from "@/services/filter.service";
 import { subDays } from "date-fns";
 import { useAuth } from "@/hooks/useAuth";
@@ -222,8 +227,6 @@ export const ReportFilters = ({
                 updateFilter("start_date", range.from);
                 updateFilter("end_date", range.to);
               }}
-              initialDateFrom={currentFilters.start_date as Date | undefined}
-              initialDateTo={currentFilters.end_date as Date | undefined}
             />
           </div>
         );
@@ -288,7 +291,7 @@ export const ReportFilters = ({
             key={filterType}
             label="Type de congé"
             placeholder="Sélectionnez un type"
-            options={Object.values(LeaveType).map((lt) => ({
+            options={LEAVE_TYPES.map((lt) => ({
               value: lt,
               label: lt,
             }))}
@@ -304,7 +307,7 @@ export const ReportFilters = ({
             key={filterType}
             label="Statut du congé"
             placeholder="Sélectionnez un statut"
-            options={Object.values(LeaveStatus).map((ls) => ({
+            options={LEAVE_STATUSES.map((ls) => ({
               value: ls,
               label: ls,
             }))}
@@ -366,7 +369,7 @@ export const ReportFilters = ({
             key={filterType}
             label="Statut"
             placeholder="Sélectionnez un statut"
-            options={Object.values(DeviceStatus).map((s) => ({
+            options={DEVICE_STATUSES.map((s) => ({
               value: s,
               label: s,
             }))}

@@ -1,4 +1,4 @@
-import { TeamPerformanceResponse } from "@/types";
+import type { TeamPerformanceResponse } from "@/api";
 import {
   Table,
   TableBody,

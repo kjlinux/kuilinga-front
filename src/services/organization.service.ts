@@ -1,38 +1,59 @@
-import { apiService } from "./api.service";
-import { API_CONFIG } from "../config/api";
-import type { Organization, PaginatedResponse, PaginationParams, OrganizationCreate, OrganizationUpdate } from "../types";
+import {
+  readOrganizationsApiV1OrganizationsGet,
+  readOrganizationApiV1OrganizationsOrgIdGet,
+  createOrganizationApiV1OrganizationsPost,
+  updateOrganizationApiV1OrganizationsOrgIdPut,
+  deleteOrganizationApiV1OrganizationsOrgIdDelete,
+} from "@/api";
+import type {
+  Organization,
+  OrganizationCreate,
+  OrganizationUpdate,
+  PaginatedResponseOrganization,
+} from "@/api";
+
+export interface PaginationParams {
+  skip?: number;
+  limit?: number;
+}
 
 class OrganizationService {
-  async getOrganizations(params: PaginationParams = {}): Promise<PaginatedResponse<Organization>> {
-    // NOTE: API only supports 'skip' and 'limit' parameters.
-    // 'search', 'sort_by', 'sort_order' are NOT supported by the backend API.
-    const query = new URLSearchParams({
-        skip: (params.skip ?? 0).toString(),
-        limit: (params.limit ?? 10).toString(),
-    }).toString();
-
-    const url = `${API_CONFIG.ENDPOINTS.ORGANIZATIONS}?${query}`;
-    const response = await apiService.get<PaginatedResponse<Organization>>(url);
-    return response.data;
+  async getOrganizations(params: PaginationParams = {}): Promise<PaginatedResponseOrganization> {
+    const response = await readOrganizationsApiV1OrganizationsGet({
+      query: {
+        skip: params.skip ?? 0,
+        limit: params.limit ?? 10,
+      },
+    });
+    return response.data as PaginatedResponseOrganization;
   }
 
   async getOrganization(id: string): Promise<Organization> {
-    const response = await apiService.get<Organization>(`${API_CONFIG.ENDPOINTS.ORGANIZATIONS}/${id}`);
-    return response.data;
+    const response = await readOrganizationApiV1OrganizationsOrgIdGet({
+      path: { org_id: id },
+    });
+    return response.data as Organization;
   }
 
   async createOrganization(data: OrganizationCreate): Promise<Organization> {
-    const response = await apiService.post<Organization>(API_CONFIG.ENDPOINTS.ORGANIZATIONS, data);
-    return response.data;
+    const response = await createOrganizationApiV1OrganizationsPost({
+      body: data,
+    });
+    return response.data as Organization;
   }
 
   async updateOrganization(id: string, data: OrganizationUpdate): Promise<Organization> {
-    const response = await apiService.put<Organization>(`${API_CONFIG.ENDPOINTS.ORGANIZATIONS}/${id}`, data);
-    return response.data;
+    const response = await updateOrganizationApiV1OrganizationsOrgIdPut({
+      path: { org_id: id },
+      body: data,
+    });
+    return response.data as Organization;
   }
 
   async deleteOrganization(id: string): Promise<void> {
-    await apiService.delete<void>(`${API_CONFIG.ENDPOINTS.ORGANIZATIONS}/${id}`);
+    await deleteOrganizationApiV1OrganizationsOrgIdDelete({
+      path: { org_id: id },
+    });
   }
 }
 

@@ -6,7 +6,7 @@ import { toast } from "sonner"
 import DataTable from "../components/DataTable"
 import useDataTable from "../hooks/useDataTable"
 import departmentService from "../services/department.service"
-import type { Department, DepartmentCreate, DepartmentUpdate } from "../types"
+import type { Department, DepartmentCreate, DepartmentUpdate } from "@/api"
 import DepartmentDialog from "../components/DepartmentDialog"
 import ConfirmationDialog from "../components/ConfirmationDialog"
 
@@ -126,7 +126,7 @@ const Departments = () => {
           ...d,
           site: d.site?.name,
           manager: d.manager?.full_name,
-        }))}
+        })) as unknown as Department[]}
         columns={columns}
         isLoading={isLoading}
         pagination={pagination}

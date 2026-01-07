@@ -1,4 +1,4 @@
-import { WorkedHoursResponse } from "@/types";
+import type { WorkedHoursResponse } from "@/api";
 import {
   Table,
   TableBody,

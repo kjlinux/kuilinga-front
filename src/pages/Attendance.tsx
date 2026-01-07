@@ -8,10 +8,9 @@ import { format } from "date-fns"
 import { fr } from "date-fns/locale"
 import DataTable from "../components/DataTable"
 import useDataTable from "../hooks/useDataTable"
-import useNotification from "../hooks/useNotification"
 import attendanceService from "../services/attendance.service"
 import authService from "../services/auth.service"
-import type { Attendance as AttendanceType } from "../types"
+import type { Attendance as AttendanceType } from "@/api"
 
 const WEBSOCKET_URL = "ws://localhost:8000/api/v1/ws/attendance/realtime"
 
@@ -39,8 +38,6 @@ const Attendance = () => {
     }
   }, [])
 
-  const { playNotificationSound } = useNotification()
-
   const { lastMessage } = useWebSocket(socketUrl, {
     shouldReconnect: () => true,
     retryOnError: true,
@@ -59,12 +56,11 @@ const Attendance = () => {
             return prevData
           })
           toast.success("Nouveau pointage reçu!")
-          playNotificationSound()
           setLastProcessedId(newAttendance.id)
         }
       }
     }
-  }, [lastMessage, setData, playNotificationSound, lastProcessedId])
+  }, [lastMessage, setData, lastProcessedId])
 
   const columns = [
     {

@@ -1,4 +1,4 @@
-import { OrganizationPresenceResponse } from "@/types";
+import type { OrganizationPresenceResponse } from "@/api";
 import {
   Table,
   TableBody,

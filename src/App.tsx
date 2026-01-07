@@ -2,7 +2,6 @@ import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-d
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query"
 import { Toaster } from "sonner"
 import { AuthProvider } from "./contexts/AuthContext"
-import { NotificationProvider } from "./contexts/NotificationContext"
 import PrivateRoute from "./components/PrivateRoute"
 import Layout from "./components/Layout"
 import Login from "./pages/Login"
@@ -28,7 +27,6 @@ function App() {
     <Router future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
       <QueryClientProvider client={queryClient}>
         <AuthProvider>
-          <NotificationProvider>
             <Toaster />
             <Routes>
               <Route path="/login" element={<Login />} />
@@ -54,7 +52,6 @@ function App() {
 
             <Route path="*" element={<NotFound />} />
           </Routes>
-        </NotificationProvider>
       </AuthProvider>
     </QueryClientProvider>
     </Router>

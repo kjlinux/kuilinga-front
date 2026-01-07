@@ -1,26 +1,52 @@
-import { apiService } from './api.service';
-import { API_CONFIG } from '../config/api';
-import { Permission, PermissionCreate, PermissionUpdate, PaginatedResponse } from '../types';
+import {
+  readPermissionsApiV1PermissionsGet,
+  readPermissionApiV1PermissionsPermissionIdGet,
+  createPermissionApiV1PermissionsPost,
+  updatePermissionApiV1PermissionsPermissionIdPut,
+  deletePermissionApiV1PermissionsPermissionIdDelete,
+} from "@/api";
+import type {
+  Permission,
+  PermissionCreate,
+  PermissionUpdate,
+  PaginatedResponsePermission,
+} from "@/api";
 
 const permissionService = {
-  getPermissions: (skip = 0, limit = 100) => {
-    return apiService.get<PaginatedResponse<Permission>>(`${API_CONFIG.ENDPOINTS.PERMISSIONS}?skip=${skip}&limit=${limit}`);
+  getPermissions: async (skip = 0, limit = 100) => {
+    const response = await readPermissionsApiV1PermissionsGet({
+      query: { skip, limit },
+    });
+    return { data: response.data as PaginatedResponsePermission };
   },
 
-  getPermissionById: (permissionId: string) => {
-    return apiService.get<Permission>(`${API_CONFIG.ENDPOINTS.PERMISSIONS}/${permissionId}`);
+  getPermissionById: async (permissionId: string) => {
+    const response = await readPermissionApiV1PermissionsPermissionIdGet({
+      path: { permission_id: permissionId },
+    });
+    return { data: response.data as Permission };
   },
 
-  createPermission: (permissionData: PermissionCreate) => {
-    return apiService.post<Permission>(API_CONFIG.ENDPOINTS.PERMISSIONS, permissionData);
+  createPermission: async (permissionData: PermissionCreate) => {
+    const response = await createPermissionApiV1PermissionsPost({
+      body: permissionData,
+    });
+    return { data: response.data as Permission };
   },
 
-  updatePermission: (permissionId: string, permissionData: PermissionUpdate) => {
-    return apiService.put<Permission>(`${API_CONFIG.ENDPOINTS.PERMISSIONS}/${permissionId}`, permissionData);
+  updatePermission: async (permissionId: string, permissionData: PermissionUpdate) => {
+    const response = await updatePermissionApiV1PermissionsPermissionIdPut({
+      path: { permission_id: permissionId },
+      body: permissionData,
+    });
+    return { data: response.data as Permission };
   },
 
-  deletePermission: (permissionId: string) => {
-    return apiService.delete<Permission>(`${API_CONFIG.ENDPOINTS.PERMISSIONS}/${permissionId}`);
+  deletePermission: async (permissionId: string) => {
+    const response = await deletePermissionApiV1PermissionsPermissionIdDelete({
+      path: { permission_id: permissionId },
+    });
+    return { data: response.data as Permission };
   },
 };
 

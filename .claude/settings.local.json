@@ -6,7 +6,11 @@
       "Bash(dir:*)",
       "Bash(npm run build:*)",
       "Bash(npx tsc:*)",
-      "Bash(python:*)"
+      "Bash(python:*)",
+      "Bash(npx --yes openapi-ts@latest:*)",
+      "Bash(pnpm add:*)",
+      "Bash(pnpm exec openapi-ts:*)",
+      "Bash(cat:*)"
     ],
     "deny": [],
     "ask": []

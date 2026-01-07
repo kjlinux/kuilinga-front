@@ -7,7 +7,8 @@
     "dev": "vite",
     "build": "tsc && vite build",
     "preview": "vite preview",
-    "lint": "eslint . --report-unused-disable-directives --max-warnings 0"
+    "lint": "eslint . --report-unused-disable-directives --max-warnings 0",
+    "api:generate": "openapi-ts --input C:/laragon/www/kuilinga-backend/openapi.json --output ./src/api --plugins @hey-api/client-axios"
   },
   "dependencies": {
     "@hookform/resolvers": "^5.2.2",
@@ -29,6 +30,7 @@
     "howler": "^2.2.4",
     "lucide-react": "^0.344.0",
     "next": "15.5.4",
+    "openapi-fetch": "^0.15.0",
     "path": "0.12.7",
     "react": "^18.2.0",
     "react-day-picker": "^9.11.1",
@@ -46,6 +48,8 @@
   },
   "devDependencies": {
     "@eslint/js": "^9.37.0",
+    "@hey-api/client-axios": "^0.9.1",
+    "@hey-api/openapi-ts": "^0.90.2",
     "@shadcn/ui": "^0.0.4",
     "@types/howler": "^2.2.11",
     "@types/node": "24.7.2",
@@ -58,6 +62,8 @@
     "eslint": "^8.56.0",
     "eslint-plugin-react-hooks": "^4.6.0",
     "eslint-plugin-react-refresh": "^0.4.5",
+    "openapi-typescript": "^7.10.1",
+    "openapi-typescript-codegen": "^0.30.0",
     "postcss": "^8.4.35",
     "shadcn-ui": "^0.9.5",
     "tailwindcss": "^3.4.17",

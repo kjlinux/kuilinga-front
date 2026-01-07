@@ -1,16 +1,18 @@
 "use client"
 
 import { motion } from "framer-motion"
-import { Search, Edit, Trash2, ChevronLeft, ChevronRight } from "lucide-react"
+import { Search, Edit, Trash2, ChevronLeft, ChevronRight, ArrowUp, ArrowDown, ArrowUpDown } from "lucide-react"
 import LoadingSpinner from "./LoadingSpinner"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import type { ColumnDef } from "@tanstack/react-table"
 import type { ReactNode } from "react"
+import type { SortConfig } from "@/hooks/useDataTable"
 
 // Simple column format for legacy pages
 interface SimpleColumn {
   key: string
   header: string
+  sortable?: boolean
 }
 
 // Check if column is SimpleColumn
@@ -45,8 +47,10 @@ export interface DataTableProps<T> {
   isLoading: boolean
   error?: string | null
   pagination?: PaginationType
+  sortConfig?: SortConfig
   onPageChange?: (newSkip: number) => void
   onSearchChange?: (newSearch: string) => void
+  onSortChange?: (key: string) => void
   onEdit?: (item: T) => void
   onDelete?: (item: T) => void
   onRetry?: () => void
@@ -59,8 +63,10 @@ export const DataTable = <T extends { id: string }>({
   isLoading,
   error,
   pagination,
+  sortConfig,
   onPageChange,
   onSearchChange,
+  onSortChange,
   onEdit,
   onDelete,
 }: DataTableProps<T>) => {
@@ -121,6 +127,37 @@ export const DataTable = <T extends { id: string }>({
     return col.header as string || ''
   }
 
+  // Check if column is sortable
+  const isColumnSortable = (col: ColumnDef<T> | SimpleColumn): boolean => {
+    if (isSimpleColumn(col)) {
+      return col.sortable !== false // Default to true for simple columns
+    }
+    return false
+  }
+
+  // Render sort icon
+  const renderSortIcon = (col: ColumnDef<T> | SimpleColumn) => {
+    if (!onSortChange || !isColumnSortable(col)) return null
+
+    const key = getColumnKey(col, 0)
+    if (sortConfig?.key === key) {
+      return sortConfig.direction === "asc" ? (
+        <ArrowUp className="w-4 h-4 ml-1 inline-block" />
+      ) : (
+        <ArrowDown className="w-4 h-4 ml-1 inline-block" />
+      )
+    }
+    return <ArrowUpDown className="w-4 h-4 ml-1 inline-block opacity-40" />
+  }
+
+  // Handle header click for sorting
+  const handleHeaderClick = (col: ColumnDef<T> | SimpleColumn, index: number) => {
+    if (onSortChange && isColumnSortable(col)) {
+      const key = getColumnKey(col, index)
+      onSortChange(key)
+    }
+  }
+
   return (
     <div className="space-y-4">
       {onSearchChange && (
@@ -142,8 +179,15 @@ export const DataTable = <T extends { id: string }>({
           <TableHeader>
             <TableRow>
               {columns.map((col, index) => (
-                <TableHead key={getColumnKey(col, index)}>
-                  {getHeaderText(col)}
+                <TableHead
+                  key={getColumnKey(col, index)}
+                  className={onSortChange && isColumnSortable(col) ? "cursor-pointer select-none hover:bg-gray-100 transition-colors" : ""}
+                  onClick={() => handleHeaderClick(col, index)}
+                >
+                  <span className="flex items-center">
+                    {getHeaderText(col)}
+                    {renderSortIcon(col)}
+                  </span>
                 </TableHead>
               ))}
               {(onEdit || onDelete) && <TableHead>Actions</TableHead>}

@@ -22,11 +22,15 @@ const Departments = () => {
     data,
     isLoading,
     pagination,
+    sortConfig,
     handlePageChange,
     handleSearchChange,
+    handleSortChange,
     refresh,
   } = useDataTable<Department>({
     fetchData: departmentService.getDepartments,
+    defaultSortKey: "name",
+    defaultSortDirection: "asc",
   })
 
   const handleOpenDialog = (department: Department | null = null) => {
@@ -94,10 +98,10 @@ const Departments = () => {
   }
 
   const columns = [
-    { key: "name", header: "Nom" },
-    { key: "site", header: "Site" },
-    { key: "manager", header: "Manager" },
-    { key: "employees_count", header: "N° Employés" },
+    { key: "name", header: "Nom", sortable: true },
+    { key: "site", header: "Site", sortable: false },
+    { key: "manager", header: "Manager", sortable: false },
+    { key: "employees_count", header: "N° Employés", sortable: true },
   ]
 
   return (
@@ -130,8 +134,10 @@ const Departments = () => {
         columns={columns}
         isLoading={isLoading}
         pagination={pagination}
+        sortConfig={sortConfig}
         onPageChange={handlePageChange}
         onSearchChange={handleSearchChange}
+        onSortChange={handleSortChange}
         onEdit={handleOpenDialog}
         onDelete={handleDeleteRequest}
       />

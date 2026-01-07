@@ -12,7 +12,8 @@
       "Bash(pnpm exec openapi-ts:*)",
       "Bash(cat:*)",
       "Bash(ls -la \"c:\\\\laragon\\\\www\\\\kuilinga-front\\\\src\\\\api\"\" 2>/dev/null || dir /b \"c:laragonwwwkuilinga-frontsrcapi \")",
-      "Bash(ls -la \"c:\\\\laragon\\\\www\\\\kuilinga-front\\\\src\\\\services\"\" 2>/dev/null || dir /b \"c:laragonwwwkuilinga-frontsrcservices \")"
+      "Bash(ls -la \"c:\\\\laragon\\\\www\\\\kuilinga-front\\\\src\\\\services\"\" 2>/dev/null || dir /b \"c:laragonwwwkuilinga-frontsrcservices \")",
+      "Bash(dir /b \"c:\\\\laragon\\\\www\\\\kuilinga-front\\\\src\\\\pages\")"
     ],
     "deny": [],
     "ask": []

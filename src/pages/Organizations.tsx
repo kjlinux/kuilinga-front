@@ -16,11 +16,15 @@ const Organizations = () => {
     data,
     isLoading,
     pagination,
+    sortConfig,
     handlePageChange,
     handleSearchChange,
+    handleSortChange,
     refresh,
   } = useDataTable<Organization>({
     fetchData: organizationService.getOrganizations,
+    defaultSortKey: "name",
+    defaultSortDirection: "asc",
   })
 
   const handleOpenDialog = (organization: Organization | null = null) => {
@@ -59,15 +63,15 @@ const Organizations = () => {
   }
 
   const columns = [
-    { key: "name", header: "Nom" },
-    { key: "email", header: "Email" },
-    { key: "phone", header: "Téléphone" },
-    { key: "timezone", header: "Fuseau horaire" },
-    { key: "plan", header: "Plan" },
-    { key: "is_active", header: "Statut" },
-    { key: "sites_count", header: "Sites" },
-    { key: "employees_count", header: "Employés" },
-    { key: "users_count", header: "Utilisateurs" },
+    { key: "name", header: "Nom", sortable: true },
+    { key: "email", header: "Email", sortable: true },
+    { key: "phone", header: "Téléphone", sortable: false },
+    { key: "timezone", header: "Fuseau horaire", sortable: true },
+    { key: "plan", header: "Plan", sortable: true },
+    { key: "is_active", header: "Statut", sortable: false },
+    { key: "sites_count", header: "Sites", sortable: true },
+    { key: "employees_count", header: "Employés", sortable: true },
+    { key: "users_count", header: "Utilisateurs", sortable: true },
   ]
 
   return (
@@ -94,8 +98,10 @@ const Organizations = () => {
         columns={columns}
         isLoading={isLoading}
         pagination={pagination}
+        sortConfig={sortConfig}
         onPageChange={handlePageChange}
         onSearchChange={handleSearchChange}
+        onSortChange={handleSortChange}
         onEdit={handleOpenDialog}
         onDelete={handleDelete}
       />

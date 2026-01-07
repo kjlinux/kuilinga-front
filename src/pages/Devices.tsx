@@ -20,11 +20,15 @@ const Devices = () => {
     data,
     isLoading,
     pagination,
+    sortConfig,
     handlePageChange,
     handleSearchChange,
+    handleSortChange,
     refresh,
   } = useDataTable<Device>({
     fetchData: deviceService.getDevices,
+    defaultSortKey: "serial_number",
+    defaultSortDirection: "asc",
   })
 
   const handleOpenDialog = (device: Device | null = null) => {
@@ -98,13 +102,13 @@ const Devices = () => {
   }
 
   const columns = [
-    { key: "serial_number", header: "N° Série" },
-    { key: "type", header: "Type" },
-    { key: "status", header: "Statut" },
-    { key: "organization", header: "Organisation" },
-    { key: "site", header: "Site" },
-    { key: "last_attendance_timestamp", header: "Dernier Pointage" },
-    { key: "daily_attendance_count", header: "Pointages du Jour" },
+    { key: "serial_number", header: "N° Série", sortable: true },
+    { key: "type", header: "Type", sortable: true },
+    { key: "status", header: "Statut", sortable: false },
+    { key: "organization", header: "Organisation", sortable: false },
+    { key: "site", header: "Site", sortable: false },
+    { key: "last_attendance_timestamp", header: "Dernier Pointage", sortable: false },
+    { key: "daily_attendance_count", header: "Pointages du Jour", sortable: true },
   ]
 
   return (
@@ -143,8 +147,10 @@ const Devices = () => {
         columns={columns}
         isLoading={isLoading}
         pagination={pagination}
+        sortConfig={sortConfig}
         onPageChange={handlePageChange}
         onSearchChange={handleSearchChange}
+        onSortChange={handleSortChange}
         onEdit={handleOpenDialog}
         onDelete={handleDeleteRequest}
       />

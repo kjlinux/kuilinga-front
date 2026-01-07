@@ -1,92 +1,160 @@
-import { useState } from 'react';
-import { useQuery } from '@tanstack/react-query';
-import roleService from '../services/role.service';
-import type { Role } from '@/api';
-import { DataTable } from '@/components/DataTable';
-import { Button } from '@/components/ui/button';
-import { PlusCircle } from 'lucide-react';
-import RoleDialog from '@/components/RoleDialog';
-import type { ColumnDef } from '@tanstack/react-table';
+"use client"
+
+import { useState } from "react"
+import { Plus } from "lucide-react"
+import { toast } from "sonner"
+import DataTable from "../components/DataTable"
+import useDataTable from "../hooks/useDataTable"
+import roleService from "../services/role.service"
+import type { Role, RoleCreate, RoleUpdate } from "@/api"
+import RoleDialog from "../components/RoleDialog"
+import ConfirmationDialog from "../components/ConfirmationDialog"
 
 const Roles = () => {
-  const [dialogOpen, setDialogOpen] = useState(false);
-  const [selectedRole, setSelectedRole] = useState<Role | null>(null);
+  const [isDialogOpen, setIsDialogOpen] = useState(false)
+  const [isConfirmOpen, setIsConfirmOpen] = useState(false)
+  const [selectedRole, setSelectedRole] = useState<Role | null>(null)
+  const [roleToDelete, setRoleToDelete] = useState<Role | null>(null)
 
-  const { data: rolesResponse, isLoading } = useQuery({
-    queryKey: ['roles'],
-    queryFn: () => roleService.getRoles(),
-  });
+  const {
+    data,
+    isLoading,
+    pagination,
+    sortConfig,
+    handlePageChange,
+    handleSearchChange,
+    handleSortChange,
+    refresh,
+  } = useDataTable<Role>({
+    fetchData: roleService.getRoles,
+    defaultSortKey: "name",
+    defaultSortDirection: "asc",
+    clientSideSort: true, // API doesn't support sorting, so we sort client-side
+  })
 
-  const roles = rolesResponse?.data;
+  const handleOpenDialog = (role: Role | null = null) => {
+    // Si role est passé, retrouver l'objet original dans data (car celui passé a permissions transformé en string)
+    if (role) {
+      const originalRole = data.find((r) => r.id === role.id) || null
+      setSelectedRole(originalRole)
+    } else {
+      setSelectedRole(null)
+    }
+    setIsDialogOpen(true)
+  }
 
-  const columns: ColumnDef<Role>[] = [
-    {
-      accessorKey: 'name',
-      header: 'Name',
-    },
-    {
-      accessorKey: 'description',
-      header: 'Description',
-    },
-    {
-      accessorKey: 'permissions',
-      header: 'Permissions',
-      cell: ({ row }) => {
-        const permissions = row.original.permissions;
-        return <span>{permissions?.map((p: { name: string }) => p.name).join(', ') ?? ''}</span>;
-      },
-    },
-    {
-        id: 'actions',
-        cell: ({ row }) => {
-            const role = row.original;
-            return (
-                <Button
-                    variant="ghost"
-                    onClick={() => {
-                        setSelectedRole(role);
-                        setDialogOpen(true);
-                    }}
-                >
-                    Edit
-                </Button>
-            );
-        },
-    },
-  ];
+  const handleCloseDialog = () => {
+    setSelectedRole(null)
+    setIsDialogOpen(false)
+  }
+
+  const handleConfirm = async (formData: RoleCreate | RoleUpdate) => {
+    const isEditing = !!selectedRole
+    const action = isEditing
+      ? roleService.updateRole(selectedRole.id, formData as RoleUpdate)
+      : roleService.createRole(formData as RoleCreate)
+
+    toast.promise(action, {
+      loading: "Sauvegarde du rôle en cours...",
+      success: `Rôle ${isEditing ? "mis à jour" : "créé"} avec succès !`,
+      error: "Erreur lors de la sauvegarde du rôle.",
+    })
+
+    try {
+      await action
+      refresh()
+      handleCloseDialog()
+    } catch (error) {
+      console.error("Erreur lors de la sauvegarde du rôle:", error)
+    }
+  }
+
+  const handleDeleteRequest = (role: Role) => {
+    // Retrouver l'objet original dans data
+    const originalRole = data.find((r) => r.id === role.id) || role
+    setRoleToDelete(originalRole)
+    setIsConfirmOpen(true)
+  }
+
+  const handleConfirmDelete = async () => {
+    if (!roleToDelete) return
+
+    const action = roleService.deleteRole(roleToDelete.id)
+
+    toast.promise(action, {
+      loading: "Suppression du rôle en cours...",
+      success: "Rôle supprimé avec succès !",
+      error: "Erreur lors de la suppression du rôle.",
+    })
+
+    try {
+      await action
+      refresh()
+      setIsConfirmOpen(false)
+      setRoleToDelete(null)
+    } catch (error) {
+      console.error("Erreur lors de la suppression:", error)
+    }
+  }
+
+  const columns = [
+    { key: "name", header: "Nom", sortable: true },
+    { key: "description", header: "Description", sortable: true },
+    { key: "permissions", header: "Permissions", sortable: false },
+  ]
 
   return (
-    <div className="p-4">
-      <div className="flex justify-between items-center mb-4">
-        <h1 className="text-2xl font-bold">Roles</h1>
-        <Button onClick={() => setDialogOpen(true)}>
-          <PlusCircle className="mr-2" />
-          Add Role
-        </Button>
+    <div className="space-y-6">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+        <div>
+          <h1 className="text-3xl font-bold text-secondary mb-2">
+            Gestion des rôles
+          </h1>
+          <p className="text-accent">Gérez les rôles et leurs permissions</p>
+        </div>
+
+        <button
+          type="button"
+          onClick={() => handleOpenDialog()}
+          className="btn-primary flex items-center gap-2"
+        >
+          <Plus className="w-4 h-4" />
+          <span className="hidden sm:inline">Nouveau rôle</span>
+        </button>
       </div>
+
       <DataTable
+        data={data.map((r) => ({
+          ...r,
+          permissions: r.permissions?.map((p) => p.name).join(", ") || "-",
+        })) as unknown as Role[]}
         columns={columns}
-        data={roles?.items || []}
         isLoading={isLoading}
-        error={null}
-        onRetry={() => {}}
-        pagination={{
-          pageIndex: roles?.skip ? roles.skip / (roles.limit || 1) : 0,
-          pageSize: roles?.limit || 10,
-          pageCount: roles?.total ? Math.ceil(roles.total / (roles.limit || 1)) : 1,
-        }}
-        onPageChange={() => {}}
+        pagination={pagination}
+        sortConfig={sortConfig}
+        onPageChange={handlePageChange}
+        onSearchChange={handleSearchChange}
+        onSortChange={handleSortChange}
+        onEdit={handleOpenDialog}
+        onDelete={handleDeleteRequest}
       />
+
       <RoleDialog
-        open={dialogOpen}
-        onClose={() => {
-            setDialogOpen(false);
-            setSelectedRole(null);
-        }}
+        isOpen={isDialogOpen}
+        onClose={handleCloseDialog}
+        onConfirm={handleConfirm}
         role={selectedRole}
       />
-    </div>
-  );
-};
 
-export default Roles;
+      <ConfirmationDialog
+        isOpen={isConfirmOpen}
+        onClose={() => setIsConfirmOpen(false)}
+        onConfirm={handleConfirmDelete}
+        title="Confirmer la suppression"
+        description={`Êtes-vous sûr de vouloir supprimer le rôle "${roleToDelete?.name}" ? Cette action est irréversible.`}
+      />
+    </div>
+  )
+}
+
+export default Roles

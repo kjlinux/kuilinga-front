@@ -13,13 +13,23 @@ import type {
   Permission,
   PaginatedResponseRole,
 } from "@/api";
+import type { PaginationParams, PaginatedResponse } from "@/hooks/useDataTable";
 
 const roleService = {
-  getRoles: async (skip = 0, limit = 100) => {
+  getRoles: async (params: PaginationParams = {}): Promise<PaginatedResponse<Role>> => {
     const response = await readRolesApiV1RolesGet({
-      query: { skip, limit },
+      query: {
+        skip: params.skip ?? 0,
+        limit: params.limit ?? 20,
+      },
     });
-    return { data: response.data as PaginatedResponseRole };
+    const data = response.data as PaginatedResponseRole;
+    return {
+      items: data.items,
+      total: data.total,
+      skip: data.skip,
+      limit: data.limit,
+    };
   },
 
   getRoleById: async (roleId: string) => {

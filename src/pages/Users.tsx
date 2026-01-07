@@ -1,108 +1,161 @@
-import { useState } from 'react';
-import { useQuery } from '@tanstack/react-query';
-import userService from '../services/user.service';
-import type { User } from '@/api';
-import { DataTable } from '@/components/DataTable';
-import { Button } from '@/components/ui/button';
-import { PlusCircle } from 'lucide-react';
-import UserDialog from '@/components/UserDialog';
-import type { ColumnDef } from '@tanstack/react-table';
+"use client"
+
+import { useState } from "react"
+import { Plus } from "lucide-react"
+import { toast } from "sonner"
+import DataTable from "../components/DataTable"
+import useDataTable from "../hooks/useDataTable"
+import userService from "../services/user.service"
+import type { User, UserCreate, UserUpdate } from "@/api"
+import UserDialog from "../components/UserDialog"
+import ConfirmationDialog from "../components/ConfirmationDialog"
 
 const Users = () => {
-  const [dialogOpen, setDialogOpen] = useState(false);
-  const [selectedUser, setSelectedUser] = useState<User | null>(null);
+  const [isDialogOpen, setIsDialogOpen] = useState(false)
+  const [isConfirmOpen, setIsConfirmOpen] = useState(false)
+  const [selectedUser, setSelectedUser] = useState<User | null>(null)
+  const [userToDelete, setUserToDelete] = useState<User | null>(null)
 
-  const { data: usersResponse, isLoading } = useQuery({
-    queryKey: ['users'],
-    queryFn: () => userService.getUsers(),
-  });
+  const {
+    data,
+    isLoading,
+    pagination,
+    sortConfig,
+    handlePageChange,
+    handleSearchChange,
+    handleSortChange,
+    refresh,
+  } = useDataTable<User>({
+    fetchData: userService.getUsers,
+    defaultSortKey: "full_name",
+    defaultSortDirection: "asc",
+  })
 
-  const users = usersResponse?.data;
+  const handleOpenDialog = (user: User | null = null) => {
+    // Si user est passé, retrouver l'objet original dans data (car celui passé a roles transformé en string)
+    if (user) {
+      const originalUser = data.find((u) => u.id === user.id) || null
+      setSelectedUser(originalUser)
+    } else {
+      setSelectedUser(null)
+    }
+    setIsDialogOpen(true)
+  }
 
-  const columns: ColumnDef<User>[] = [
-    {
-      accessorKey: 'full_name',
-      header: 'Full Name',
-    },
-    {
-      accessorKey: 'email',
-      header: 'Email',
-    },
-    {
-      accessorKey: 'roles',
-      header: 'Roles',
-      cell: ({ row }) => {
-        const roles = row.original.roles;
-        return <span>{roles?.map((role: { name: string }) => role.name).join(', ') ?? ''}</span>;
-      },
-    },
-    {
-      accessorKey: 'is_active',
-      header: 'Status',
-      cell: ({ row }) => {
-        const isActive = row.original.is_active;
-        return (
-          <span
-            className={`px-2 py-1 rounded-full text-xs font-semibold ${
-              isActive ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
-            }`}
-          >
-            {isActive ? 'Active' : 'Inactive'}
-          </span>
-        );
-      },
-    },
-    {
-        id: 'actions',
-        cell: ({ row }) => {
-            const user = row.original;
-            return (
-                <Button
-                    variant="ghost"
-                    onClick={() => {
-                        setSelectedUser(user);
-                        setDialogOpen(true);
-                    }}
-                >
-                    Edit
-                </Button>
-            );
-        },
-    },
-  ];
+  const handleCloseDialog = () => {
+    setSelectedUser(null)
+    setIsDialogOpen(false)
+  }
+
+  const handleConfirm = async (formData: UserCreate | UserUpdate) => {
+    const isEditing = !!selectedUser
+    const action = isEditing
+      ? userService.updateUser(selectedUser.id, formData as UserUpdate)
+      : userService.createUser(formData as UserCreate)
+
+    toast.promise(action, {
+      loading: "Sauvegarde de l'utilisateur en cours...",
+      success: `Utilisateur ${isEditing ? "mis à jour" : "créé"} avec succès !`,
+      error: "Erreur lors de la sauvegarde de l'utilisateur.",
+    })
+
+    try {
+      await action
+      refresh()
+      handleCloseDialog()
+    } catch (error) {
+      console.error("Erreur lors de la sauvegarde de l'utilisateur:", error)
+    }
+  }
+
+  const handleDeleteRequest = (user: User) => {
+    // Retrouver l'objet original dans data
+    const originalUser = data.find((u) => u.id === user.id) || user
+    setUserToDelete(originalUser)
+    setIsConfirmOpen(true)
+  }
+
+  const handleConfirmDelete = async () => {
+    if (!userToDelete) return
+
+    const action = userService.deleteUser(userToDelete.id)
+
+    toast.promise(action, {
+      loading: "Suppression de l'utilisateur en cours...",
+      success: "Utilisateur supprimé avec succès !",
+      error: "Erreur lors de la suppression de l'utilisateur.",
+    })
+
+    try {
+      await action
+      refresh()
+      setIsConfirmOpen(false)
+      setUserToDelete(null)
+    } catch (error) {
+      console.error("Erreur lors de la suppression:", error)
+    }
+  }
+
+  const columns = [
+    { key: "full_name", header: "Nom complet", sortable: true },
+    { key: "email", header: "Email", sortable: true },
+    { key: "roles", header: "Rôles", sortable: false },
+    { key: "status", header: "Statut", sortable: false },
+  ]
 
   return (
-    <div className="p-4">
-      <div className="flex justify-between items-center mb-4">
-        <h1 className="text-2xl font-bold">Users</h1>
-        <Button onClick={() => setDialogOpen(true)}>
-          <PlusCircle className="mr-2" />
-          Add User
-        </Button>
+    <div className="space-y-6">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+        <div>
+          <h1 className="text-3xl font-bold text-secondary mb-2">
+            Gestion des utilisateurs
+          </h1>
+          <p className="text-accent">Gérez les utilisateurs et leurs accès</p>
+        </div>
+
+        <button
+          type="button"
+          onClick={() => handleOpenDialog()}
+          className="btn-primary flex items-center gap-2"
+        >
+          <Plus className="w-4 h-4" />
+          <span className="hidden sm:inline">Nouvel utilisateur</span>
+        </button>
       </div>
+
       <DataTable
+        data={data.map((u) => ({
+          ...u,
+          roles: u.roles?.map((r) => r.name).join(", ") || "-",
+          status: u.is_active ? "Actif" : "Inactif",
+        })) as unknown as User[]}
         columns={columns}
-        data={users?.items || []}
         isLoading={isLoading}
-        error={null}
-        onRetry={() => {}}
-        pagination={{
-          pageIndex: users?.skip ? users.skip / (users.limit || 1) : 0,
-          pageSize: users?.limit || 10,
-          pageCount: users?.total ? Math.ceil(users.total / (users.limit || 1)) : 1,
-        }}
-        onPageChange={() => {}}
+        pagination={pagination}
+        sortConfig={sortConfig}
+        onPageChange={handlePageChange}
+        onSearchChange={handleSearchChange}
+        onSortChange={handleSortChange}
+        onEdit={handleOpenDialog}
+        onDelete={handleDeleteRequest}
       />
+
       <UserDialog
-        open={dialogOpen}
-        onClose={() => {
-            setDialogOpen(false);
-            setSelectedUser(null);
-        }}
+        isOpen={isDialogOpen}
+        onClose={handleCloseDialog}
+        onConfirm={handleConfirm}
         user={selectedUser}
       />
-    </div>
-  );
-};
 
-export default Users;
+      <ConfirmationDialog
+        isOpen={isConfirmOpen}
+        onClose={() => setIsConfirmOpen(false)}
+        onConfirm={handleConfirmDelete}
+        title="Confirmer la suppression"
+        description={`Êtes-vous sûr de vouloir supprimer l'utilisateur "${userToDelete?.full_name}" ? Cette action est irréversible.`}
+      />
+    </div>
+  )
+}
+
+export default Users

@@ -10,26 +10,70 @@ export interface PaginatedResponse<T> {
   limit: number;
 }
 
+export type SortDirection = "asc" | "desc"
+
+export interface SortConfig {
+  key: string;
+  direction: SortDirection;
+}
+
 export interface PaginationParams {
   skip?: number;
   limit?: number;
   search?: string;
+  sort_by?: string;
+  sort_order?: SortDirection;
 }
 
 interface UseDataTableProps<T> {
-  fetchData: (params: PaginationParams) => Promise<PaginatedResponse<T>>
+  fetchData: (params: PaginationParams) => Promise<PaginatedResponse<T>>;
+  defaultSortKey?: string;
+  defaultSortDirection?: SortDirection;
+  clientSideSort?: boolean; // If true, sorting is done client-side instead of server-side
 }
 
-const useDataTable = <T>({ fetchData }: UseDataTableProps<T>) => {
+const useDataTable = <T>({
+  fetchData,
+  defaultSortKey = "name",
+  defaultSortDirection = "asc",
+  clientSideSort = false
+}: UseDataTableProps<T>) => {
   const [data, setData] = useState<T[]>([])
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
+  const [sortConfig, setSortConfig] = useState<SortConfig>({
+    key: defaultSortKey,
+    direction: defaultSortDirection,
+  })
   const [pagination, setPagination] = useState<PaginationParams>({
     skip: 0,
     limit: 10,
     search: "",
+    sort_by: defaultSortKey,
+    sort_order: defaultSortDirection,
   })
   const [total, setTotal] = useState(0)
+
+  // Client-side sort function
+  const sortData = useCallback((items: T[], key: string, direction: SortDirection): T[] => {
+    return [...items].sort((a, b) => {
+      const aValue = (a as Record<string, unknown>)[key]
+      const bValue = (b as Record<string, unknown>)[key]
+
+      if (aValue === null || aValue === undefined) return direction === "asc" ? 1 : -1
+      if (bValue === null || bValue === undefined) return direction === "asc" ? -1 : 1
+
+      if (typeof aValue === "string" && typeof bValue === "string") {
+        return direction === "asc"
+          ? aValue.localeCompare(bValue, "fr", { sensitivity: "base" })
+          : bValue.localeCompare(aValue, "fr", { sensitivity: "base" })
+      }
+
+      if (aValue < bValue) return direction === "asc" ? -1 : 1
+      if (aValue > bValue) return direction === "asc" ? 1 : -1
+      return 0
+    })
+  }, [])
 
   const loadData = useCallback(async () => {
     setIsLoading(true)
@@ -41,7 +85,14 @@ const useDataTable = <T>({ fetchData }: UseDataTableProps<T>) => {
         throw new Error("Aucune réponse reçue")
       }
 
-      setData(response.items || [])
+      let items = response.items || []
+
+      // Apply client-side sorting if enabled
+      if (clientSideSort && sortConfig.key) {
+        items = sortData(items, sortConfig.key, sortConfig.direction)
+      }
+
+      setData(items)
       setTotal(response.total || 0)
     } catch (error) {
       console.error("Erreur lors de la récupération des données:", error)
@@ -51,7 +102,7 @@ const useDataTable = <T>({ fetchData }: UseDataTableProps<T>) => {
     } finally {
       setIsLoading(false)
     }
-  }, [fetchData, pagination])
+  }, [fetchData, pagination, clientSideSort, sortConfig, sortData])
 
   useEffect(() => {
     loadData()
@@ -65,6 +116,19 @@ const useDataTable = <T>({ fetchData }: UseDataTableProps<T>) => {
     setPagination((prev) => ({ ...prev, search: newSearch, skip: 0 }))
   }
 
+  const handleSortChange = (key: string) => {
+    const newDirection: SortDirection =
+      sortConfig.key === key && sortConfig.direction === "desc" ? "asc" : "desc"
+
+    setSortConfig({ key, direction: newDirection })
+    setPagination((prev) => ({
+      ...prev,
+      sort_by: key,
+      sort_order: newDirection,
+      skip: 0, // Reset to first page when sorting changes
+    }))
+  }
+
   const refresh = () => {
     loadData()
   }
@@ -74,8 +138,10 @@ const useDataTable = <T>({ fetchData }: UseDataTableProps<T>) => {
     isLoading,
     error,
     pagination: { ...pagination, total },
+    sortConfig,
     handlePageChange,
     handleSearchChange,
+    handleSortChange,
     refresh,
     setData,
   }

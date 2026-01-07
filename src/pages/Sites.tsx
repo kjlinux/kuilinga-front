@@ -20,11 +20,15 @@ const Sites = () => {
     data,
     isLoading,
     pagination,
+    sortConfig,
     handlePageChange,
     handleSearchChange,
+    handleSortChange,
     refresh,
   } = useDataTable<Site>({
     fetchData: siteService.getSites,
+    defaultSortKey: "name",
+    defaultSortDirection: "asc",
   })
 
   const handleOpenDialog = (site: Site | null = null) => {
@@ -85,13 +89,13 @@ const Sites = () => {
   }
 
   const columns = [
-    { key: "name", header: "Nom" },
-    { key: "address", header: "Adresse" },
-    { key: "organization", header: "Organisation" },
-    { key: "timezone", header: "Fuseau horaire" },
-    { key: "departments_count", header: "Départements" },
-    { key: "employees_count", header: "Employés" },
-    { key: "devices_count", header: "Terminaux" },
+    { key: "name", header: "Nom", sortable: true },
+    { key: "address", header: "Adresse", sortable: true },
+    { key: "organization", header: "Organisation", sortable: false },
+    { key: "timezone", header: "Fuseau horaire", sortable: true },
+    { key: "departments_count", header: "Départements", sortable: true },
+    { key: "employees_count", header: "Employés", sortable: true },
+    { key: "devices_count", header: "Terminaux", sortable: true },
   ]
 
   return (
@@ -120,8 +124,10 @@ const Sites = () => {
         columns={columns}
         isLoading={isLoading}
         pagination={pagination}
+        sortConfig={sortConfig}
         onPageChange={handlePageChange}
         onSearchChange={handleSearchChange}
+        onSortChange={handleSortChange}
         onEdit={handleOpenDialog}
         onDelete={handleDeleteRequest}
       />

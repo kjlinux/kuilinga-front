@@ -11,13 +11,23 @@ import type {
   PermissionUpdate,
   PaginatedResponsePermission,
 } from "@/api";
+import type { PaginationParams, PaginatedResponse } from "@/hooks/useDataTable";
 
 const permissionService = {
-  getPermissions: async (skip = 0, limit = 100) => {
+  getPermissions: async (params: PaginationParams = {}): Promise<PaginatedResponse<Permission>> => {
     const response = await readPermissionsApiV1PermissionsGet({
-      query: { skip, limit },
+      query: {
+        skip: params.skip ?? 0,
+        limit: params.limit ?? 20,
+      },
     });
-    return { data: response.data as PaginatedResponsePermission };
+    const data = response.data as PaginatedResponsePermission;
+    return {
+      items: data.items,
+      total: data.total,
+      skip: data.skip,
+      limit: data.limit,
+    };
   },
 
   getPermissionById: async (permissionId: string) => {

@@ -1,3 +1,4 @@
+import { useEffect } from 'react';
 import {
   Dialog,
   DialogContent,
@@ -19,8 +20,7 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
 import type { User, UserCreate, UserUpdate, Role } from '@/api';
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import userService from '@/services/user.service';
+import { useQuery } from '@tanstack/react-query';
 import roleService from '@/services/role.service';
 import { Switch } from '@/components/ui/switch';
 import {
@@ -32,78 +32,88 @@ import {
 } from '@/components/ui/select';
 
 interface UserDialogProps {
-  open: boolean;
+  isOpen: boolean;
   onClose: () => void;
+  onConfirm: (data: UserCreate | UserUpdate) => void;
   user: User | null;
 }
 
 const formSchema = z.object({
-  full_name: z.string().min(2, 'Full name must be at least 2 characters.'),
-  email: z.string().email('Invalid email address.'),
-  password: z.string().min(8, 'Password must be at least 8 characters.'),
-  role_id: z.string(),
+  full_name: z.string().min(2, 'Le nom complet doit contenir au moins 2 caractères.'),
+  email: z.string().email('Adresse email invalide.'),
+  password: z.string().min(8, 'Le mot de passe doit contenir au moins 8 caractères.').optional().or(z.literal('')),
+  role_id: z.string().optional(),
   is_active: z.boolean(),
 });
 
-const UserDialog = ({ open, onClose, user }: UserDialogProps) => {
-  const queryClient = useQueryClient();
+const UserDialog = ({ isOpen, onClose, onConfirm, user }: UserDialogProps) => {
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      full_name: user?.full_name || '',
-      email: user?.email || '',
+      full_name: '',
+      email: '',
       password: '',
-      role_id: user?.roles?.[0]?.id || '',
-      is_active: user?.is_active || true,
+      role_id: '',
+      is_active: true,
     },
   });
 
-  const { data: roles } = useQuery({
+  const { data: rolesResponse } = useQuery({
     queryKey: ['roles'],
     queryFn: () => roleService.getRoles(),
   });
 
-  const createUserMutation = useMutation({
-    mutationFn: (data: UserCreate) => userService.createUser(data),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['users'] });
-      onClose();
-    },
-  });
+  // Reset form when user changes or dialog opens
+  useEffect(() => {
+    if (isOpen) {
+      form.reset({
+        full_name: user?.full_name || '',
+        email: user?.email || '',
+        password: '',
+        role_id: user?.roles?.[0]?.id || '',
+        is_active: user?.is_active ?? true,
+      });
+    }
+  }, [user, isOpen, form]);
 
-  const updateUserMutation = useMutation({
-    mutationFn: (data: UserUpdate) => userService.updateUser(user!.id, data),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['users'] });
-      onClose();
-    },
-  });
+  const onSubmit = (values: z.infer<typeof formSchema>) => {
+    const { role_id, ...userData } = values;
 
-  const assignRoleMutation = useMutation({
-    mutationFn: ({ userId, roleId }: { userId: string; roleId: string }) =>
-      userService.assignRoleToUser(userId, roleId),
-  });
-
-  const onSubmit = async (values: z.infer<typeof formSchema>) => {
     if (user) {
-      updateUserMutation.mutate(values);
-    } else {
-      const result = await createUserMutation.mutateAsync(values);
-      if (result?.data && values.role_id) {
-        assignRoleMutation.mutate({ userId: result.data.id, roleId: values.role_id });
+      // Mode édition : ne pas envoyer le mot de passe s'il est vide
+      const updateData: UserUpdate = {
+        full_name: userData.full_name,
+        email: userData.email,
+        is_active: userData.is_active,
+      };
+      if (userData.password) {
+        updateData.password = userData.password;
       }
+      onConfirm(updateData);
+    } else {
+      // Mode création : le mot de passe est requis
+      if (!userData.password) {
+        form.setError('password', { message: 'Le mot de passe est requis pour créer un utilisateur.' });
+        return;
+      }
+      const createData: UserCreate = {
+        full_name: userData.full_name,
+        email: userData.email,
+        password: userData.password,
+      };
+      onConfirm(createData);
     }
   };
 
   return (
-    <Dialog open={open} onOpenChange={onClose}>
+    <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>{user ? 'Edit User' : 'Add User'}</DialogTitle>
+          <DialogTitle>{user ? 'Modifier l\'utilisateur' : 'Nouvel utilisateur'}</DialogTitle>
           <DialogDescription>
             {user
-              ? 'Update the user details.'
-              : 'Fill in the form to create a new user.'}
+              ? 'Modifiez les informations de l\'utilisateur.'
+              : 'Remplissez le formulaire pour créer un nouvel utilisateur.'}
           </DialogDescription>
         </DialogHeader>
         <Form {...form}>
@@ -113,9 +123,9 @@ const UserDialog = ({ open, onClose, user }: UserDialogProps) => {
               name="full_name"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Full Name</FormLabel>
+                  <FormLabel>Nom complet</FormLabel>
                   <FormControl>
-                    <Input placeholder="John Doe" {...field} />
+                    <Input placeholder="Jean Dupont" {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -128,44 +138,44 @@ const UserDialog = ({ open, onClose, user }: UserDialogProps) => {
                 <FormItem>
                   <FormLabel>Email</FormLabel>
                   <FormControl>
-                    <Input placeholder="john.doe@example.com" {...field} />
+                    <Input placeholder="jean.dupont@exemple.com" {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
               )}
             />
-            {!user && (
-              <FormField
-                control={form.control}
-                name="password"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Password</FormLabel>
-                    <FormControl>
-                      <Input type="password" {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-            )}
+            <FormField
+              control={form.control}
+              name="password"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>
+                    Mot de passe {user && <span className="text-muted-foreground text-sm">(laisser vide pour ne pas modifier)</span>}
+                  </FormLabel>
+                  <FormControl>
+                    <Input type="password" placeholder={user ? '••••••••' : 'Mot de passe'} {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
             <FormField
               control={form.control}
               name="role_id"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Role</FormLabel>
+                  <FormLabel>Rôle</FormLabel>
                   <Select
                     onValueChange={field.onChange}
-                    defaultValue={field.value}
+                    value={field.value}
                   >
                     <FormControl>
                       <SelectTrigger>
-                        <SelectValue placeholder="Select a role" />
+                        <SelectValue placeholder="Sélectionner un rôle" />
                       </SelectTrigger>
                     </FormControl>
                     <SelectContent>
-                      {roles?.data?.items?.map((role: Role) => (
+                      {rolesResponse?.items?.map((role: Role) => (
                         <SelectItem key={role.id} value={role.id}>
                           {role.name}
                         </SelectItem>
@@ -176,28 +186,31 @@ const UserDialog = ({ open, onClose, user }: UserDialogProps) => {
                 </FormItem>
               )}
             />
-            {user && (
-              <FormField
-                control={form.control}
-                name="is_active"
-                render={({ field }) => (
-                  <FormItem className="flex flex-row items-center justify-between rounded-lg border p-3 shadow-sm">
-                    <div className="space-y-0.5">
-                      <FormLabel>Active Status</FormLabel>
-                    </div>
-                    <FormControl>
-                      <Switch
-                        checked={field.value}
-                        onCheckedChange={field.onChange}
-                      />
-                    </FormControl>
-                  </FormItem>
-                )}
-              />
-            )}
-            <Button type="submit">
-              {user ? 'Update User' : 'Create User'}
-            </Button>
+            <FormField
+              control={form.control}
+              name="is_active"
+              render={({ field }) => (
+                <FormItem className="flex flex-row items-center justify-between rounded-lg border p-3 shadow-sm">
+                  <div className="space-y-0.5">
+                    <FormLabel>Statut actif</FormLabel>
+                  </div>
+                  <FormControl>
+                    <Switch
+                      checked={field.value}
+                      onCheckedChange={field.onChange}
+                    />
+                  </FormControl>
+                </FormItem>
+              )}
+            />
+            <div className="flex justify-end gap-2">
+              <Button type="button" variant="outline" onClick={onClose}>
+                Annuler
+              </Button>
+              <Button type="submit">
+                {user ? 'Mettre à jour' : 'Créer'}
+              </Button>
+            </div>
           </form>
         </Form>
       </DialogContent>

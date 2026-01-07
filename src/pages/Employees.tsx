@@ -24,11 +24,15 @@ const Employees = () => {
     data,
     isLoading,
     pagination,
+    sortConfig,
     handlePageChange,
     handleSearchChange,
+    handleSortChange,
     refresh,
   } = useDataTable<Employee>({
     fetchData: employeeService.getEmployees,
+    defaultSortKey: "last_name",
+    defaultSortDirection: "asc",
   })
 
   const handleOpenDialog = (employee: Employee | null = null) => {
@@ -92,16 +96,16 @@ const Employees = () => {
   }
 
   const columns = [
-    { key: "employee_number", header: "N° Employé" },
-    { key: "first_name", header: "Prénom" },
-    { key: "last_name", header: "Nom" },
-    { key: "email", header: "Email" },
-    { key: "phone", header: "Téléphone" },
-    { key: "position", header: "Poste" },
-    { key: "department", header: "Département" },
-    { key: "site", header: "Site" },
-    { key: "badge_id", header: "N° Badge" },
-    { key: "status", header: "Statut" },
+    { key: "employee_number", header: "N° Employé", sortable: true },
+    { key: "first_name", header: "Prénom", sortable: true },
+    { key: "last_name", header: "Nom", sortable: true },
+    { key: "email", header: "Email", sortable: true },
+    { key: "phone", header: "Téléphone", sortable: false },
+    { key: "position", header: "Poste", sortable: true },
+    { key: "department", header: "Département", sortable: false },
+    { key: "site", header: "Site", sortable: false },
+    { key: "badge_id", header: "N° Badge", sortable: true },
+    { key: "status", header: "Statut", sortable: false },
   ]
 
   return (
@@ -132,8 +136,10 @@ const Employees = () => {
         columns={columns}
         isLoading={isLoading}
         pagination={pagination}
+        sortConfig={sortConfig}
         onPageChange={handlePageChange}
         onSearchChange={handleSearchChange}
+        onSortChange={handleSortChange}
         onEdit={handleOpenDialog}
         onDelete={handleDeleteRequest}
       />

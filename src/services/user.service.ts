@@ -12,13 +12,25 @@ import type {
   UserUpdate,
   PaginatedResponseUser,
 } from "@/api";
+import type { PaginationParams, PaginatedResponse } from "@/hooks/useDataTable";
 
 const userService = {
-  getUsers: async (skip = 0, limit = 100) => {
+  getUsers: async (params: PaginationParams = {}): Promise<PaginatedResponse<User>> => {
     const response = await readUsersApiV1UsersGet({
-      query: { skip, limit },
+      query: {
+        skip: params.skip ?? 0,
+        limit: params.limit ?? 20,
+        sort_by: params.sort_by ?? "created_at",
+        sort_order: params.sort_order ?? "desc",
+      },
     });
-    return { data: response.data as PaginatedResponseUser };
+    const data = response.data as PaginatedResponseUser;
+    return {
+      items: data.items,
+      total: data.total,
+      skip: data.skip,
+      limit: data.limit,
+    };
   },
 
   getUserById: async (userId: string) => {

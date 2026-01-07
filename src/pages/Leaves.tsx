@@ -20,11 +20,15 @@ const Leaves = () => {
     data,
     isLoading,
     pagination,
+    sortConfig,
     handlePageChange,
     handleSearchChange,
+    handleSortChange,
     refresh,
   } = useDataTable<Leave>({
     fetchData: leaveService.getLeaves,
+    defaultSortKey: "start_date",
+    defaultSortDirection: "desc",
   })
 
   const handleOpenDialog = (leave: Leave | null = null) => {
@@ -105,14 +109,14 @@ const Leaves = () => {
   }
 
   const columns = [
-    { key: "employee", header: "Employé" },
-    { key: "leave_type", header: "Type" },
-    { key: "start_date", header: "Date début" },
-    { key: "end_date", header: "Date fin" },
-    { key: "duration", header: "Durée" },
-    { key: "reason", header: "Raison" },
-    { key: "status", header: "Statut" },
-    { key: "approver", header: "Approbateur" },
+    { key: "employee", header: "Employé", sortable: false },
+    { key: "leave_type", header: "Type", sortable: true },
+    { key: "start_date", header: "Date début", sortable: true },
+    { key: "end_date", header: "Date fin", sortable: true },
+    { key: "duration", header: "Durée", sortable: true },
+    { key: "reason", header: "Raison", sortable: false },
+    { key: "status", header: "Statut", sortable: false },
+    { key: "approver", header: "Approbateur", sortable: false },
   ]
 
   return (
@@ -151,8 +155,10 @@ const Leaves = () => {
         columns={columns}
         isLoading={isLoading}
         pagination={pagination}
+        sortConfig={sortConfig}
         onPageChange={handlePageChange}
         onSearchChange={handleSearchChange}
+        onSortChange={handleSortChange}
         onEdit={handleOpenDialog}
         onDelete={handleDeleteRequest}
       />

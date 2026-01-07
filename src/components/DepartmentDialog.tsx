@@ -39,7 +39,7 @@ const DepartmentDialog = ({
 
   useEffect(() => {
     if (department) {
-      setFormData({ ...department, site_id: department.site?.id })
+      setFormData({ ...department, site_id: department.site?.id, manager_id: department.manager?.id })
     } else {
       setFormData({})
     }

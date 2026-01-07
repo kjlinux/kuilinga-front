@@ -1,3 +1,4 @@
+import { useEffect } from 'react';
 import {
   Dialog,
   DialogContent,
@@ -19,84 +20,64 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
 import type { Role, RoleCreate, RoleUpdate, Permission } from '@/api';
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import roleService from '@/services/role.service';
+import { useQuery } from '@tanstack/react-query';
 import permissionService from '@/services/permission.service';
-import { Checkbox } from "@/components/ui/checkbox"
-
+import { Checkbox } from "@/components/ui/checkbox";
 
 interface RoleDialogProps {
-  open: boolean;
+  isOpen: boolean;
   onClose: () => void;
+  onConfirm: (data: RoleCreate | RoleUpdate) => void;
   role: Role | null;
 }
 
 const formSchema = z.object({
-  name: z.string().min(2, 'Role name must be at least 2 characters.'),
+  name: z.string().min(2, 'Le nom du rôle doit contenir au moins 2 caractères.'),
   description: z.string().optional(),
   permission_ids: z.array(z.string()).optional(),
 });
 
-const RoleDialog = ({ open, onClose, role }: RoleDialogProps) => {
-  const queryClient = useQueryClient();
+const RoleDialog = ({ isOpen, onClose, onConfirm, role }: RoleDialogProps) => {
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      name: role?.name || '',
-      description: role?.description || '',
-      permission_ids: role?.permissions?.map(p => p.id) || [],
+      name: '',
+      description: '',
+      permission_ids: [],
     },
   });
 
-  const { data: permissions } = useQuery({
+  const { data: permissionsResponse } = useQuery({
     queryKey: ['permissions'],
     queryFn: () => permissionService.getPermissions(),
   });
 
-  const createRoleMutation = useMutation({
-    mutationFn: (data: RoleCreate) => roleService.createRole(data),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['roles'] });
-      onClose();
-    },
-  });
-
-  const updateRoleMutation = useMutation({
-    mutationFn: (data: RoleUpdate) => roleService.updateRole(role!.id, data),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['roles'] });
-      onClose();
-    },
-  });
-
-  const assignPermissionMutation = useMutation({
-    mutationFn: ({ roleId, permissionId }: { roleId: string; permissionId: string }) =>
-      roleService.assignPermissionToRole(roleId, permissionId),
-  });
-
-  const onSubmit = async (values: z.infer<typeof formSchema>) => {
-    const { permission_ids, ...roleData } = values;
-    if (role) {
-      updateRoleMutation.mutate(roleData);
-    } else {
-      const result = await createRoleMutation.mutateAsync(roleData);
-      if (result?.data && permission_ids) {
-        permission_ids.forEach(permissionId => {
-          assignPermissionMutation.mutate({ roleId: result.data.id, permissionId });
-        });
-      }
+  // Reset form when role changes or dialog opens
+  useEffect(() => {
+    if (isOpen) {
+      form.reset({
+        name: role?.name || '',
+        description: role?.description || '',
+        permission_ids: role?.permissions?.map(p => p.id) || [],
+      });
     }
+  }, [role, isOpen, form]);
+
+  const onSubmit = (values: z.infer<typeof formSchema>) => {
+    onConfirm(values);
   };
 
+  const permissions = permissionsResponse?.items || [];
+
   return (
-    <Dialog open={open} onOpenChange={onClose}>
-      <DialogContent>
+    <Dialog open={isOpen} onOpenChange={onClose}>
+      <DialogContent className="max-w-md">
         <DialogHeader>
-          <DialogTitle>{role ? 'Edit Role' : 'Add Role'}</DialogTitle>
+          <DialogTitle>{role ? 'Modifier le rôle' : 'Nouveau rôle'}</DialogTitle>
           <DialogDescription>
             {role
-              ? 'Update the role details.'
-              : 'Fill in the form to create a new role.'}
+              ? 'Modifiez les informations du rôle et ses permissions.'
+              : 'Remplissez le formulaire pour créer un nouveau rôle.'}
           </DialogDescription>
         </DialogHeader>
         <Form {...form}>
@@ -106,9 +87,9 @@ const RoleDialog = ({ open, onClose, role }: RoleDialogProps) => {
               name="name"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Name</FormLabel>
+                  <FormLabel>Nom</FormLabel>
                   <FormControl>
-                    <Input placeholder="e.g. Administrator" {...field} />
+                    <Input placeholder="ex: Administrateur" {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -121,7 +102,7 @@ const RoleDialog = ({ open, onClose, role }: RoleDialogProps) => {
                 <FormItem>
                   <FormLabel>Description</FormLabel>
                   <FormControl>
-                    <Input placeholder="e.g. Can manage all users" {...field} />
+                    <Input placeholder="ex: Peut gérer tous les utilisateurs" {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -132,49 +113,68 @@ const RoleDialog = ({ open, onClose, role }: RoleDialogProps) => {
               name="permission_ids"
               render={() => (
                 <FormItem>
-                  <div className="mb-4">
+                  <div className="mb-2">
                     <FormLabel className="text-base">Permissions</FormLabel>
                   </div>
-                  {permissions?.data?.items?.map((permission: Permission) => (
-                    <FormField
-                      key={permission.id}
-                      control={form.control}
-                      name="permission_ids"
-                      render={({ field }) => {
-                        return (
-                          <FormItem
-                            key={permission.id}
-                            className="flex flex-row items-start space-x-3 space-y-0"
-                          >
-                            <FormControl>
-                              <Checkbox
-                                checked={field.value?.includes(permission.id)}
-                                onCheckedChange={(checked) => {
-                                  return checked
-                                    ? field.onChange([...(field.value || []), permission.id])
-                                    : field.onChange(
-                                        field.value?.filter(
-                                          (value) => value !== permission.id
-                                        )
-                                      )
-                                }}
-                              />
-                            </FormControl>
-                            <FormLabel className="font-normal">
-                              {permission.name}
-                            </FormLabel>
-                          </FormItem>
-                        )
-                      }}
-                    />
-                  ))}
+                  <div className="h-48 overflow-y-auto rounded-md border p-4">
+                    <div className="space-y-3">
+                      {permissions.map((permission: Permission) => (
+                        <FormField
+                          key={permission.id}
+                          control={form.control}
+                          name="permission_ids"
+                          render={({ field }) => (
+                            <FormItem
+                              key={permission.id}
+                              className="flex flex-row items-start space-x-3 space-y-0"
+                            >
+                              <FormControl>
+                                <Checkbox
+                                  checked={field.value?.includes(permission.id)}
+                                  onCheckedChange={(checked) => {
+                                    return checked
+                                      ? field.onChange([...(field.value || []), permission.id])
+                                      : field.onChange(
+                                          field.value?.filter(
+                                            (value) => value !== permission.id
+                                          )
+                                        );
+                                  }}
+                                />
+                              </FormControl>
+                              <div className="space-y-1 leading-none">
+                                <FormLabel className="font-normal cursor-pointer">
+                                  {permission.name}
+                                </FormLabel>
+                                {permission.description && (
+                                  <p className="text-xs text-muted-foreground">
+                                    {permission.description}
+                                  </p>
+                                )}
+                              </div>
+                            </FormItem>
+                          )}
+                        />
+                      ))}
+                      {permissions.length === 0 && (
+                        <p className="text-sm text-muted-foreground text-center py-4">
+                          Aucune permission disponible
+                        </p>
+                      )}
+                    </div>
+                  </div>
                   <FormMessage />
                 </FormItem>
               )}
             />
-            <Button type="submit">
-              {role ? 'Update Role' : 'Create Role'}
-            </Button>
+            <div className="flex justify-end gap-2">
+              <Button type="button" variant="outline" onClick={onClose}>
+                Annuler
+              </Button>
+              <Button type="submit">
+                {role ? 'Mettre à jour' : 'Créer'}
+              </Button>
+            </div>
           </form>
         </Form>
       </DialogContent>

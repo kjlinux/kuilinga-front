@@ -27,8 +27,6 @@ const Sites = () => {
     refresh,
   } = useDataTable<Site>({
     fetchData: siteService.getSites,
-    defaultSortKey: "name",
-    defaultSortDirection: "asc",
   })
 
   const handleOpenDialog = (site: Site | null = null) => {

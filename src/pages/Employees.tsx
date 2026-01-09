@@ -31,8 +31,6 @@ const Employees = () => {
     refresh,
   } = useDataTable<Employee>({
     fetchData: employeeService.getEmployees,
-    defaultSortKey: "last_name",
-    defaultSortDirection: "asc",
   })
 
   const handleOpenDialog = (employee: Employee | null = null) => {

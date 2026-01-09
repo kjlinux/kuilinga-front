@@ -27,9 +27,11 @@ const Roles = () => {
     refresh,
   } = useDataTable<Role>({
     fetchData: roleService.getRoles,
-    defaultSortKey: "name",
-    defaultSortDirection: "asc",
+    defaultSortKey: "created_at",
+    defaultSortDirection: "desc",
     clientSideSort: true, // API doesn't support sorting, so we sort client-side
+    clientSideSearch: true, // API doesn't support search, so we search client-side
+    searchKeys: ["name", "description"],
   })
 
   const handleOpenDialog = (role: Role | null = null) => {

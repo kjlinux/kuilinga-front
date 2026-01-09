@@ -12,10 +12,7 @@ import type {
   PaginatedResponseOrganization,
 } from "@/api";
 
-export interface PaginationParams {
-  skip?: number;
-  limit?: number;
-}
+import type { PaginationParams } from "@/hooks/useDataTable";
 
 class OrganizationService {
   async getOrganizations(params: PaginationParams = {}): Promise<PaginatedResponseOrganization> {
@@ -23,6 +20,9 @@ class OrganizationService {
       query: {
         skip: params.skip ?? 0,
         limit: params.limit ?? 10,
+        search: params.search || undefined,
+        sort_by: params.sort_by || undefined,
+        sort_order: params.sort_order || undefined,
       },
     });
     return response.data as PaginatedResponseOrganization;

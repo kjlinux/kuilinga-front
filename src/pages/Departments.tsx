@@ -29,8 +29,6 @@ const Departments = () => {
     refresh,
   } = useDataTable<Department>({
     fetchData: departmentService.getDepartments,
-    defaultSortKey: "name",
-    defaultSortDirection: "asc",
   })
 
   const handleOpenDialog = (department: Department | null = null) => {

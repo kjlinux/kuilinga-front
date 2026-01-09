@@ -23,8 +23,6 @@ const Organizations = () => {
     refresh,
   } = useDataTable<Organization>({
     fetchData: organizationService.getOrganizations,
-    defaultSortKey: "name",
-    defaultSortDirection: "asc",
   })
 
   const handleOpenDialog = (organization: Organization | null = null) => {

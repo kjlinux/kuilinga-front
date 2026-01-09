@@ -20,6 +20,7 @@ const userService = {
       query: {
         skip: params.skip ?? 0,
         limit: params.limit ?? 20,
+        search: params.search || undefined,
         sort_by: params.sort_by ?? "created_at",
         sort_order: params.sort_order ?? "desc",
       },

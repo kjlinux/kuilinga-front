@@ -55,6 +55,13 @@ const Attendance = () => {
             }
             return prevData
           })
+
+          // Jouer le son de notification
+          const audio = new Audio("/notification.mp3")
+          audio.play().catch(() => {
+            // Ignorer les erreurs de lecture audio (ex: autoplay bloqué)
+          })
+
           toast.success("Nouveau pointage reçu!")
           setLastProcessedId(newAttendance.id)
         }

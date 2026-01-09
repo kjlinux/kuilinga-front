@@ -8,7 +8,7 @@
     "build": "tsc && vite build",
     "preview": "vite preview",
     "lint": "eslint . --report-unused-disable-directives --max-warnings 0",
-    "api:generate": "openapi-ts --input C:/laragon/www/kuilinga-backend/openapi.json --output ./src/api --plugins @hey-api/client-axios"
+    "api:generate": "openapi-ts --input C:\\laragon\\www\\kuilinga-backend\\docs\\openapi.json --output ./src/api --plugins @hey-api/client-axios"
   },
   "dependencies": {
     "@hookform/resolvers": "^5.2.2",
@@ -60,6 +60,7 @@
     "@typescript-eslint/parser": "^7.0.2",
     "@vitejs/plugin-react": "^4.2.1",
     "autoprefixer": "^10.4.17",
+    "baseline-browser-mapping": "^2.9.12",
     "eslint": "^8.56.0",
     "eslint-plugin-react-hooks": "^4.6.0",
     "eslint-plugin-react-refresh": "^0.4.5",

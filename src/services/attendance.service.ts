@@ -9,10 +9,7 @@ import type {
   PaginatedResponseAttendance,
 } from "@/api";
 
-export interface PaginationParams {
-  skip?: number;
-  limit?: number;
-}
+import type { PaginationParams } from "@/hooks/useDataTable";
 
 class AttendanceService {
   async getAttendances(params: PaginationParams = {}): Promise<PaginatedResponseAttendance> {
@@ -20,6 +17,9 @@ class AttendanceService {
       query: {
         skip: params.skip ?? 0,
         limit: params.limit ?? 20,
+        search: params.search || undefined,
+        sort_by: params.sort_by || undefined,
+        sort_order: params.sort_order || undefined,
       },
     });
 

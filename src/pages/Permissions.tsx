@@ -27,9 +27,11 @@ const Permissions = () => {
     refresh,
   } = useDataTable<Permission>({
     fetchData: permissionService.getPermissions,
-    defaultSortKey: "name",
-    defaultSortDirection: "asc",
+    defaultSortKey: "created_at",
+    defaultSortDirection: "desc",
     clientSideSort: true, // API doesn't support sorting, so we sort client-side
+    clientSideSearch: true, // API doesn't support search, so we search client-side
+    searchKeys: ["name", "description"],
   })
 
   const handleOpenDialog = (permission: Permission | null = null) => {

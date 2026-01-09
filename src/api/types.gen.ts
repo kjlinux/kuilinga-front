@@ -6,44 +6,64 @@ export type ClientOptions = {
 
 /**
  * AdminDashboard
+ *
+ * Tableau de bord pour les administrateurs système.
  */
 export type AdminDashboard = {
     /**
      * Active Organizations
+     *
+     * Nombre d'organisations actives
      */
     active_organizations: number;
     /**
      * Users Per Organization
+     *
+     * Répartition des utilisateurs par organisation
      */
     users_per_organization: Array<UsersPerOrg>;
     /**
      * Sites Per Organization
+     *
+     * Répartition des sites par organisation
      */
     sites_per_organization: Array<SitesPerOrg>;
     /**
      * Device Status Ratio
+     *
+     * Ratio des statuts des terminaux
      */
     device_status_ratio: Array<DeviceStatusRatio>;
     /**
      * Daily Attendance Count
+     *
+     * Nombre total de pointages du jour
      */
     daily_attendance_count: number;
     /**
      * Plan Distribution
+     *
+     * Distribution des plans d'abonnement
      */
     plan_distribution: Array<PlanDistribution>;
     /**
      * Top 10 Organizations By Employees
+     *
+     * Top 10 des organisations par nombre d'employés
      */
     top_10_organizations_by_employees: Array<Top10Organizations>;
 };
 
 /**
  * AdvancedAnalytics
+ *
+ * Analyses avancées pour les statistiques.
  */
 export type AdvancedAnalytics = {
     /**
      * Tardiness By Day Of Week
+     *
+     * Retards par jour de la semaine
      */
     tardiness_by_day_of_week: Array<TardinessByDay>;
 };
@@ -51,48 +71,67 @@ export type AdvancedAnalytics = {
 /**
  * AnomaliesReportRequest
  *
- * Request for R8 - Anomalies Report
+ * Requête pour R8 - Rapport des anomalies.
  */
 export type AnomaliesReportRequest = {
     /**
      * Start Date
+     *
+     * Date de début
      */
     start_date: string;
     /**
      * End Date
+     *
+     * Date de fin
      */
     end_date: string;
     /**
      * Site Ids
+     *
+     * IDs sites à filtrer
      */
     site_ids?: Array<string> | null;
     /**
      * Department Ids
+     *
+     * IDs départements à filtrer
      */
     department_ids?: Array<string> | null;
     /**
      * Tardiness Threshold
+     *
+     * Seuil de retard en minutes
      */
     tardiness_threshold?: number;
+    /**
+     * Format d'export
+     */
     format?: ReportFormat;
 };
 
 /**
  * AnomaliesReportResponse
  *
- * Response for R8 preview
+ * Réponse pour R8.
  */
 export type AnomaliesReportResponse = {
     /**
      * Organization Name
+     *
+     * Nom de l'organisation
      */
     organization_name: string;
     /**
      * Period
+     *
+     * Période
      */
     period: string;
     /**
      * Data
+     *
+     * Liste des anomalies
      */
     data: Array<AnomaliesReportRow>;
 };
@@ -100,27 +139,37 @@ export type AnomaliesReportResponse = {
 /**
  * AnomaliesReportRow
  *
- * Data row for R8
+ * Ligne de données pour R8.
  */
 export type AnomaliesReportRow = {
     /**
      * Employee Name
+     *
+     * Nom de l'employé
      */
     employee_name: string;
     /**
      * Department Name
+     *
+     * Département
      */
-    department_name: string | null;
+    department_name?: string | null;
     /**
      * Date
+     *
+     * Date de l'anomalie
      */
     date: string;
     /**
      * Anomaly Type
+     *
+     * Type d'anomalie (Late Arrival, Missing Check-out)
      */
     anomaly_type: string;
     /**
      * Details
+     *
+     * Détails de l'anomalie
      */
     details: string;
 };
@@ -131,28 +180,47 @@ export type AnomaliesReportRow = {
 export type Attendance = {
     /**
      * Timestamp
+     *
+     * Date et heure du pointage (format ISO 8601)
      */
     timestamp: string;
+    /**
+     * Type de pointage : 'in' (entrée) ou 'out' (sortie)
+     */
     type: AttendanceType;
     /**
      * Geo
+     *
+     * Coordonnées GPS au format 'latitude, longitude'
      */
     geo?: string | null;
     /**
      * Extra Data
+     *
+     * Données supplémentaires (source, metadata)
      */
     extra_data?: {
         [key: string]: unknown;
     } | null;
     /**
      * Id
+     *
+     * Identifiant unique du pointage
      */
     id: string;
     /**
      * Duration
+     *
+     * Durée calculée depuis le dernier pointage (ex: '8h 30m')
      */
     duration?: string | null;
+    /**
+     * Employé concerné par le pointage
+     */
     employee?: AttendanceEmployee | null;
+    /**
+     * Terminal utilisé pour le pointage
+     */
     device?: AttendanceDevice | null;
 };
 
@@ -162,25 +230,38 @@ export type Attendance = {
 export type AttendanceCreate = {
     /**
      * Timestamp
+     *
+     * Date et heure du pointage (format ISO 8601)
      */
     timestamp: string;
+    /**
+     * Type de pointage : 'in' (entrée) ou 'out' (sortie)
+     */
     type: AttendanceType;
     /**
      * Geo
+     *
+     * Coordonnées GPS au format 'latitude, longitude'
      */
     geo?: string | null;
     /**
      * Extra Data
+     *
+     * Données supplémentaires (source, metadata)
      */
     extra_data?: {
         [key: string]: unknown;
     } | null;
     /**
      * Employee Id
+     *
+     * ID de l'employé qui pointe
      */
     employee_id: string;
     /**
      * Device Id
+     *
+     * ID du terminal de pointage utilisé
      */
     device_id?: string | null;
 };
@@ -191,14 +272,20 @@ export type AttendanceCreate = {
 export type AttendanceDevice = {
     /**
      * Id
+     *
+     * Identifiant unique du terminal
      */
     id: string;
     /**
      * Serial Number
+     *
+     * Numéro de série du terminal
      */
     serial_number: string;
     /**
      * Type
+     *
+     * Type de terminal
      */
     type: string;
 };
@@ -209,18 +296,26 @@ export type AttendanceDevice = {
 export type AttendanceEmployee = {
     /**
      * Id
+     *
+     * Identifiant unique de l'employé
      */
     id: string;
     /**
      * First Name
+     *
+     * Prénom de l'employé
      */
     first_name: string;
     /**
      * Last Name
+     *
+     * Nom de famille de l'employé
      */
     last_name: string;
     /**
      * Employee Number
+     *
+     * Matricule de l'employé
      */
     employee_number?: string | null;
 };
@@ -231,10 +326,14 @@ export type AttendanceEmployee = {
 export type AttendancePerDevice = {
     /**
      * Serial Number
+     *
+     * Numéro de série du terminal
      */
     serial_number: string;
     /**
      * Attendance Count
+     *
+     * Nombre de pointages enregistrés
      */
     attendance_count: number;
 };
@@ -243,6 +342,22 @@ export type AttendancePerDevice = {
  * AttendanceType
  */
 export type AttendanceType = 'in' | 'out';
+
+/**
+ * AvatarUploadResponse
+ */
+export type AvatarUploadResponse = {
+    /**
+     * Avatar Url
+     *
+     * URL de la photo de profil uploadée
+     */
+    avatar_url: string;
+    /**
+     * Message
+     */
+    message?: string;
+};
 
 /**
  * Body_login_for_access_token_api_v1_auth_login_post
@@ -275,42 +390,69 @@ export type BodyLoginForAccessTokenApiV1AuthLoginPost = {
 };
 
 /**
+ * Body_upload_avatar_api_v1_users__user_id__avatar_post
+ */
+export type BodyUploadAvatarApiV1UsersUserIdAvatarPost = {
+    /**
+     * File
+     *
+     * Image de profil à uploader
+     */
+    file: Blob | File;
+};
+
+/**
  * ComparativeAnalysisRequest
  *
- * Request for R2 - Comparative Analysis Report
+ * Requête pour R2 - Analyse comparative.
  */
 export type ComparativeAnalysisRequest = {
     /**
      * Year
+     *
+     * Année
      */
     year: number;
     /**
      * Month
+     *
+     * Mois (1-12)
      */
     month?: number | null;
     /**
      * Quarter
+     *
+     * Trimestre (1-4)
      */
     quarter?: number | null;
     /**
      * Organization Ids
+     *
+     * IDs organisations à comparer
      */
     organization_ids: Array<string>;
+    /**
+     * Format d'export
+     */
     format?: ReportFormat;
 };
 
 /**
  * ComparativeAnalysisResponse
  *
- * Response for R2 preview
+ * Réponse pour R2.
  */
 export type ComparativeAnalysisResponse = {
     /**
      * Period
+     *
+     * Période
      */
     period: string;
     /**
      * Data
+     *
+     * Données comparatives
      */
     data: Array<ComparativeAnalysisRow>;
 };
@@ -318,26 +460,41 @@ export type ComparativeAnalysisResponse = {
 /**
  * ComparativeAnalysisRow
  *
- * Data row for R2
+ * Ligne de données pour R2.
  */
 export type ComparativeAnalysisRow = {
     /**
      * Organization Name
+     *
+     * Nom de l'organisation
      */
     organization_name: string;
     /**
      * Attendance Rate
+     *
+     * Taux de présence (%)
      */
     attendance_rate: number;
     /**
      * Total Hours Worked
+     *
+     * Heures travaillées
      */
     total_hours_worked: number;
     /**
      * Total Leave Days
+     *
+     * Jours de congé
      */
     total_leave_days: number;
 };
+
+/**
+ * DeliveryMethod
+ *
+ * Méthode de communication avec le terminal IoT.
+ */
+export type DeliveryMethod = 'http' | 'mqtt';
 
 /**
  * Department
@@ -345,16 +502,28 @@ export type ComparativeAnalysisRow = {
 export type Department = {
     /**
      * Name
+     *
+     * Nom du département
      */
     name: string;
     /**
      * Id
+     *
+     * Identifiant unique du département
      */
     id: string;
+    /**
+     * Site d'appartenance
+     */
     site?: DepartmentSite | null;
+    /**
+     * Manager responsable du département
+     */
     manager?: DepartmentManager | null;
     /**
      * Employees Count
+     *
+     * Nombre d'employés dans le département
      */
     employees_count?: number;
 };
@@ -365,14 +534,20 @@ export type Department = {
 export type DepartmentCreate = {
     /**
      * Name
+     *
+     * Nom du département
      */
     name: string;
     /**
      * Site Id
+     *
+     * ID du site auquel appartient le département
      */
     site_id: string;
     /**
      * Manager Id
+     *
+     * ID de l'employé responsable du département
      */
     manager_id?: string | null;
 };
@@ -380,35 +555,49 @@ export type DepartmentCreate = {
 /**
  * DepartmentLeaveReportRow
  *
- * Data row for R15
+ * Ligne de données pour R15.
  */
 export type DepartmentLeaveReportRow = {
     /**
      * Employee Name
+     *
+     * Nom de l'employé
      */
     employee_name: string;
     /**
      * Start Date
+     *
+     * Date de début
      */
     start_date: string;
     /**
      * End Date
+     *
+     * Date de fin
      */
     end_date: string;
     /**
      * Leave Type
+     *
+     * Type de congé
      */
     leave_type: string;
     /**
      * Status
+     *
+     * Statut du congé
      */
     status: string;
     /**
      * Reason
+     *
+     * Motif
      */
     reason: string;
     /**
      * Total Days
+     *
+     * Nombre de jours
      */
     total_days: number;
 };
@@ -416,42 +605,63 @@ export type DepartmentLeaveReportRow = {
 /**
  * DepartmentLeavesRequest
  *
- * Request for R15 - Department Leaves Report
+ * Requête pour R15 - Congés département.
  */
 export type DepartmentLeavesRequest = {
     /**
      * Start Date
+     *
+     * Date de début
      */
     start_date: string;
     /**
      * End Date
+     *
+     * Date de fin
      */
     end_date: string;
+    /**
+     * Type de congé à filtrer
+     */
     leave_type?: LeaveType | null;
+    /**
+     * Statut à filtrer
+     */
     status?: LeaveStatus | null;
     /**
      * Employee Ids
+     *
+     * IDs employés à filtrer
      */
     employee_ids?: Array<string> | null;
+    /**
+     * Format d'export
+     */
     format?: ReportFormat;
 };
 
 /**
  * DepartmentLeavesResponse
  *
- * Response for R15 preview
+ * Réponse pour R15.
  */
 export type DepartmentLeavesResponse = {
     /**
      * Department Name
+     *
+     * Nom du département
      */
     department_name: string;
     /**
      * Period
+     *
+     * Période
      */
     period: string;
     /**
      * Data
+     *
+     * Liste des congés
      */
     data: Array<DepartmentLeaveReportRow>;
 };
@@ -462,18 +672,26 @@ export type DepartmentLeavesResponse = {
 export type DepartmentManager = {
     /**
      * Id
+     *
+     * Identifiant unique du manager
      */
     id: string;
     /**
      * First Name
+     *
+     * Prénom du manager
      */
     first_name: string;
     /**
      * Last Name
+     *
+     * Nom de famille du manager
      */
     last_name: string;
     /**
      * Full Name
+     *
+     * Nom complet calculé automatiquement
      */
     full_name?: string | null;
 };
@@ -481,31 +699,43 @@ export type DepartmentManager = {
 /**
  * DepartmentPresenceReportRow
  *
- * Data row for R12, one row per employee
+ * Ligne de données pour R12.
  */
 export type DepartmentPresenceReportRow = {
     /**
      * Employee Id
+     *
+     * ID de l'employé
      */
     employee_id: string;
     /**
      * Employee Name
+     *
+     * Nom de l'employé
      */
     employee_name: string;
     /**
      * Present Days
+     *
+     * Jours de présence
      */
     present_days: number;
     /**
      * Absent Days
+     *
+     * Jours d'absence
      */
     absent_days: number;
     /**
      * On Leave Days
+     *
+     * Jours de congé
      */
     on_leave_days: number;
     /**
      * Total Hours Worked
+     *
+     * Total heures travaillées
      */
     total_hours_worked: number;
 };
@@ -513,24 +743,35 @@ export type DepartmentPresenceReportRow = {
 /**
  * DepartmentPresenceRequest
  *
- * Request for R12 - Department Presence Report
+ * Requête pour R12 - Rapport présence département.
  */
 export type DepartmentPresenceRequest = {
     /**
      * Start Date
+     *
+     * Date de début
      */
     start_date: string;
     /**
      * End Date
+     *
+     * Date de fin
      */
     end_date: string;
     /**
      * Employee Ids
+     *
+     * IDs employés à filtrer
      */
     employee_ids?: Array<string> | null;
+    /**
+     * Format d'export
+     */
     format?: ReportFormat;
     /**
      * Grouping
+     *
+     * Groupement (daily, weekly)
      */
     grouping?: string;
 };
@@ -538,23 +779,31 @@ export type DepartmentPresenceRequest = {
 /**
  * DepartmentPresenceResponse
  *
- * Response for R12 preview
+ * Réponse pour R12.
  */
 export type DepartmentPresenceResponse = {
     /**
      * Department Name
+     *
+     * Nom du département
      */
     department_name: string;
     /**
      * Period
+     *
+     * Période du rapport
      */
     period: string;
     /**
      * Data
+     *
+     * Données par employé
      */
     data: Array<DepartmentPresenceReportRow>;
     /**
      * Summary
+     *
+     * Résumé statistique
      */
     summary: {
         [key: string]: unknown;
@@ -567,10 +816,14 @@ export type DepartmentPresenceResponse = {
 export type DepartmentSite = {
     /**
      * Id
+     *
+     * Identifiant unique du site
      */
     id: string;
     /**
      * Name
+     *
+     * Nom du site
      */
     name: string;
 };
@@ -581,10 +834,14 @@ export type DepartmentSite = {
 export type DepartmentUpdate = {
     /**
      * Name
+     *
+     * Nom du département
      */
     name?: string | null;
     /**
      * Manager Id
+     *
+     * ID de l'employé responsable du département
      */
     manager_id?: string | null;
 };
@@ -595,28 +852,194 @@ export type DepartmentUpdate = {
 export type Device = {
     /**
      * Serial Number
+     *
+     * Numéro de série unique du terminal
      */
     serial_number: string;
     /**
      * Type
+     *
+     * Type de terminal (ex: 'Terminal Fixe', 'Terminal Mobile')
      */
     type?: string;
+    /**
+     * État du terminal : 'online', 'offline', 'maintenance'
+     */
     status?: DeviceStatus;
     /**
+     * Méthode de communication avec le terminal : 'http' pour requêtes HTTP directes, 'mqtt' pour communication via broker MQTT
+     */
+    delivery_method?: DeliveryMethod;
+    /**
      * Id
+     *
+     * Identifiant unique du terminal
      */
     id: string;
+    /**
+     * Organisation propriétaire
+     */
     organization?: DeviceOrganization | null;
+    /**
+     * Site d'installation
+     */
     site?: DeviceSite | null;
     /**
      * Last Attendance Timestamp
+     *
+     * Date/heure du dernier pointage enregistré
      */
     last_attendance_timestamp?: string | null;
     /**
      * Daily Attendance Count
+     *
+     * Nombre de pointages du jour
      */
     daily_attendance_count?: number;
+    /**
+     * Last Seen At
+     *
+     * Dernière communication reçue du terminal
+     */
+    last_seen_at?: string | null;
+    /**
+     * Firmware Version
+     *
+     * Version du firmware
+     */
+    firmware_version?: string | null;
+    /**
+     * Battery Level
+     *
+     * Niveau de batterie (0-100%)
+     */
+    battery_level?: number | null;
+    /**
+     * Wifi Rssi
+     *
+     * Force du signal WiFi en dBm
+     */
+    wifi_rssi?: number | null;
 };
+
+/**
+ * DeviceBulkCommandRequest
+ *
+ * Requête pour envoyer une commande à plusieurs appareils.
+ */
+export type DeviceBulkCommandRequest = {
+    /**
+     * Device Ids
+     *
+     * Liste des IDs des terminaux
+     */
+    device_ids: Array<string>;
+    /**
+     * Type de commande à envoyer
+     */
+    command: DeviceCommandType;
+};
+
+/**
+ * DeviceBulkCommandResponse
+ *
+ * Réponse après envoi d'une commande à plusieurs appareils.
+ */
+export type DeviceBulkCommandResponse = {
+    /**
+     * Success
+     *
+     * Indique si toutes les commandes ont été envoyées
+     */
+    success: boolean;
+    /**
+     * Total Devices
+     *
+     * Nombre total d'appareils ciblés
+     */
+    total_devices: number;
+    /**
+     * Successful
+     *
+     * Nombre de commandes envoyées avec succès
+     */
+    successful: number;
+    /**
+     * Failed
+     *
+     * Nombre d'échecs
+     */
+    failed: number;
+    /**
+     * Results
+     *
+     * Détails par appareil
+     */
+    results: Array<DeviceCommandResponse>;
+};
+
+/**
+ * DeviceCommandRequest
+ *
+ * Requête pour envoyer une commande à un appareil.
+ */
+export type DeviceCommandRequest = {
+    /**
+     * Type de commande à envoyer (reset, reboot, sleep, status)
+     */
+    command: DeviceCommandType;
+};
+
+/**
+ * DeviceCommandResponse
+ *
+ * Réponse après envoi d'une commande à un appareil.
+ */
+export type DeviceCommandResponse = {
+    /**
+     * Success
+     *
+     * Indique si la commande a été envoyée
+     */
+    success: boolean;
+    /**
+     * Device Id
+     *
+     * ID du terminal
+     */
+    device_id: string;
+    /**
+     * Device Serial
+     *
+     * Numéro de série du terminal
+     */
+    device_serial: string;
+    /**
+     * Command
+     *
+     * Type de commande envoyée
+     */
+    command: string;
+    /**
+     * Command Code
+     *
+     * Code hexadécimal envoyé
+     */
+    command_code: string;
+    /**
+     * Message
+     *
+     * Message de confirmation
+     */
+    message: string;
+};
+
+/**
+ * DeviceCommandType
+ *
+ * Types de commandes administratives (noms lisibles).
+ */
+export type DeviceCommandType = 'reset' | 'reboot' | 'sleep' | 'status';
 
 /**
  * DeviceCreate
@@ -624,19 +1047,34 @@ export type Device = {
 export type DeviceCreate = {
     /**
      * Serial Number
+     *
+     * Numéro de série unique du terminal
      */
     serial_number: string;
     /**
      * Type
+     *
+     * Type de terminal (ex: 'Terminal Fixe', 'Terminal Mobile')
      */
     type?: string;
+    /**
+     * État du terminal : 'online', 'offline', 'maintenance'
+     */
     status?: DeviceStatus;
     /**
+     * Méthode de communication avec le terminal : 'http' pour requêtes HTTP directes, 'mqtt' pour communication via broker MQTT
+     */
+    delivery_method?: DeliveryMethod;
+    /**
      * Organization Id
+     *
+     * ID de l'organisation propriétaire
      */
     organization_id: string;
     /**
      * Site Id
+     *
+     * ID du site où est installé le terminal
      */
     site_id?: string | null;
 };
@@ -647,34 +1085,50 @@ export type DeviceCreate = {
 export type DeviceOrganization = {
     /**
      * Name
+     *
+     * Nom de l'organisation
      */
     name: string;
     /**
      * Description
+     *
+     * Description de l'organisation
      */
     description?: string | null;
     /**
      * Email
+     *
+     * Adresse email de contact
      */
     email?: string | null;
     /**
      * Phone
+     *
+     * Numéro de téléphone de contact
      */
     phone?: string | null;
     /**
      * Timezone
+     *
+     * Fuseau horaire (ex: 'Africa/Abidjan', 'Europe/Paris')
      */
     timezone?: string;
     /**
      * Plan
+     *
+     * Plan d'abonnement (standard, premium, enterprise)
      */
     plan?: string | null;
     /**
      * Is Active
+     *
+     * Indique si l'organisation est active
      */
     is_active?: boolean;
     /**
      * Id
+     *
+     * Identifiant unique de l'organisation
      */
     id: string;
 };
@@ -685,18 +1139,26 @@ export type DeviceOrganization = {
 export type DeviceSite = {
     /**
      * Name
+     *
+     * Nom du site
      */
     name: string;
     /**
      * Address
+     *
+     * Adresse physique du site
      */
     address?: string | null;
     /**
      * Timezone
+     *
+     * Fuseau horaire du site
      */
     timezone?: string;
     /**
      * Id
+     *
+     * Identifiant unique du site
      */
     id: string;
 };
@@ -712,10 +1174,14 @@ export type DeviceStatus = 'online' | 'offline' | 'maintenance';
 export type DeviceStatusRatio = {
     /**
      * Status
+     *
+     * Statut du terminal (online, offline, maintenance)
      */
     status: string;
     /**
      * Count
+     *
+     * Nombre de terminaux avec ce statut
      */
     count: number;
 };
@@ -726,60 +1192,90 @@ export type DeviceStatusRatio = {
 export type DeviceUpdate = {
     /**
      * Serial Number
+     *
+     * Numéro de série du terminal
      */
     serial_number?: string | null;
     /**
      * Type
+     *
+     * Type de terminal
      */
     type?: string | null;
+    /**
+     * État du terminal
+     */
     status?: DeviceStatus | null;
     /**
      * Site Id
+     *
+     * ID du site
      */
     site_id?: string | null;
+    /**
+     * Méthode de communication (http ou mqtt)
+     */
+    delivery_method?: DeliveryMethod | null;
 };
 
 /**
  * DeviceUsageRequest
  *
- * Request for R3 - Device Usage Report
+ * Requête pour R3 - Utilisation des terminaux.
  */
 export type DeviceUsageRequest = {
     /**
      * Start Date
+     *
+     * Date de début
      */
     start_date: string;
     /**
      * End Date
+     *
+     * Date de fin
      */
     end_date: string;
     /**
      * Organization Ids
+     *
+     * IDs organisations
      */
     organization_ids?: Array<string> | null;
     /**
      * Site Ids
+     *
+     * IDs sites
      */
     site_ids?: Array<string> | null;
     /**
      * Status
+     *
+     * Statut (Online, Offline, Maintenance)
      */
     status?: string | null;
+    /**
+     * Format d'export
+     */
     format?: ReportFormat;
 };
 
 /**
  * DeviceUsageResponse
  *
- * Response for R3 preview
+ * Réponse pour R3.
  */
 export type DeviceUsageResponse = {
     /**
      * Period
+     *
+     * Période
      */
     period: string;
     /**
      * Data
+     *
+     * Données des terminaux
      */
     data: Array<DeviceUsageRow>;
 };
@@ -787,33 +1283,45 @@ export type DeviceUsageResponse = {
 /**
  * DeviceUsageRow
  *
- * Data row for R3
+ * Ligne de données pour R3.
  */
 export type DeviceUsageRow = {
     /**
      * Device Name
+     *
+     * Nom du terminal
      */
     device_name: string;
     /**
      * Device Serial Number
+     *
+     * Numéro de série
      */
     device_serial_number: string;
     /**
      * Site Name
+     *
+     * Site d'installation
      */
-    site_name: string | null;
+    site_name?: string | null;
     /**
      * Organization Name
+     *
+     * Organisation propriétaire
      */
     organization_name: string;
     /**
      * Status
+     *
+     * Statut actuel
      */
     status: string;
     /**
      * Last Ping
+     *
+     * Dernier ping reçu
      */
-    last_ping: string | null;
+    last_ping?: string | null;
 };
 
 /**
@@ -822,43 +1330,73 @@ export type DeviceUsageRow = {
 export type Employee = {
     /**
      * First Name
+     *
+     * Prénom de l'employé
      */
     first_name: string;
     /**
      * Last Name
+     *
+     * Nom de famille de l'employé
      */
     last_name: string;
     /**
      * Email
+     *
+     * Adresse email professionnelle
      */
     email: string;
     /**
      * Phone
+     *
+     * Numéro de téléphone (format international)
      */
     phone?: string | null;
     /**
      * Employee Number
+     *
+     * Matricule unique de l'employé
      */
     employee_number?: string | null;
     /**
      * Position
+     *
+     * Poste ou fonction occupée
      */
     position?: string | null;
     /**
      * Badge Id
+     *
+     * Identifiant du badge RFID/NFC pour le pointage
      */
     badge_id?: string | null;
     /**
      * Id
+     *
+     * Identifiant unique de l'employé
      */
     id: string;
     /**
      * Status
+     *
+     * Statut calculé automatiquement (Actif/Inactif)
      */
     status?: string;
+    /**
+     * Département de l'employé
+     */
     department?: EmployeeDepartment | null;
+    /**
+     * Site de travail de l'employé
+     */
     site?: EmployeeSite | null;
+    /**
+     * Organisation d'appartenance
+     */
     organization?: EmployeeOrganization | null;
+    /**
+     * Compte utilisateur associé
+     */
     user?: EmployeeUser | null;
 };
 
@@ -868,62 +1406,93 @@ export type Employee = {
 export type EmployeeCreate = {
     /**
      * First Name
+     *
+     * Prénom de l'employé
      */
     first_name: string;
     /**
      * Last Name
+     *
+     * Nom de famille de l'employé
      */
     last_name: string;
     /**
      * Email
+     *
+     * Adresse email professionnelle
      */
     email: string;
     /**
      * Phone
+     *
+     * Numéro de téléphone (format international)
      */
     phone?: string | null;
     /**
      * Employee Number
+     *
+     * Matricule unique de l'employé
      */
     employee_number?: string | null;
     /**
      * Position
+     *
+     * Poste ou fonction occupée
      */
     position?: string | null;
     /**
      * Badge Id
+     *
+     * Identifiant du badge RFID/NFC pour le pointage
      */
     badge_id?: string | null;
     /**
      * Organization Id
+     *
+     * ID de l'organisation d'appartenance
      */
     organization_id: string;
     /**
      * Department Id
+     *
+     * ID du département (optionnel)
      */
     department_id?: string | null;
     /**
      * Site Id
+     *
+     * ID du site de travail (optionnel)
      */
     site_id?: string | null;
     /**
      * User Id
+     *
+     * ID du compte utilisateur associé (optionnel)
      */
     user_id?: string | null;
 };
 
 /**
  * EmployeeDashboard
+ *
+ * Tableau de bord pour les employés.
  */
 export type EmployeeDashboard = {
     /**
      * Today Attendances
+     *
+     * Pointages du jour de l'employé
      */
     today_attendances: Array<Attendance>;
     /**
      * Monthly Attendance Rate
+     *
+     * Taux de présence mensuel en pourcentage
      */
     monthly_attendance_rate: number;
+    /**
+     * Solde des congés
+     */
     leave_balance: LeaveBalance;
 };
 
@@ -944,31 +1513,43 @@ export type EmployeeDepartment = {
 /**
  * EmployeeLeaveReportRow
  *
- * Data row for R19
+ * Ligne de données pour R19.
  */
 export type EmployeeLeaveReportRow = {
     /**
      * Start Date
+     *
+     * Date de début du congé
      */
     start_date: string;
     /**
      * End Date
+     *
+     * Date de fin du congé
      */
     end_date: string;
     /**
      * Leave Type
+     *
+     * Type de congé
      */
     leave_type: string;
     /**
      * Status
+     *
+     * Statut du congé
      */
     status: string;
     /**
      * Reason
+     *
+     * Motif du congé
      */
     reason: string;
     /**
      * Total Days
+     *
+     * Nombre de jours
      */
     total_days: number;
 };
@@ -976,38 +1557,57 @@ export type EmployeeLeaveReportRow = {
 /**
  * EmployeeLeavesReportRequest
  *
- * Request for R19 - Employee Leaves Report
+ * Requête pour R19 - Rapport des congés employé.
  */
 export type EmployeeLeavesReportRequest = {
     /**
      * Year
+     *
+     * Année du rapport
      */
     year: number;
+    /**
+     * Type de congé à filtrer
+     */
     leave_type?: LeaveType | null;
+    /**
+     * Statut des congés à filtrer
+     */
     status?: LeaveStatus | null;
+    /**
+     * Format d'export
+     */
     format?: ReportFormat;
 };
 
 /**
  * EmployeeLeavesReportResponse
  *
- * Response for R19 preview
+ * Réponse pour R19 - Aperçu des congés.
  */
 export type EmployeeLeavesReportResponse = {
     /**
      * Employee Name
+     *
+     * Nom de l'employé
      */
     employee_name: string;
     /**
      * Year
+     *
+     * Année du rapport
      */
     year: number;
     /**
      * Data
+     *
+     * Liste des congés
      */
     data: Array<EmployeeLeaveReportRow>;
     /**
      * Summary
+     *
+     * Résumé par type de congé
      */
     summary: {
         [key: string]: number;
@@ -1017,19 +1617,25 @@ export type EmployeeLeavesReportResponse = {
 /**
  * EmployeeMonthlySummaryRequest
  *
- * Request for R18 - Employee Monthly Summary
+ * Requête pour R18 - Synthèse mensuelle employé.
  */
 export type EmployeeMonthlySummaryRequest = {
     /**
      * Year
+     *
+     * Année
      */
     year: number;
     /**
      * Month
+     *
+     * Mois (1-12)
      */
     month: number;
     /**
      * Include Charts
+     *
+     * Inclure les données pour graphiques
      */
     include_charts?: boolean;
 };
@@ -1037,33 +1643,45 @@ export type EmployeeMonthlySummaryRequest = {
 /**
  * EmployeeMonthlySummaryResponse
  *
- * Response for R18 preview and data
+ * Réponse pour R18 - Synthèse mensuelle.
  */
 export type EmployeeMonthlySummaryResponse = {
     /**
      * Employee Name
+     *
+     * Nom de l'employé
      */
     employee_name: string;
     /**
      * Employee Badge Id
+     *
+     * Badge ID de l'employé
      */
     employee_badge_id: string;
     /**
      * Department Name
+     *
+     * Département
      */
     department_name?: string | null;
     /**
      * Period
+     *
+     * Période (ex: 'Janvier 2024')
      */
     period: string;
     /**
      * Summary
+     *
+     * Statistiques mensuelles
      */
     summary: {
         [key: string]: unknown;
     };
     /**
      * Daily Data
+     *
+     * Données journalières pour graphiques
      */
     daily_data: Array<{
         [key: string]: unknown;
@@ -1080,26 +1698,38 @@ export type EmployeeOrganization = {
     name: string;
     /**
      * Description
+     *
+     * Description de l'organisation
      */
     description?: string | null;
     /**
      * Email
+     *
+     * Adresse email de contact
      */
     email?: string | null;
     /**
      * Phone
+     *
+     * Numéro de téléphone de contact
      */
     phone?: string | null;
     /**
      * Timezone
+     *
+     * Fuseau horaire (ex: 'Africa/Abidjan', 'Europe/Paris')
      */
     timezone?: string;
     /**
      * Plan
+     *
+     * Plan d'abonnement (standard, premium, enterprise)
      */
     plan?: string | null;
     /**
      * Is Active
+     *
+     * Indique si l'organisation est active
      */
     is_active?: boolean;
     /**
@@ -1111,20 +1741,29 @@ export type EmployeeOrganization = {
 /**
  * EmployeePresenceReportRequest
  *
- * Request for R17 - Employee Presence Report
+ * Requête pour R17 - Rapport de présence employé.
  */
 export type EmployeePresenceReportRequest = {
     /**
      * Start Date
+     *
+     * Date de début de la période
      */
     start_date: string;
     /**
      * End Date
+     *
+     * Date de fin de la période
      */
     end_date: string;
+    /**
+     * Format d'export
+     */
     format?: ReportFormat;
     /**
      * Detailed
+     *
+     * Inclure les détails horaires
      */
     detailed?: boolean;
 };
@@ -1132,35 +1771,49 @@ export type EmployeePresenceReportRequest = {
 /**
  * EmployeePresenceReportResponse
  *
- * Response for R17 preview
+ * Réponse pour R17 - Aperçu du rapport.
  */
 export type EmployeePresenceReportResponse = {
     /**
      * Employee Name
+     *
+     * Nom de l'employé
      */
     employee_name: string;
     /**
      * Employee Badge Id
+     *
+     * Badge ID de l'employé
      */
     employee_badge_id: string;
     /**
      * Department Name
+     *
+     * Département
      */
     department_name?: string | null;
     /**
      * Start Date
+     *
+     * Date de début
      */
     start_date: string;
     /**
      * End Date
+     *
+     * Date de fin
      */
     end_date: string;
     /**
      * Data
+     *
+     * Données journalières
      */
     data: Array<EmployeePresenceReportRow>;
     /**
      * Summary
+     *
+     * Résumé statistique
      */
     summary: {
         [key: string]: unknown;
@@ -1170,27 +1823,37 @@ export type EmployeePresenceReportResponse = {
 /**
  * EmployeePresenceReportRow
  *
- * Data row for R17
+ * Ligne de données pour R17.
  */
 export type EmployeePresenceReportRow = {
     /**
      * Date
+     *
+     * Date du jour
      */
     date: string;
     /**
      * Check In
+     *
+     * Heure d'entrée
      */
     check_in?: string | null;
     /**
      * Check Out
+     *
+     * Heure de sortie
      */
     check_out?: string | null;
     /**
      * Total Hours
+     *
+     * Heures travaillées
      */
     total_hours?: number | null;
     /**
      * Status
+     *
+     * Statut du jour (Present, Absent, On Leave)
      */
     status: string;
 };
@@ -1205,10 +1868,14 @@ export type EmployeeSite = {
     name: string;
     /**
      * Address
+     *
+     * Adresse physique du site
      */
     address?: string | null;
     /**
      * Timezone
+     *
+     * Fuseau horaire du site
      */
     timezone?: string;
     /**
@@ -1223,38 +1890,56 @@ export type EmployeeSite = {
 export type EmployeeUpdate = {
     /**
      * First Name
+     *
+     * Prénom de l'employé
      */
     first_name?: string | null;
     /**
      * Last Name
+     *
+     * Nom de famille de l'employé
      */
     last_name?: string | null;
     /**
      * Email
+     *
+     * Adresse email professionnelle
      */
     email?: string | null;
     /**
      * Phone
+     *
+     * Numéro de téléphone (format international)
      */
     phone?: string | null;
     /**
      * Employee Number
+     *
+     * Matricule unique de l'employé
      */
     employee_number?: string | null;
     /**
      * Department Id
+     *
+     * ID du département
      */
     department_id?: string | null;
     /**
      * Site Id
+     *
+     * ID du site de travail
      */
     site_id?: string | null;
     /**
      * Position
+     *
+     * Poste ou fonction occupée
      */
     position?: string | null;
     /**
      * Badge Id
+     *
+     * Identifiant du badge RFID/NFC
      */
     badge_id?: string | null;
 };
@@ -1265,18 +1950,26 @@ export type EmployeeUpdate = {
 export type EmployeeUser = {
     /**
      * Email
+     *
+     * Adresse email (identifiant de connexion)
      */
     email: string;
     /**
      * Full Name
+     *
+     * Nom complet de l'utilisateur
      */
     full_name?: string | null;
     /**
      * Phone Number
+     *
+     * Numéro de téléphone
      */
     phone_number?: string | null;
     /**
      * Organization Id
+     *
+     * ID de l'organisation d'appartenance
      */
     organization_id?: string | null;
     /**
@@ -1302,44 +1995,61 @@ export type HttpValidationError = {
 /**
  * HoursValidationRequest
  *
- * Request for R14 - Hours Validation Report
+ * Requête pour R14 - Validation des heures.
  */
 export type HoursValidationRequest = {
     /**
      * Year
+     *
+     * Année
      */
     year: number;
     /**
      * Month
+     *
+     * Mois (1-12)
      */
     month: number;
     /**
      * Employee Ids
+     *
+     * IDs employés à filtrer
      */
     employee_ids?: Array<string> | null;
     /**
      * Validation Status
+     *
+     * Statut (pending, validated)
      */
     validation_status?: string | null;
+    /**
+     * Format d'export
+     */
     format?: ReportFormat;
 };
 
 /**
  * HoursValidationResponse
  *
- * Response for R14 preview
+ * Réponse pour R14.
  */
 export type HoursValidationResponse = {
     /**
      * Department Name
+     *
+     * Nom du département
      */
     department_name: string;
     /**
      * Period
+     *
+     * Période
      */
     period: string;
     /**
      * Data
+     *
+     * Données par employé
      */
     data: Array<HoursValidationRow>;
 };
@@ -1347,37 +2057,51 @@ export type HoursValidationResponse = {
 /**
  * HoursValidationRow
  *
- * Data row for R14
+ * Ligne de données pour R14.
  */
 export type HoursValidationRow = {
     /**
      * Employee Name
+     *
+     * Nom de l'employé
      */
     employee_name: string;
     /**
      * Total Hours Worked
+     *
+     * Heures travaillées
      */
     total_hours_worked: number;
     /**
      * Total Hours To Validate
+     *
+     * Heures à valider
      */
     total_hours_to_validate: number;
     /**
      * Status
+     *
+     * Statut de validation
      */
     status: string;
 };
 
 /**
  * IntegratorDashboard
+ *
+ * Tableau de bord pour les intégrateurs/techniciens IoT.
  */
 export type IntegratorDashboard = {
     /**
      * Device Status Ratio
+     *
+     * Ratio des statuts des terminaux
      */
     device_status_ratio: Array<DeviceStatusRatio>;
     /**
      * Attendance Per Device
+     *
+     * Pointages par terminal
      */
     attendance_per_device: Array<AttendancePerDevice>;
 };
@@ -1386,33 +2110,57 @@ export type IntegratorDashboard = {
  * Leave
  */
 export type Leave = {
+    /**
+     * Type de congé (annuel, maladie, maternité, etc.)
+     */
     leave_type: LeaveType;
     /**
      * Start Date
+     *
+     * Date de début du congé
      */
     start_date: string;
     /**
      * End Date
+     *
+     * Date de fin du congé
      */
     end_date: string;
     /**
      * Reason
+     *
+     * Motif du congé
      */
     reason: string;
     /**
      * Notes
+     *
+     * Notes additionnelles
      */
     notes?: string | null;
     /**
      * Id
+     *
+     * Identifiant unique du congé
      */
     id: string;
+    /**
+     * Statut de la demande (pending, approved, rejected)
+     */
     status: LeaveStatus;
     /**
      * Duration
+     *
+     * Durée calculée en jours (incluant premier et dernier jour)
      */
     duration?: number;
+    /**
+     * Employé concerné
+     */
     employee?: LeaveEmployee | null;
+    /**
+     * Utilisateur ayant approuvé/rejeté le congé
+     */
     approver?: LeaveApprover | null;
 };
 
@@ -1422,10 +2170,14 @@ export type Leave = {
 export type LeaveApprover = {
     /**
      * Id
+     *
+     * Identifiant unique de l'approbateur
      */
     id: string;
     /**
      * Full Name
+     *
+     * Nom complet de l'approbateur
      */
     full_name?: string | null;
 };
@@ -1436,14 +2188,20 @@ export type LeaveApprover = {
 export type LeaveBalance = {
     /**
      * Total
+     *
+     * Nombre total de jours de congés
      */
     total: number;
     /**
      * Used
+     *
+     * Nombre de jours utilisés
      */
     used: number;
     /**
      * Available
+     *
+     * Nombre de jours disponibles
      */
     available: number;
 };
@@ -1452,25 +2210,38 @@ export type LeaveBalance = {
  * LeaveCreate
  */
 export type LeaveCreate = {
+    /**
+     * Type de congé (annuel, maladie, maternité, etc.)
+     */
     leave_type: LeaveType;
     /**
      * Start Date
+     *
+     * Date de début du congé
      */
     start_date: string;
     /**
      * End Date
+     *
+     * Date de fin du congé
      */
     end_date: string;
     /**
      * Reason
+     *
+     * Motif du congé
      */
     reason: string;
     /**
      * Notes
+     *
+     * Notes additionnelles
      */
     notes?: string | null;
     /**
      * Employee Id
+     *
+     * ID de l'employé concerné
      */
     employee_id: string;
 };
@@ -1481,10 +2252,14 @@ export type LeaveCreate = {
 export type LeaveDepartment = {
     /**
      * Id
+     *
+     * Identifiant unique du département
      */
     id: string;
     /**
      * Name
+     *
+     * Nom du département
      */
     name: string;
 };
@@ -1495,19 +2270,30 @@ export type LeaveDepartment = {
 export type LeaveEmployee = {
     /**
      * Id
+     *
+     * Identifiant unique de l'employé
      */
     id: string;
     /**
      * First Name
+     *
+     * Prénom de l'employé
      */
     first_name: string;
     /**
      * Last Name
+     *
+     * Nom de famille de l'employé
      */
     last_name: string;
+    /**
+     * Département de l'employé
+     */
     department?: LeaveDepartment | null;
     /**
      * Full Name
+     *
+     * Nom complet calculé automatiquement
      */
     full_name?: string | null;
 };
@@ -1526,48 +2312,74 @@ export type LeaveType = 'annual' | 'sick' | 'maternity' | 'paternity' | 'unpaid'
  * LeaveUpdate
  */
 export type LeaveUpdate = {
+    /**
+     * Nouveau statut (pending, approved, rejected)
+     */
     status: LeaveStatus;
     /**
      * Notes
+     *
+     * Notes de l'approbateur
      */
     notes?: string | null;
 };
 
 /**
  * ManagerDashboard
+ *
+ * Tableau de bord pour les managers et RH.
  */
 export type ManagerDashboard = {
     /**
      * Present Today
+     *
+     * Nombre d'employés présents aujourd'hui
      */
     present_today: number;
     /**
      * Absent Today
+     *
+     * Nombre d'employés absents aujourd'hui
      */
     absent_today: number;
     /**
      * Tardy Today
+     *
+     * Nombre d'employés en retard aujourd'hui
      */
     tardy_today: number;
     /**
      * Attendance Rate
+     *
+     * Taux de présence en pourcentage
      */
     attendance_rate: number;
     /**
      * Total Work Hours
+     *
+     * Nombre total d'heures travaillées
      */
     total_work_hours: number;
     /**
      * Pending Leaves
+     *
+     * Nombre de demandes de congés en attente
      */
     pending_leaves: number;
     /**
      * Presence Evolution
+     *
+     * Évolution des présences sur la période
      */
     presence_evolution: Array<PresenceEvolution>;
+    /**
+     * Distribution présences/absences/retards
+     */
     presence_absence_tardiness_distribution: PresenceAbsenceTardinessDistribution;
     /**
      * Real Time Attendances
+     *
+     * Derniers pointages en temps réel
      */
     real_time_attendances: Array<Attendance>;
 };
@@ -1575,73 +2387,103 @@ export type ManagerDashboard = {
 /**
  * MonthlySyntheticReportRequest
  *
- * Request for R6 - Monthly Synthetic Report
+ * Requête pour R6 - Synthèse mensuelle.
  */
 export type MonthlySyntheticReportRequest = {
     /**
      * Year
+     *
+     * Année
      */
     year: number;
     /**
      * Month
+     *
+     * Mois (1-12)
      */
     month: number;
     /**
      * Site Ids
+     *
+     * IDs sites à filtrer
      */
     site_ids?: Array<string> | null;
     /**
      * Department Ids
+     *
+     * IDs départements à filtrer
      */
     department_ids?: Array<string> | null;
     /**
      * Include Overtime
+     *
+     * Inclure les heures supplémentaires
      */
     include_overtime?: boolean;
+    /**
+     * Format d'export
+     */
     format?: ReportFormat;
 };
 
 /**
  * MultiOrgConsolidatedRequest
  *
- * Request for R1 - Multi-Organization Consolidated Report
+ * Requête pour R1 - Rapport consolidé multi-organisations.
  */
 export type MultiOrgConsolidatedRequest = {
     /**
      * Start Date
+     *
+     * Date de début
      */
     start_date: string;
     /**
      * End Date
+     *
+     * Date de fin
      */
     end_date: string;
     /**
      * Organization Ids
+     *
+     * IDs organisations à inclure
      */
     organization_ids?: Array<string> | null;
     /**
      * Metric Type
+     *
+     * Type de métrique (presence, leaves, delays)
      */
     metric_type: string;
     /**
      * Grouping
+     *
+     * Groupement (daily, weekly, monthly)
      */
     grouping: string;
+    /**
+     * Format d'export
+     */
     format?: ReportFormat;
 };
 
 /**
  * MultiOrgConsolidatedResponse
  *
- * Response for R1 preview
+ * Réponse pour R1.
  */
 export type MultiOrgConsolidatedResponse = {
     /**
      * Period
+     *
+     * Période du rapport
      */
     period: string;
     /**
      * Data
+     *
+     * Données par organisation
      */
     data: Array<MultiOrgConsolidatedRow>;
 };
@@ -1649,23 +2491,31 @@ export type MultiOrgConsolidatedResponse = {
 /**
  * MultiOrgConsolidatedRow
  *
- * Data row for R1
+ * Ligne de données pour R1.
  */
 export type MultiOrgConsolidatedRow = {
     /**
      * Organization Name
+     *
+     * Nom de l'organisation
      */
     organization_name: string;
     /**
      * Present Days
+     *
+     * Jours de présence
      */
     present_days: number;
     /**
      * On Leave Days
+     *
+     * Jours de congé
      */
     on_leave_days: number;
     /**
      * Total Hours Worked
+     *
+     * Heures travaillées
      */
     total_hours_worked: number;
 };
@@ -1676,46 +2526,68 @@ export type MultiOrgConsolidatedRow = {
 export type Organization = {
     /**
      * Name
+     *
+     * Nom de l'organisation
      */
     name: string;
     /**
      * Description
+     *
+     * Description de l'organisation
      */
     description?: string | null;
     /**
      * Email
+     *
+     * Adresse email de contact
      */
     email?: string | null;
     /**
      * Phone
+     *
+     * Numéro de téléphone de contact
      */
     phone?: string | null;
     /**
      * Timezone
+     *
+     * Fuseau horaire (ex: 'Africa/Abidjan', 'Europe/Paris')
      */
     timezone?: string;
     /**
      * Plan
+     *
+     * Plan d'abonnement (standard, premium, enterprise)
      */
     plan?: string | null;
     /**
      * Is Active
+     *
+     * Indique si l'organisation est active
      */
     is_active?: boolean;
     /**
      * Id
+     *
+     * Identifiant unique de l'organisation
      */
     id: string;
     /**
      * Sites Count
+     *
+     * Nombre de sites dans l'organisation
      */
     sites_count?: number;
     /**
      * Employees Count
+     *
+     * Nombre d'employés dans l'organisation
      */
     employees_count?: number;
     /**
      * Users Count
+     *
+     * Nombre d'utilisateurs dans l'organisation
      */
     users_count?: number;
 };
@@ -1726,30 +2598,44 @@ export type Organization = {
 export type OrganizationCreate = {
     /**
      * Name
+     *
+     * Nom de l'organisation
      */
     name: string;
     /**
      * Description
+     *
+     * Description de l'organisation
      */
     description?: string | null;
     /**
      * Email
+     *
+     * Adresse email de contact
      */
     email?: string | null;
     /**
      * Phone
+     *
+     * Numéro de téléphone de contact
      */
     phone?: string | null;
     /**
      * Timezone
+     *
+     * Fuseau horaire (ex: 'Africa/Abidjan', 'Europe/Paris')
      */
     timezone?: string;
     /**
      * Plan
+     *
+     * Plan d'abonnement (standard, premium, enterprise)
      */
     plan?: string | null;
     /**
      * Is Active
+     *
+     * Indique si l'organisation est active
      */
     is_active?: boolean;
 };
@@ -1757,75 +2643,111 @@ export type OrganizationCreate = {
 /**
  * OrganizationLeavesRequest
  *
- * Request for R7 - Organization Leaves Analysis
+ * Requête pour R7 - Analyse congés organisation.
  */
 export type OrganizationLeavesRequest = {
     /**
      * Start Date
+     *
+     * Date de début
      */
     start_date: string;
     /**
      * End Date
+     *
+     * Date de fin
      */
     end_date: string;
+    /**
+     * Type de congé à filtrer
+     */
     leave_type?: LeaveType | null;
+    /**
+     * Statut à filtrer
+     */
     status?: LeaveStatus | null;
     /**
      * Department Ids
+     *
+     * IDs départements à filtrer
      */
     department_ids?: Array<string> | null;
     /**
      * Employee Ids
+     *
+     * IDs employés à filtrer
      */
     employee_ids?: Array<string> | null;
+    /**
+     * Format d'export
+     */
     format?: ReportFormat;
 };
 
 /**
  * OrganizationPresenceRequest
  *
- * Request for R5 - Organization Presence Report
+ * Requête pour R5 - Présence organisation.
  */
 export type OrganizationPresenceRequest = {
     /**
      * Start Date
+     *
+     * Date de début
      */
     start_date: string;
     /**
      * End Date
+     *
+     * Date de fin
      */
     end_date: string;
     /**
      * Site Ids
+     *
+     * IDs sites à filtrer
      */
     site_ids?: Array<string> | null;
     /**
      * Department Ids
+     *
+     * IDs départements à filtrer
      */
     department_ids?: Array<string> | null;
+    /**
+     * Format d'export
+     */
     format?: ReportFormat;
 };
 
 /**
  * OrganizationPresenceResponse
  *
- * Response for R5 preview
+ * Réponse pour R5.
  */
 export type OrganizationPresenceResponse = {
     /**
      * Organization Name
+     *
+     * Nom de l'organisation
      */
     organization_name: string;
     /**
      * Period
+     *
+     * Période
      */
     period: string;
     /**
      * Data
+     *
+     * Données par employé
      */
     data: Array<DepartmentPresenceReportRow>;
     /**
      * Summary
+     *
+     * Résumé statistique
      */
     summary: {
         [key: string]: unknown;
@@ -1838,30 +2760,44 @@ export type OrganizationPresenceResponse = {
 export type OrganizationUpdate = {
     /**
      * Name
+     *
+     * Nom de l'organisation
      */
     name?: string | null;
     /**
      * Description
+     *
+     * Description de l'organisation
      */
     description?: string | null;
     /**
      * Email
+     *
+     * Adresse email de contact
      */
     email?: string | null;
     /**
      * Phone
+     *
+     * Numéro de téléphone de contact
      */
     phone?: string | null;
     /**
      * Timezone
+     *
+     * Fuseau horaire
      */
     timezone?: string | null;
     /**
      * Plan
+     *
+     * Plan d'abonnement
      */
     plan?: string | null;
     /**
      * Is Active
+     *
+     * Indique si l'organisation est active
      */
     is_active?: boolean | null;
 };
@@ -1872,18 +2808,26 @@ export type OrganizationUpdate = {
 export type PaginatedResponseAttendance = {
     /**
      * Items
+     *
+     * Liste des éléments de la page courante
      */
     items: Array<Attendance>;
     /**
      * Total
+     *
+     * Nombre total d'éléments disponibles
      */
     total: number;
     /**
      * Skip
+     *
+     * Nombre d'éléments sautés (offset)
      */
     skip: number;
     /**
      * Limit
+     *
+     * Nombre maximum d'éléments par page
      */
     limit: number;
 };
@@ -1894,18 +2838,26 @@ export type PaginatedResponseAttendance = {
 export type PaginatedResponseDepartment = {
     /**
      * Items
+     *
+     * Liste des éléments de la page courante
      */
     items: Array<Department>;
     /**
      * Total
+     *
+     * Nombre total d'éléments disponibles
      */
     total: number;
     /**
      * Skip
+     *
+     * Nombre d'éléments sautés (offset)
      */
     skip: number;
     /**
      * Limit
+     *
+     * Nombre maximum d'éléments par page
      */
     limit: number;
 };
@@ -1916,18 +2868,26 @@ export type PaginatedResponseDepartment = {
 export type PaginatedResponseDevice = {
     /**
      * Items
+     *
+     * Liste des éléments de la page courante
      */
     items: Array<Device>;
     /**
      * Total
+     *
+     * Nombre total d'éléments disponibles
      */
     total: number;
     /**
      * Skip
+     *
+     * Nombre d'éléments sautés (offset)
      */
     skip: number;
     /**
      * Limit
+     *
+     * Nombre maximum d'éléments par page
      */
     limit: number;
 };
@@ -1938,18 +2898,26 @@ export type PaginatedResponseDevice = {
 export type PaginatedResponseEmployee = {
     /**
      * Items
+     *
+     * Liste des éléments de la page courante
      */
     items: Array<Employee>;
     /**
      * Total
+     *
+     * Nombre total d'éléments disponibles
      */
     total: number;
     /**
      * Skip
+     *
+     * Nombre d'éléments sautés (offset)
      */
     skip: number;
     /**
      * Limit
+     *
+     * Nombre maximum d'éléments par page
      */
     limit: number;
 };
@@ -1960,18 +2928,26 @@ export type PaginatedResponseEmployee = {
 export type PaginatedResponseLeave = {
     /**
      * Items
+     *
+     * Liste des éléments de la page courante
      */
     items: Array<Leave>;
     /**
      * Total
+     *
+     * Nombre total d'éléments disponibles
      */
     total: number;
     /**
      * Skip
+     *
+     * Nombre d'éléments sautés (offset)
      */
     skip: number;
     /**
      * Limit
+     *
+     * Nombre maximum d'éléments par page
      */
     limit: number;
 };
@@ -1982,18 +2958,26 @@ export type PaginatedResponseLeave = {
 export type PaginatedResponseOrganization = {
     /**
      * Items
+     *
+     * Liste des éléments de la page courante
      */
     items: Array<Organization>;
     /**
      * Total
+     *
+     * Nombre total d'éléments disponibles
      */
     total: number;
     /**
      * Skip
+     *
+     * Nombre d'éléments sautés (offset)
      */
     skip: number;
     /**
      * Limit
+     *
+     * Nombre maximum d'éléments par page
      */
     limit: number;
 };
@@ -2004,18 +2988,26 @@ export type PaginatedResponseOrganization = {
 export type PaginatedResponsePermission = {
     /**
      * Items
+     *
+     * Liste des éléments de la page courante
      */
     items: Array<Permission>;
     /**
      * Total
+     *
+     * Nombre total d'éléments disponibles
      */
     total: number;
     /**
      * Skip
+     *
+     * Nombre d'éléments sautés (offset)
      */
     skip: number;
     /**
      * Limit
+     *
+     * Nombre maximum d'éléments par page
      */
     limit: number;
 };
@@ -2026,18 +3018,26 @@ export type PaginatedResponsePermission = {
 export type PaginatedResponseRole = {
     /**
      * Items
+     *
+     * Liste des éléments de la page courante
      */
     items: Array<Role>;
     /**
      * Total
+     *
+     * Nombre total d'éléments disponibles
      */
     total: number;
     /**
      * Skip
+     *
+     * Nombre d'éléments sautés (offset)
      */
     skip: number;
     /**
      * Limit
+     *
+     * Nombre maximum d'éléments par page
      */
     limit: number;
 };
@@ -2048,18 +3048,26 @@ export type PaginatedResponseRole = {
 export type PaginatedResponseSite = {
     /**
      * Items
+     *
+     * Liste des éléments de la page courante
      */
     items: Array<Site>;
     /**
      * Total
+     *
+     * Nombre total d'éléments disponibles
      */
     total: number;
     /**
      * Skip
+     *
+     * Nombre d'éléments sautés (offset)
      */
     skip: number;
     /**
      * Limit
+     *
+     * Nombre maximum d'éléments par page
      */
     limit: number;
 };
@@ -2070,40 +3078,75 @@ export type PaginatedResponseSite = {
 export type PaginatedResponseUser = {
     /**
      * Items
+     *
+     * Liste des éléments de la page courante
      */
     items: Array<User>;
     /**
      * Total
+     *
+     * Nombre total d'éléments disponibles
      */
     total: number;
     /**
      * Skip
+     *
+     * Nombre d'éléments sautés (offset)
      */
     skip: number;
     /**
      * Limit
+     *
+     * Nombre maximum d'éléments par page
      */
     limit: number;
 };
 
 /**
+ * PasswordChange
+ */
+export type PasswordChange = {
+    /**
+     * Current Password
+     *
+     * Mot de passe actuel
+     */
+    current_password: string;
+    /**
+     * New Password
+     *
+     * Nouveau mot de passe (minimum 8 caractères)
+     */
+    new_password: string;
+};
+
+/**
  * PayrollExportRequest
  *
- * Request for R11 - Payroll Export
+ * Requête pour R11 - Export paie.
  */
 export type PayrollExportRequest = {
     /**
      * Year
+     *
+     * Année
      */
     year: number;
     /**
      * Month
+     *
+     * Mois (1-12)
      */
     month: number;
     /**
      * Site Ids
+     *
+     * IDs sites à filtrer
      */
     site_ids?: Array<string> | null;
+    /**
+     * Format d'export
+     */
     format?: ReportFormat;
 };
 
@@ -2113,14 +3156,20 @@ export type PayrollExportRequest = {
 export type Permission = {
     /**
      * Name
+     *
+     * Nom de la permission (ex: 'employee:read', 'attendance:create')
      */
     name: string;
     /**
      * Description
+     *
+     * Description de la permission
      */
     description?: string | null;
     /**
      * Id
+     *
+     * Identifiant unique de la permission
      */
     id: string;
 };
@@ -2131,10 +3180,14 @@ export type Permission = {
 export type PermissionCreate = {
     /**
      * Name
+     *
+     * Nom de la permission (ex: 'employee:read', 'attendance:create')
      */
     name: string;
     /**
      * Description
+     *
+     * Description de la permission
      */
     description?: string | null;
 };
@@ -2145,10 +3198,14 @@ export type PermissionCreate = {
 export type PermissionUpdate = {
     /**
      * Name
+     *
+     * Nom de la permission
      */
     name?: string | null;
     /**
      * Description
+     *
+     * Description de la permission
      */
     description?: string | null;
 };
@@ -2159,10 +3216,14 @@ export type PermissionUpdate = {
 export type PlanDistribution = {
     /**
      * Plan
+     *
+     * Type de plan d'abonnement
      */
     plan: string;
     /**
      * Count
+     *
+     * Nombre d'organisations avec ce plan
      */
     count: number;
 };
@@ -2173,14 +3234,20 @@ export type PlanDistribution = {
 export type PresenceAbsenceTardinessDistribution = {
     /**
      * Present
+     *
+     * Nombre d'employés présents
      */
     present: number;
     /**
      * Absent
+     *
+     * Nombre d'employés absents
      */
     absent: number;
     /**
      * Tardy
+     *
+     * Nombre d'employés en retard
      */
     tardy: number;
 };
@@ -2188,15 +3255,19 @@ export type PresenceAbsenceTardinessDistribution = {
 /**
  * PresenceCertificateRequest
  *
- * Request for R20 - Presence Certificate
+ * Requête pour R20 - Attestation de présence.
  */
 export type PresenceCertificateRequest = {
     /**
      * Start Date
+     *
+     * Date de début de la période
      */
     start_date: string;
     /**
      * End Date
+     *
+     * Date de fin de la période
      */
     end_date: string;
 };
@@ -2207,10 +3278,14 @@ export type PresenceCertificateRequest = {
 export type PresenceEvolution = {
     /**
      * Date
+     *
+     * Date du jour
      */
     date: string;
     /**
      * Presence Count
+     *
+     * Nombre de présences ce jour
      */
     presence_count: number;
 };
@@ -2221,6 +3296,8 @@ export type PresenceEvolution = {
 export type RefreshTokenRequest = {
     /**
      * Refresh Token
+     *
+     * Token de rafraîchissement à utiliser
      */
     refresh_token: string;
 };
@@ -2228,7 +3305,7 @@ export type RefreshTokenRequest = {
 /**
  * ReportFormat
  *
- * Format de rapport
+ * Format de rapport disponible.
  */
 export type ReportFormat = 'pdf' | 'excel' | 'csv';
 
@@ -2238,18 +3315,26 @@ export type ReportFormat = 'pdf' | 'excel' | 'csv';
 export type Role = {
     /**
      * Name
+     *
+     * Nom du rôle (ex: 'admin', 'manager', 'employee')
      */
     name: string;
     /**
      * Description
+     *
+     * Description des responsabilités du rôle
      */
     description?: string | null;
     /**
      * Id
+     *
+     * Identifiant unique du rôle
      */
     id: string;
     /**
      * Permissions
+     *
+     * Liste des permissions associées au rôle
      */
     permissions?: Array<Permission>;
 };
@@ -2260,10 +3345,14 @@ export type Role = {
 export type RoleCreate = {
     /**
      * Name
+     *
+     * Nom du rôle (ex: 'admin', 'manager', 'employee')
      */
     name: string;
     /**
      * Description
+     *
+     * Description des responsabilités du rôle
      */
     description?: string | null;
 };
@@ -2274,10 +3363,14 @@ export type RoleCreate = {
 export type RoleUpdate = {
     /**
      * Name
+     *
+     * Nom du rôle
      */
     name?: string | null;
     /**
      * Description
+     *
+     * Description du rôle
      */
     description?: string | null;
 };
@@ -2288,31 +3381,48 @@ export type RoleUpdate = {
 export type Site = {
     /**
      * Name
+     *
+     * Nom du site
      */
     name: string;
     /**
      * Address
+     *
+     * Adresse physique du site
      */
     address?: string | null;
     /**
      * Timezone
+     *
+     * Fuseau horaire du site
      */
     timezone?: string;
     /**
      * Id
+     *
+     * Identifiant unique du site
      */
     id: string;
+    /**
+     * Organisation propriétaire
+     */
     organization?: SiteOrganization | null;
     /**
      * Departments Count
+     *
+     * Nombre de départements dans le site
      */
     departments_count?: number;
     /**
      * Employees Count
+     *
+     * Nombre d'employés sur le site
      */
     employees_count?: number;
     /**
      * Devices Count
+     *
+     * Nombre de terminaux sur le site
      */
     devices_count?: number;
 };
@@ -2320,24 +3430,35 @@ export type Site = {
 /**
  * SiteActivityRequest
  *
- * Request for R10 - Site Activity Report
+ * Requête pour R10 - Activité par site.
  */
 export type SiteActivityRequest = {
     /**
      * Start Date
+     *
+     * Date de début
      */
     start_date: string;
     /**
      * End Date
+     *
+     * Date de fin
      */
     end_date: string;
     /**
      * Site Ids
+     *
+     * IDs des sites
      */
     site_ids: Array<string>;
+    /**
+     * Format d'export
+     */
     format?: ReportFormat;
     /**
      * Detailed
+     *
+     * Mode détaillé
      */
     detailed?: boolean;
 };
@@ -2345,19 +3466,25 @@ export type SiteActivityRequest = {
 /**
  * SiteActivityResponse
  *
- * Response for R10 preview
+ * Réponse pour R10.
  */
 export type SiteActivityResponse = {
     /**
      * Organization Name
+     *
+     * Nom de l'organisation
      */
     organization_name: string;
     /**
      * Period
+     *
+     * Période
      */
     period: string;
     /**
      * Data
+     *
+     * Données par site
      */
     data: Array<SiteActivityRow>;
 };
@@ -2365,31 +3492,43 @@ export type SiteActivityResponse = {
 /**
  * SiteActivityRow
  *
- * Data row for R10
+ * Ligne de données pour R10.
  */
 export type SiteActivityRow = {
     /**
      * Site Name
+     *
+     * Nom du site
      */
     site_name: string;
     /**
      * Total Employees
+     *
+     * Total employés
      */
     total_employees: number;
     /**
      * Present Employees
+     *
+     * Employés présents
      */
     present_employees: number;
     /**
      * On Leave Employees
+     *
+     * Employés en congé
      */
     on_leave_employees: number;
     /**
      * Total Hours Worked
+     *
+     * Total heures travaillées
      */
     total_hours_worked: number;
     /**
      * Average Hours Per Employee
+     *
+     * Moyenne heures/employé
      */
     average_hours_per_employee: number;
 };
@@ -2400,18 +3539,26 @@ export type SiteActivityRow = {
 export type SiteCreate = {
     /**
      * Name
+     *
+     * Nom du site
      */
     name: string;
     /**
      * Address
+     *
+     * Adresse physique du site
      */
     address?: string | null;
     /**
      * Timezone
+     *
+     * Fuseau horaire du site
      */
     timezone?: string;
     /**
      * Organization Id
+     *
+     * ID de l'organisation propriétaire
      */
     organization_id: string;
 };
@@ -2422,34 +3569,50 @@ export type SiteCreate = {
 export type SiteOrganization = {
     /**
      * Name
+     *
+     * Nom de l'organisation
      */
     name: string;
     /**
      * Description
+     *
+     * Description de l'organisation
      */
     description?: string | null;
     /**
      * Email
+     *
+     * Adresse email de contact
      */
     email?: string | null;
     /**
      * Phone
+     *
+     * Numéro de téléphone de contact
      */
     phone?: string | null;
     /**
      * Timezone
+     *
+     * Fuseau horaire (ex: 'Africa/Abidjan', 'Europe/Paris')
      */
     timezone?: string;
     /**
      * Plan
+     *
+     * Plan d'abonnement (standard, premium, enterprise)
      */
     plan?: string | null;
     /**
      * Is Active
+     *
+     * Indique si l'organisation est active
      */
     is_active?: boolean;
     /**
      * Id
+     *
+     * Identifiant unique de l'organisation
      */
     id: string;
 };
@@ -2460,14 +3623,20 @@ export type SiteOrganization = {
 export type SiteUpdate = {
     /**
      * Name
+     *
+     * Nom du site
      */
     name?: string | null;
     /**
      * Address
+     *
+     * Adresse physique du site
      */
     address?: string | null;
     /**
      * Timezone
+     *
+     * Fuseau horaire du site
      */
     timezone?: string | null;
 };
@@ -2478,10 +3647,14 @@ export type SiteUpdate = {
 export type SitesPerOrg = {
     /**
      * Name
+     *
+     * Nom de l'organisation
      */
     name: string;
     /**
      * Site Count
+     *
+     * Nombre de sites dans l'organisation
      */
     site_count: number;
 };
@@ -2492,10 +3665,14 @@ export type SitesPerOrg = {
 export type TardinessByDay = {
     /**
      * Day
+     *
+     * Jour de la semaine (ex: 'Lundi', 'Mardi')
      */
     day: string;
     /**
      * Tardy Count
+     *
+     * Nombre de retards ce jour
      */
     tardy_count: number;
 };
@@ -2503,40 +3680,55 @@ export type TardinessByDay = {
 /**
  * TeamPerformanceRequest
  *
- * Request for R16 - Team Performance Report
+ * Requête pour R16 - Performance équipe.
  */
 export type TeamPerformanceRequest = {
     /**
      * Year
+     *
+     * Année
      */
     year: number;
     /**
      * Month
+     *
+     * Mois (1-12)
      */
     month?: number | null;
     /**
      * Quarter
+     *
+     * Trimestre (1-4)
      */
     quarter?: number | null;
+    /**
+     * Format d'export
+     */
     format?: ReportFormat;
 };
 
 /**
  * TeamPerformanceResponse
  *
- * Response for R16 preview
+ * Réponse pour R16.
  */
 export type TeamPerformanceResponse = {
     /**
      * Department Name
+     *
+     * Nom du département
      */
     department_name: string;
     /**
      * Period
+     *
+     * Période
      */
     period: string;
     /**
      * Data
+     *
+     * Données par employé
      */
     data: Array<TeamPerformanceRow>;
 };
@@ -2544,23 +3736,31 @@ export type TeamPerformanceResponse = {
 /**
  * TeamPerformanceRow
  *
- * Data row for R16
+ * Ligne de données pour R16.
  */
 export type TeamPerformanceRow = {
     /**
      * Employee Id
+     *
+     * ID de l'employé
      */
     employee_id: string;
     /**
      * Employee Name
+     *
+     * Nom de l'employé
      */
     employee_name: string;
     /**
      * Attendance Rate
+     *
+     * Taux de présence (%)
      */
     attendance_rate: number;
     /**
      * Total Hours Worked
+     *
+     * Heures travaillées
      */
     total_hours_worked: number;
 };
@@ -2568,20 +3768,29 @@ export type TeamPerformanceRow = {
 /**
  * TeamWeeklyReportRequest
  *
- * Request for R13 - Team Weekly Report
+ * Requête pour R13 - Rapport hebdomadaire équipe.
  */
 export type TeamWeeklyReportRequest = {
     /**
      * Year
+     *
+     * Année
      */
     year: number;
     /**
      * Week Number
+     *
+     * Numéro de semaine (1-53)
      */
     week_number: number;
+    /**
+     * Format d'export
+     */
     format?: ReportFormat;
     /**
      * Detailed
+     *
+     * Mode détaillé vs synthèse
      */
     detailed?: boolean;
 };
@@ -2592,16 +3801,25 @@ export type TeamWeeklyReportRequest = {
 export type Token = {
     /**
      * Access Token
+     *
+     * Token JWT pour l'authentification (expire en 30 min)
      */
     access_token: string;
     /**
      * Refresh Token
+     *
+     * Token pour renouveler l'access_token (expire en 7 jours)
      */
     refresh_token: string;
     /**
      * Token Type
+     *
+     * Type de token (toujours 'bearer')
      */
     token_type?: string;
+    /**
+     * Informations de l'utilisateur connecté
+     */
     user: UserInLogin;
 };
 
@@ -2611,10 +3829,14 @@ export type Token = {
 export type Top10Organizations = {
     /**
      * Name
+     *
+     * Nom de l'organisation
      */
     name: string;
     /**
      * Employee Count
+     *
+     * Nombre d'employés
      */
     employee_count: number;
 };
@@ -2625,34 +3847,56 @@ export type Top10Organizations = {
 export type User = {
     /**
      * Email
+     *
+     * Adresse email (identifiant de connexion)
      */
     email: string;
     /**
      * Full Name
+     *
+     * Nom complet de l'utilisateur
      */
     full_name?: string | null;
     /**
      * Phone Number
+     *
+     * Numéro de téléphone
      */
     phone_number?: string | null;
     /**
      * Organization Id
+     *
+     * ID de l'organisation d'appartenance
      */
     organization_id?: string | null;
     /**
      * Id
+     *
+     * Identifiant unique de l'utilisateur
      */
     id: string;
     /**
      * Is Active
+     *
+     * Indique si le compte est actif
      */
     is_active: boolean;
     /**
      * Is Superuser
+     *
+     * Indique si l'utilisateur a tous les droits
      */
     is_superuser: boolean;
     /**
+     * Avatar Url
+     *
+     * URL de la photo de profil
+     */
+    avatar_url?: string | null;
+    /**
      * Roles
+     *
+     * Liste des rôles attribués à l'utilisateur
      */
     roles?: Array<Role>;
 };
@@ -2660,42 +3904,57 @@ export type User = {
 /**
  * UserAuditRequest
  *
- * Request for R4 - User and Role Audit Report
+ * Requête pour R4 - Audit utilisateurs et rôles.
  */
 export type UserAuditRequest = {
     /**
      * Organization Ids
+     *
+     * IDs organisations
      */
     organization_ids?: Array<string> | null;
     /**
      * Role Ids
+     *
+     * IDs rôles
      */
     role_ids?: Array<string> | null;
     /**
      * Is Active
+     *
+     * Filtrer par statut actif
      */
     is_active?: boolean | null;
+    /**
+     * Format d'export
+     */
     format?: ReportFormat;
 };
 
 /**
  * UserAuditResponse
  *
- * Response for R4 preview
+ * Réponse pour R4.
  */
 export type UserAuditResponse = {
     /**
      * Filters
+     *
+     * Filtres appliqués
      */
     filters: {
         [key: string]: unknown;
     };
     /**
      * User Count
+     *
+     * Nombre d'utilisateurs
      */
     user_count: number;
     /**
      * Data
+     *
+     * Liste des utilisateurs
      */
     data: Array<UserAuditRow>;
 };
@@ -2703,33 +3962,45 @@ export type UserAuditResponse = {
 /**
  * UserAuditRow
  *
- * Data row for R4
+ * Ligne de données pour R4.
  */
 export type UserAuditRow = {
     /**
      * Full Name
+     *
+     * Nom complet
      */
     full_name: string;
     /**
+     * Email
+     *
      * Email
      */
     email: string;
     /**
      * Role
+     *
+     * Rôle principal
      */
     role: string;
     /**
      * Organization Name
+     *
+     * Organisation
      */
     organization_name: string;
     /**
      * Is Active
+     *
+     * Compte actif
      */
     is_active: boolean;
     /**
      * Last Login
+     *
+     * Dernière connexion
      */
-    last_login: string | null;
+    last_login?: string | null;
 };
 
 /**
@@ -2738,22 +4009,32 @@ export type UserAuditRow = {
 export type UserCreate = {
     /**
      * Email
+     *
+     * Adresse email (identifiant de connexion)
      */
     email: string;
     /**
      * Full Name
+     *
+     * Nom complet de l'utilisateur
      */
     full_name?: string | null;
     /**
      * Phone Number
+     *
+     * Numéro de téléphone
      */
     phone_number?: string | null;
     /**
      * Organization Id
+     *
+     * ID de l'organisation d'appartenance
      */
     organization_id?: string | null;
     /**
      * Password
+     *
+     * Mot de passe (minimum 8 caractères)
      */
     password: string;
 };
@@ -2764,22 +4045,32 @@ export type UserCreate = {
 export type UserInLogin = {
     /**
      * Id
+     *
+     * Identifiant unique de l'utilisateur
      */
     id: string;
     /**
      * Full Name
+     *
+     * Nom complet de l'utilisateur
      */
     full_name?: string | null;
     /**
      * Email
+     *
+     * Adresse email de l'utilisateur
      */
     email: string;
     /**
      * Is Superuser
+     *
+     * Indique si l'utilisateur a tous les droits
      */
     is_superuser?: boolean;
     /**
      * Roles
+     *
+     * Liste des rôles attribués à l'utilisateur
      */
     roles?: Array<Role>;
 };
@@ -2790,22 +4081,32 @@ export type UserInLogin = {
 export type UserUpdate = {
     /**
      * Email
+     *
+     * Adresse email
      */
     email?: string | null;
     /**
      * Full Name
+     *
+     * Nom complet de l'utilisateur
      */
     full_name?: string | null;
     /**
      * Phone Number
+     *
+     * Numéro de téléphone
      */
     phone_number?: string | null;
     /**
      * Password
+     *
+     * Nouveau mot de passe
      */
     password?: string | null;
     /**
      * Is Active
+     *
+     * Indique si le compte est actif
      */
     is_active?: boolean | null;
 };
@@ -2816,10 +4117,14 @@ export type UserUpdate = {
 export type UsersPerOrg = {
     /**
      * Name
+     *
+     * Nom de l'organisation
      */
     name: string;
     /**
      * User Count
+     *
+     * Nombre d'utilisateurs dans l'organisation
      */
     user_count: number;
 };
@@ -2845,44 +4150,61 @@ export type ValidationError = {
 /**
  * WorkedHoursRequest
  *
- * Request for R9 - Worked Hours per Employee Report
+ * Requête pour R9 - Heures travaillées par employé.
  */
 export type WorkedHoursRequest = {
     /**
      * Start Date
+     *
+     * Date de début
      */
     start_date: string;
     /**
      * End Date
+     *
+     * Date de fin
      */
     end_date: string;
     /**
      * Department Ids
+     *
+     * IDs départements à filtrer
      */
     department_ids?: Array<string> | null;
     /**
      * Employee Ids
+     *
+     * IDs employés à filtrer
      */
     employee_ids?: Array<string> | null;
+    /**
+     * Format d'export
+     */
     format?: ReportFormat;
 };
 
 /**
  * WorkedHoursResponse
  *
- * Response for R9 preview
+ * Réponse pour R9.
  */
 export type WorkedHoursResponse = {
     /**
      * Organization Name
+     *
+     * Nom de l'organisation
      */
     organization_name: string;
     /**
      * Period
+     *
+     * Période
      */
     period: string;
     /**
      * Data
+     *
+     * Données journalières
      */
     data: Array<WorkedHoursRow>;
 };
@@ -2890,35 +4212,49 @@ export type WorkedHoursResponse = {
 /**
  * WorkedHoursRow
  *
- * Data row for R9
+ * Ligne de données pour R9.
  */
 export type WorkedHoursRow = {
     /**
      * Employee Name
+     *
+     * Nom de l'employé
      */
     employee_name: string;
     /**
      * Department Name
+     *
+     * Département
      */
-    department_name: string | null;
+    department_name?: string | null;
     /**
+     * Date
+     *
      * Date
      */
     date: string;
     /**
      * Status
+     *
+     * Statut du jour
      */
     status: string;
     /**
      * Check In
+     *
+     * Heure d'entrée
      */
     check_in?: string | null;
     /**
      * Check Out
+     *
+     * Heure de sortie
      */
     check_out?: string | null;
     /**
      * Total Hours
+     *
+     * Heures travaillées
      */
     total_hours: number;
 };
@@ -3048,6 +4384,37 @@ export type LogoutApiV1AuthLogoutPostError = LogoutApiV1AuthLogoutPostErrors[key
 export type LogoutApiV1AuthLogoutPostResponses = {
     /**
      * Déconnexion réussie
+     */
+    200: unknown;
+};
+
+export type ChangePasswordApiV1AuthChangePasswordPostData = {
+    body: PasswordChange;
+    path?: never;
+    query?: never;
+    url: '/api/v1/auth/change-password';
+};
+
+export type ChangePasswordApiV1AuthChangePasswordPostErrors = {
+    /**
+     * Le nouveau mot de passe doit être différent de l'ancien
+     */
+    400: unknown;
+    /**
+     * Mot de passe actuel incorrect
+     */
+    401: unknown;
+    /**
+     * Validation Error
+     */
+    422: HttpValidationError;
+};
+
+export type ChangePasswordApiV1AuthChangePasswordPostError = ChangePasswordApiV1AuthChangePasswordPostErrors[keyof ChangePasswordApiV1AuthChangePasswordPostErrors];
+
+export type ChangePasswordApiV1AuthChangePasswordPostResponses = {
+    /**
+     * Mot de passe modifié avec succès
      */
     200: unknown;
 };
@@ -3256,6 +4623,66 @@ export type AssignRoleToUserApiV1UsersUserIdRolesRoleIdPostResponses = {
 };
 
 export type AssignRoleToUserApiV1UsersUserIdRolesRoleIdPostResponse = AssignRoleToUserApiV1UsersUserIdRolesRoleIdPostResponses[keyof AssignRoleToUserApiV1UsersUserIdRolesRoleIdPostResponses];
+
+export type DeleteAvatarApiV1UsersUserIdAvatarDeleteData = {
+    body?: never;
+    path: {
+        /**
+         * User Id
+         */
+        user_id: string;
+    };
+    query?: never;
+    url: '/api/v1/users/{user_id}/avatar';
+};
+
+export type DeleteAvatarApiV1UsersUserIdAvatarDeleteErrors = {
+    /**
+     * Validation Error
+     */
+    422: HttpValidationError;
+};
+
+export type DeleteAvatarApiV1UsersUserIdAvatarDeleteError = DeleteAvatarApiV1UsersUserIdAvatarDeleteErrors[keyof DeleteAvatarApiV1UsersUserIdAvatarDeleteErrors];
+
+export type DeleteAvatarApiV1UsersUserIdAvatarDeleteResponses = {
+    /**
+     * Response Delete Avatar Api V1 Users  User Id  Avatar Delete
+     *
+     * Successful Response
+     */
+    200: unknown;
+};
+
+export type UploadAvatarApiV1UsersUserIdAvatarPostData = {
+    body: BodyUploadAvatarApiV1UsersUserIdAvatarPost;
+    path: {
+        /**
+         * User Id
+         */
+        user_id: string;
+    };
+    query?: never;
+    url: '/api/v1/users/{user_id}/avatar';
+};
+
+export type UploadAvatarApiV1UsersUserIdAvatarPostErrors = {
+    /**
+     * Validation Error
+     */
+    422: HttpValidationError;
+};
+
+export type UploadAvatarApiV1UsersUserIdAvatarPostError = UploadAvatarApiV1UsersUserIdAvatarPostErrors[keyof UploadAvatarApiV1UsersUserIdAvatarPostErrors];
+
+export type UploadAvatarApiV1UsersUserIdAvatarPostResponses = {
+    /**
+     * Successful Response
+     */
+    200: AvatarUploadResponse;
+};
+
+export type UploadAvatarApiV1UsersUserIdAvatarPostResponse = UploadAvatarApiV1UsersUserIdAvatarPostResponses[keyof UploadAvatarApiV1UsersUserIdAvatarPostResponses];
 
 export type ReadOrganizationsApiV1OrganizationsGetData = {
     body?: never;
@@ -3791,6 +5218,201 @@ export type UpdateDeviceApiV1DevicesDeviceIdPutResponses = {
 };
 
 export type UpdateDeviceApiV1DevicesDeviceIdPutResponse = UpdateDeviceApiV1DevicesDeviceIdPutResponses[keyof UpdateDeviceApiV1DevicesDeviceIdPutResponses];
+
+export type SendDeviceCommandApiV1DevicesDeviceIdCommandPostData = {
+    body: DeviceCommandRequest;
+    path: {
+        /**
+         * Device Id
+         */
+        device_id: string;
+    };
+    query?: never;
+    url: '/api/v1/devices/{device_id}/command';
+};
+
+export type SendDeviceCommandApiV1DevicesDeviceIdCommandPostErrors = {
+    /**
+     * Validation Error
+     */
+    422: HttpValidationError;
+};
+
+export type SendDeviceCommandApiV1DevicesDeviceIdCommandPostError = SendDeviceCommandApiV1DevicesDeviceIdCommandPostErrors[keyof SendDeviceCommandApiV1DevicesDeviceIdCommandPostErrors];
+
+export type SendDeviceCommandApiV1DevicesDeviceIdCommandPostResponses = {
+    /**
+     * Successful Response
+     */
+    200: DeviceCommandResponse;
+};
+
+export type SendDeviceCommandApiV1DevicesDeviceIdCommandPostResponse = SendDeviceCommandApiV1DevicesDeviceIdCommandPostResponses[keyof SendDeviceCommandApiV1DevicesDeviceIdCommandPostResponses];
+
+export type RebootDeviceApiV1DevicesDeviceIdRebootPostData = {
+    body?: never;
+    path: {
+        /**
+         * Device Id
+         */
+        device_id: string;
+    };
+    query?: never;
+    url: '/api/v1/devices/{device_id}/reboot';
+};
+
+export type RebootDeviceApiV1DevicesDeviceIdRebootPostErrors = {
+    /**
+     * Validation Error
+     */
+    422: HttpValidationError;
+};
+
+export type RebootDeviceApiV1DevicesDeviceIdRebootPostError = RebootDeviceApiV1DevicesDeviceIdRebootPostErrors[keyof RebootDeviceApiV1DevicesDeviceIdRebootPostErrors];
+
+export type RebootDeviceApiV1DevicesDeviceIdRebootPostResponses = {
+    /**
+     * Successful Response
+     */
+    200: DeviceCommandResponse;
+};
+
+export type RebootDeviceApiV1DevicesDeviceIdRebootPostResponse = RebootDeviceApiV1DevicesDeviceIdRebootPostResponses[keyof RebootDeviceApiV1DevicesDeviceIdRebootPostResponses];
+
+export type ResetDeviceApiV1DevicesDeviceIdResetPostData = {
+    body?: never;
+    path: {
+        /**
+         * Device Id
+         */
+        device_id: string;
+    };
+    query?: never;
+    url: '/api/v1/devices/{device_id}/reset';
+};
+
+export type ResetDeviceApiV1DevicesDeviceIdResetPostErrors = {
+    /**
+     * Validation Error
+     */
+    422: HttpValidationError;
+};
+
+export type ResetDeviceApiV1DevicesDeviceIdResetPostError = ResetDeviceApiV1DevicesDeviceIdResetPostErrors[keyof ResetDeviceApiV1DevicesDeviceIdResetPostErrors];
+
+export type ResetDeviceApiV1DevicesDeviceIdResetPostResponses = {
+    /**
+     * Successful Response
+     */
+    200: DeviceCommandResponse;
+};
+
+export type ResetDeviceApiV1DevicesDeviceIdResetPostResponse = ResetDeviceApiV1DevicesDeviceIdResetPostResponses[keyof ResetDeviceApiV1DevicesDeviceIdResetPostResponses];
+
+export type SleepDeviceApiV1DevicesDeviceIdSleepPostData = {
+    body?: never;
+    path: {
+        /**
+         * Device Id
+         */
+        device_id: string;
+    };
+    query?: never;
+    url: '/api/v1/devices/{device_id}/sleep';
+};
+
+export type SleepDeviceApiV1DevicesDeviceIdSleepPostErrors = {
+    /**
+     * Validation Error
+     */
+    422: HttpValidationError;
+};
+
+export type SleepDeviceApiV1DevicesDeviceIdSleepPostError = SleepDeviceApiV1DevicesDeviceIdSleepPostErrors[keyof SleepDeviceApiV1DevicesDeviceIdSleepPostErrors];
+
+export type SleepDeviceApiV1DevicesDeviceIdSleepPostResponses = {
+    /**
+     * Successful Response
+     */
+    200: DeviceCommandResponse;
+};
+
+export type SleepDeviceApiV1DevicesDeviceIdSleepPostResponse = SleepDeviceApiV1DevicesDeviceIdSleepPostResponses[keyof SleepDeviceApiV1DevicesDeviceIdSleepPostResponses];
+
+export type RequestDeviceStatusApiV1DevicesDeviceIdStatusPostData = {
+    body?: never;
+    path: {
+        /**
+         * Device Id
+         */
+        device_id: string;
+    };
+    query?: never;
+    url: '/api/v1/devices/{device_id}/status';
+};
+
+export type RequestDeviceStatusApiV1DevicesDeviceIdStatusPostErrors = {
+    /**
+     * Validation Error
+     */
+    422: HttpValidationError;
+};
+
+export type RequestDeviceStatusApiV1DevicesDeviceIdStatusPostError = RequestDeviceStatusApiV1DevicesDeviceIdStatusPostErrors[keyof RequestDeviceStatusApiV1DevicesDeviceIdStatusPostErrors];
+
+export type RequestDeviceStatusApiV1DevicesDeviceIdStatusPostResponses = {
+    /**
+     * Successful Response
+     */
+    200: DeviceCommandResponse;
+};
+
+export type RequestDeviceStatusApiV1DevicesDeviceIdStatusPostResponse = RequestDeviceStatusApiV1DevicesDeviceIdStatusPostResponses[keyof RequestDeviceStatusApiV1DevicesDeviceIdStatusPostResponses];
+
+export type SendBulkCommandApiV1DevicesBulkCommandPostData = {
+    body: DeviceBulkCommandRequest;
+    path?: never;
+    query?: never;
+    url: '/api/v1/devices/bulk/command';
+};
+
+export type SendBulkCommandApiV1DevicesBulkCommandPostErrors = {
+    /**
+     * Validation Error
+     */
+    422: HttpValidationError;
+};
+
+export type SendBulkCommandApiV1DevicesBulkCommandPostError = SendBulkCommandApiV1DevicesBulkCommandPostErrors[keyof SendBulkCommandApiV1DevicesBulkCommandPostErrors];
+
+export type SendBulkCommandApiV1DevicesBulkCommandPostResponses = {
+    /**
+     * Successful Response
+     */
+    200: DeviceBulkCommandResponse;
+};
+
+export type SendBulkCommandApiV1DevicesBulkCommandPostResponse = SendBulkCommandApiV1DevicesBulkCommandPostResponses[keyof SendBulkCommandApiV1DevicesBulkCommandPostResponses];
+
+export type GetMqttStatusApiV1DevicesMqttStatusGetData = {
+    body?: never;
+    path?: never;
+    query?: never;
+    url: '/api/v1/devices/mqtt/status';
+};
+
+export type GetMqttStatusApiV1DevicesMqttStatusGetResponses = {
+    /**
+     * Response Get Mqtt Status Api V1 Devices Mqtt Status Get
+     *
+     * Successful Response
+     */
+    200: {
+        [key: string]: unknown;
+    };
+};
+
+export type GetMqttStatusApiV1DevicesMqttStatusGetResponse = GetMqttStatusApiV1DevicesMqttStatusGetResponses[keyof GetMqttStatusApiV1DevicesMqttStatusGetResponses];
 
 export type ReadAttendancesApiV1AttendanceGetData = {
     body?: never;

@@ -13,7 +13,12 @@
       "Bash(cat:*)",
       "Bash(ls -la \"c:\\\\laragon\\\\www\\\\kuilinga-front\\\\src\\\\api\"\" 2>/dev/null || dir /b \"c:laragonwwwkuilinga-frontsrcapi \")",
       "Bash(ls -la \"c:\\\\laragon\\\\www\\\\kuilinga-front\\\\src\\\\services\"\" 2>/dev/null || dir /b \"c:laragonwwwkuilinga-frontsrcservices \")",
-      "Bash(dir /b \"c:\\\\laragon\\\\www\\\\kuilinga-front\\\\src\\\\pages\")"
+      "Bash(dir /b \"c:\\\\laragon\\\\www\\\\kuilinga-front\\\\src\\\\pages\")",
+      "Bash(ls -la \"c:\\\\laragon\\\\www\\\\kuilinga-front\\\\src\\\\services\"\" 2>/dev/null || echo \"Services directory not found \")",
+      "Bash(ls -la \"c:\\\\laragon\\\\www\\\\kuilinga-front\\\\src\\\\pages\"\" 2>/dev/null || echo \"Pages directory not found \")",
+      "Bash(pnpm api:generate:*)",
+      "Bash(pnpm build:*)",
+      "Bash(git checkout:*)"
     ],
     "deny": [],
     "ask": []

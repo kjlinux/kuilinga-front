@@ -27,8 +27,6 @@ const Leaves = () => {
     refresh,
   } = useDataTable<Leave>({
     fetchData: leaveService.getLeaves,
-    defaultSortKey: "start_date",
-    defaultSortDirection: "desc",
   })
 
   const handleOpenDialog = (leave: Leave | null = null) => {

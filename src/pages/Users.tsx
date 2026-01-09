@@ -27,8 +27,6 @@ const Users = () => {
     refresh,
   } = useDataTable<User>({
     fetchData: userService.getUsers,
-    defaultSortKey: "full_name",
-    defaultSortDirection: "asc",
   })
 
   const handleOpenDialog = (user: User | null = null) => {

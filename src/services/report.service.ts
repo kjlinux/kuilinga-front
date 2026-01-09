@@ -1,4 +1,4 @@
-import { client } from "@/api/config";
+import { client } from "@/api/client.gen";
 
 class ReportService {
   async generateReportPreview(endpoint: string, filters: Record<string, unknown>): Promise<Record<string, unknown>> {

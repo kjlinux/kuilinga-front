@@ -30,13 +30,17 @@ interface UseDataTableProps<T> {
   defaultSortKey?: string;
   defaultSortDirection?: SortDirection;
   clientSideSort?: boolean; // If true, sorting is done client-side instead of server-side
+  clientSideSearch?: boolean; // If true, search is done client-side instead of server-side
+  searchKeys?: string[]; // Keys to search in for client-side search (default: ["name", "description"])
 }
 
 const useDataTable = <T>({
   fetchData,
-  defaultSortKey = "name",
-  defaultSortDirection = "asc",
-  clientSideSort = false
+  defaultSortKey = "created_at",
+  defaultSortDirection = "desc",
+  clientSideSort = false,
+  clientSideSearch = false,
+  searchKeys = ["name", "description"]
 }: UseDataTableProps<T>) => {
   const [data, setData] = useState<T[]>([])
   const [isLoading, setIsLoading] = useState(true)
@@ -75,17 +79,41 @@ const useDataTable = <T>({
     })
   }, [])
 
+  // Client-side search function
+  const filterData = useCallback((items: T[], searchTerm: string, keys: string[]): T[] => {
+    if (!searchTerm.trim()) return items
+    const lowerSearch = searchTerm.toLowerCase().trim()
+    return items.filter((item) => {
+      return keys.some((key) => {
+        const value = (item as Record<string, unknown>)[key]
+        if (value === null || value === undefined) return false
+        return String(value).toLowerCase().includes(lowerSearch)
+      })
+    })
+  }, [])
+
   const loadData = useCallback(async () => {
     setIsLoading(true)
     setError(null)
     try {
-      const response = await fetchData(pagination)
+      // For client-side search, don't pass search to API
+      const apiParams = clientSideSearch
+        ? { ...pagination, search: undefined }
+        : pagination
+      const response = await fetchData(apiParams)
 
       if (!response) {
         throw new Error("Aucune réponse reçue")
       }
 
       let items = response.items || []
+      let totalCount = response.total || 0
+
+      // Apply client-side search if enabled
+      if (clientSideSearch && pagination.search) {
+        items = filterData(items, pagination.search, searchKeys)
+        totalCount = items.length
+      }
 
       // Apply client-side sorting if enabled
       if (clientSideSort && sortConfig.key) {
@@ -93,7 +121,7 @@ const useDataTable = <T>({
       }
 
       setData(items)
-      setTotal(response.total || 0)
+      setTotal(totalCount)
     } catch (error) {
       console.error("Erreur lors de la récupération des données:", error)
       setError("Impossible de charger les données. Veuillez réessayer.")
@@ -102,7 +130,7 @@ const useDataTable = <T>({
     } finally {
       setIsLoading(false)
     }
-  }, [fetchData, pagination, clientSideSort, sortConfig, sortData])
+  }, [fetchData, pagination, clientSideSort, clientSideSearch, searchKeys, sortConfig, sortData, filterData])
 
   useEffect(() => {
     loadData()
@@ -129,7 +157,10 @@ const useDataTable = <T>({
     }))
   }
 
-  const refresh = () => {
+  const refresh = (resetToFirstPage = true) => {
+    if (resetToFirstPage) {
+      setPagination((prev) => ({ ...prev, skip: 0 }))
+    }
     loadData()
   }
 

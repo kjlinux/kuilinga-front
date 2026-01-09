@@ -55,6 +55,12 @@ export interface DataTableProps<T> {
   onDelete?: (item: T) => void
   onRetry?: () => void
   children?: ReactNode
+  // Selection props
+  selectable?: boolean
+  selectedIds?: string[]
+  onSelectionChange?: (ids: string[]) => void
+  // Custom actions render
+  renderActions?: (item: T) => ReactNode
 }
 
 export const DataTable = <T extends { id: string }>({
@@ -69,7 +75,39 @@ export const DataTable = <T extends { id: string }>({
   onSortChange,
   onEdit,
   onDelete,
+  selectable = false,
+  selectedIds = [],
+  onSelectionChange,
+  renderActions,
 }: DataTableProps<T>) => {
+  // Selection handlers
+  const isAllSelected = data.length > 0 && data.every((item) => selectedIds.includes(item.id))
+  const isSomeSelected = data.some((item) => selectedIds.includes(item.id)) && !isAllSelected
+
+  const handleSelectAll = () => {
+    if (!onSelectionChange) return
+    if (isAllSelected) {
+      // Deselect all current page items
+      onSelectionChange(selectedIds.filter((id) => !data.some((item) => item.id === id)))
+    } else {
+      // Select all current page items
+      const newIds = [...new Set([...selectedIds, ...data.map((item) => item.id)])]
+      onSelectionChange(newIds)
+    }
+  }
+
+  const handleSelectOne = (id: string) => {
+    if (!onSelectionChange) return
+    if (selectedIds.includes(id)) {
+      onSelectionChange(selectedIds.filter((i) => i !== id))
+    } else {
+      onSelectionChange([...selectedIds, id])
+    }
+  }
+
+  // Calculate column span (columns + checkbox + actions)
+  const hasActions = onEdit || onDelete || renderActions
+  const totalColumns = columns.length + (selectable ? 1 : 0) + (hasActions ? 1 : 0)
   // Normalize pagination to common format
   let skip = 0
   let limit = 10
@@ -178,6 +216,20 @@ export const DataTable = <T extends { id: string }>({
         <Table>
           <TableHeader>
             <TableRow>
+              {selectable && (
+                <TableHead className="w-12">
+                  <input
+                    type="checkbox"
+                    checked={isAllSelected}
+                    ref={(el) => {
+                      if (el) el.indeterminate = isSomeSelected
+                    }}
+                    onChange={handleSelectAll}
+                    className="w-4 h-4 rounded border-gray-300 text-primary focus:ring-primary cursor-pointer"
+                    title={isAllSelected ? "Tout deselectionner" : "Tout selectionner"}
+                  />
+                </TableHead>
+              )}
               {columns.map((col, index) => (
                 <TableHead
                   key={getColumnKey(col, index)}
@@ -190,13 +242,13 @@ export const DataTable = <T extends { id: string }>({
                   </span>
                 </TableHead>
               ))}
-              {(onEdit || onDelete) && <TableHead>Actions</TableHead>}
+              {hasActions && <TableHead>Actions</TableHead>}
             </TableRow>
           </TableHeader>
           <TableBody>
             {isLoading ? (
               <TableRow>
-                <TableCell colSpan={columns.length + 1}>
+                <TableCell colSpan={totalColumns}>
                   <div className="flex justify-center py-8">
                     <LoadingSpinner />
                   </div>
@@ -204,57 +256,73 @@ export const DataTable = <T extends { id: string }>({
               </TableRow>
             ) : error ? (
                 <TableRow>
-                    <TableCell colSpan={columns.length + 1} className="text-center py-8 text-red-500">
+                    <TableCell colSpan={totalColumns} className="text-center py-8 text-red-500">
                         {error}
                     </TableCell>
                 </TableRow>
             ) : data.length === 0 ? (
               <TableRow>
-                <TableCell colSpan={columns.length + 1} className="text-center py-8">
+                <TableCell colSpan={totalColumns} className="text-center py-8">
                   Aucune donnée trouvée
                 </TableCell>
               </TableRow>
             ) : (
-              data.map((item) => (
-                <motion.tr
-                  key={item.id}
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  className="hover:bg-gray-50 transition-colors"
-                >
-                  {columns.map((col, index) => (
-                    <TableCell key={getColumnKey(col, index)}>
-                      {getCellValue(item, col)}
-                    </TableCell>
-                  ))}
-                  {(onEdit || onDelete) && (
-                    <TableCell>
-                      <div className="flex items-center gap-2">
-                        {onEdit && (
-                          <button
-                            type="button"
-                            onClick={() => onEdit(item)}
-                            className="p-2 rounded-lg hover:bg-blue-50 text-blue-600 transition-colors"
-                            title="Modifier"
-                          >
-                            <Edit className="w-4 h-4" />
-                          </button>
-                        )}
-                        {onDelete && (
-                          <button
-                            type="button"
-                            onClick={() => onDelete(item)}
-                            className="p-2 rounded-lg hover:bg-red-50 text-red-600 transition-colors"
-                            title="Supprimer"
-                          >
-                            <Trash2 className="w-4 h-4" />
-                          </button>
-                        )}
-                      </div>
-                    </TableCell>
-                  )}
-                </motion.tr>
-              ))
+              data.map((item) => {
+                const isSelected = selectedIds.includes(item.id)
+                return (
+                  <motion.tr
+                    key={item.id}
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    className={`hover:bg-gray-50 transition-colors ${isSelected ? "bg-blue-50/50" : ""}`}
+                  >
+                    {selectable && (
+                      <TableCell className="w-12">
+                        <input
+                          type="checkbox"
+                          checked={isSelected}
+                          onChange={() => handleSelectOne(item.id)}
+                          className="w-4 h-4 rounded border-gray-300 text-primary focus:ring-primary cursor-pointer"
+                          title={isSelected ? "Deselectionner" : "Selectionner"}
+                          aria-label={isSelected ? "Deselectionner cette ligne" : "Selectionner cette ligne"}
+                        />
+                      </TableCell>
+                    )}
+                    {columns.map((col, index) => (
+                      <TableCell key={getColumnKey(col, index)}>
+                        {getCellValue(item, col)}
+                      </TableCell>
+                    ))}
+                    {hasActions && (
+                      <TableCell>
+                        <div className="flex items-center gap-2">
+                          {renderActions && renderActions(item)}
+                          {onEdit && (
+                            <button
+                              type="button"
+                              onClick={() => onEdit(item)}
+                              className="p-2 rounded-lg hover:bg-blue-50 text-blue-600 transition-colors"
+                              title="Modifier"
+                            >
+                              <Edit className="w-4 h-4" />
+                            </button>
+                          )}
+                          {onDelete && (
+                            <button
+                              type="button"
+                              onClick={() => onDelete(item)}
+                              className="p-2 rounded-lg hover:bg-red-50 text-red-600 transition-colors"
+                              title="Supprimer"
+                            >
+                              <Trash2 className="w-4 h-4" />
+                            </button>
+                          )}
+                        </div>
+                      </TableCell>
+                    )}
+                  </motion.tr>
+                )
+              })
             )}
           </TableBody>
         </Table>

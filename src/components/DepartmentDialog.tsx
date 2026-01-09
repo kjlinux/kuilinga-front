@@ -1,6 +1,7 @@
 import {
   Dialog,
   DialogContent,
+  DialogDescription,
   DialogHeader,
   DialogTitle,
   DialogFooter,
@@ -73,6 +74,9 @@ const DepartmentDialog = ({
       <DialogContent>
         <DialogHeader>
           <DialogTitle>{department ? "Modifier" : "Ajouter"} un département</DialogTitle>
+          <DialogDescription>
+            {department ? "Modifiez les informations du département" : "Remplissez les informations pour créer un nouveau département"}
+          </DialogDescription>
         </DialogHeader>
         <div className="space-y-4 py-4">
           <div className="space-y-2">
@@ -82,7 +86,11 @@ const DepartmentDialog = ({
           </div>
           <div className="space-y-2">
             <Label htmlFor="site_id">Site</Label>
-            <Select onValueChange={handleSelectChange("site_id")} value={formData.site_id ?? undefined}>
+            <Select
+              onValueChange={handleSelectChange("site_id")}
+              value={formData.site_id ?? ""}
+              disabled={!!department}
+            >
               <SelectTrigger>
                 <SelectValue placeholder="Sélectionner un site" />
               </SelectTrigger>
@@ -93,10 +101,11 @@ const DepartmentDialog = ({
               </SelectContent>
             </Select>
             {errors.site_id && <p className="text-red-500 text-sm">{errors.site_id}</p>}
+            {department && <p className="text-muted-foreground text-sm">Le site ne peut pas être modifié</p>}
           </div>
           <div className="space-y-2">
             <Label htmlFor="manager_id">Manager</Label>
-            <Select onValueChange={handleSelectChange("manager_id")} value={formData.manager_id ?? undefined}>
+            <Select onValueChange={handleSelectChange("manager_id")} value={formData.manager_id ?? ""}>
               <SelectTrigger>
                 <SelectValue placeholder="Sélectionner un manager" />
               </SelectTrigger>
